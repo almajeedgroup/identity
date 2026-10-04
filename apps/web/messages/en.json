@@ -1,0 +1,169 @@
+{
+  "meta": {
+    "title": "Identity — keep your documents valid and correct",
+    "description": "Check whether your Aadhaar, PAN and Voter ID agree, and learn how to fix them. In English, Kannada, Hindi and Urdu."
+  },
+  "brand": {
+    "name": "identity",
+    "tagline": "Valid. Correct. Yours.",
+    "unit": "A unit of Islamic Information Centre"
+  },
+  "nav": {
+    "skip": "Skip to main content",
+    "home": "Home",
+    "language": "Language",
+    "largeText": "Large text"
+  },
+  "common": {
+    "issues_one": "{count} issue",
+    "issues_other": "{count} issues"
+  },
+  "trust": {
+    "heading": "Why you can trust us",
+    "disclaimer": "Identity is a community help service of Islamic Information Centre. We are not a government office. All applications are submitted on official government portals, and fees are paid only to the issuing authority. We will never ask for your OTP, PIN or password.",
+    "otpWarning": "Identity will never ask for your OTP, PIN or password.",
+    "notGovernment": "We are not a government office.",
+    "officialOnly": "We link only to official government portals.",
+    "feesToAuthority": "Fees are paid only to the issuing authority.",
+    "officialLink": "Official site",
+    "opensNewTab": "opens in a new tab"
+  },
+  "home": {
+    "title": "Are your documents in agreement?",
+    "intro": "Small differences between your Aadhaar, PAN and Voter ID — a spelling, a date, an old address — can block bank KYC, scholarships, pensions and voting. Check yours in about 3 minutes.",
+    "start": "Start Health Check",
+    "privacy": "Nothing you type leaves your phone.",
+    "lastCheck": "Your last check",
+    "lastCheckOn": "Last check: {date}",
+    "viewResult": "See my result",
+    "assistedTitle": "Prefer help from a person?",
+    "assistedText": "A trained Identity volunteer can help you at the help desk, on a WhatsApp video call or at a community camp.",
+    "assistedLink": "Get assisted help",
+    "documentsTitle": "Documents we check now"
+  },
+  "check": {
+    "title": "Document Health Check",
+    "step": "Step {current} of {total}",
+    "back": "Back",
+    "next": "Next",
+    "seeResult": "See my result",
+    "start": {
+      "heading": "Before we start",
+      "privacy": "Everything you type stays on this phone. We never ask for Aadhaar, PAN or EPIC numbers, OTPs or photos.",
+      "ownPhone": "Is this your own phone?",
+      "ownPhoneYes": "Yes — keep my result on this phone",
+      "ownPhoneNo": "No — don't save anything",
+      "documents": "Which documents do you have?",
+      "documentsHint": "Choose all that you have.",
+      "noDocuments": "Choose at least one document."
+    },
+    "doc": {
+      "heading": "Your {document}",
+      "hint": "Type the details exactly as printed in English on the card. Leave a box empty if you are not sure.",
+      "name": "Name as on {document}",
+      "dob": "Date of birth",
+      "day": "Day",
+      "month": "Month",
+      "year": "Year",
+      "yearOnly": "Only the year is printed on the card",
+      "gender": "Gender",
+      "genderMale": "Male",
+      "genderFemale": "Female",
+      "genderTransgender": "Transgender",
+      "genderUnknown": "Not sure",
+      "locality": "Area or locality on the card",
+      "localityHint": "For example: Shivajinagar",
+      "invalidDate": "This date does not exist. Check the day, month and year."
+    },
+    "situation": {
+      "heading": "A few quick questions",
+      "livesAtAddress": "Do you still live at the address on your documents?",
+      "mobileLinked": "Is a mobile number linked to your Aadhaar?",
+      "mobileLinkedHint": "This is the number that receives Aadhaar OTPs.",
+      "documentsUpdated": "Have you updated your Aadhaar documents (proof of identity and address) in the last 10 years?",
+      "yes": "Yes",
+      "no": "No",
+      "unsure": "Not sure"
+    }
+  },
+  "result": {
+    "heading": "Your document health",
+    "scoreLabel": "Health score {score} out of 100",
+    "band": {
+      "all_valid": "All valid",
+      "good": "Good",
+      "needs_attention": "Needs attention"
+    },
+    "checked_one": "{count} document checked",
+    "checked_other": "{count} documents checked",
+    "documents": "Your documents",
+    "docValid": "Details agree",
+    "fix_one": "Fix {count} issue",
+    "fix_other": "Fix {count} issues",
+    "allValid": "Your documents agree with each other. Remember to keep them up to date.",
+    "assisted": "Book assisted help",
+    "report": "Mismatch report",
+    "mismatchIn": "Mismatch: {documents}",
+    "plan": "Your action plan",
+    "planIntro": "Do these in order. Each step links to the official site.",
+    "fixes": "Fixes: {fields}",
+    "form": "Form",
+    "where": "Where",
+    "fee": "Fee",
+    "feeUnknown": "Check the current fee on the official site.",
+    "verified": "Last verified by Identity on {date}",
+    "unverified": "Not yet verified by Identity — please confirm on the official site.",
+    "rechecking": "We are re-checking this information — please confirm on the official site.",
+    "variantNote": "Banks, scholarships and PAN–Aadhaar linking usually need exactly the same spelling on every document.",
+    "tips": "Worth checking",
+    "saved": "Saved on this phone only.",
+    "notSaved": "Not saved — you told us this is not your own phone.",
+    "clear": "Clear my data",
+    "cleared": "Your Health Check has been removed from this phone.",
+    "again": "Check again"
+  },
+  "status": {
+    "valid": "Valid",
+    "update_due": "Update due",
+    "mismatch": "Mismatch",
+    "in_progress": "In progress",
+    "ok": "OK"
+  },
+  "field": {
+    "name": "Name",
+    "dob": "Date of birth",
+    "gender": "Gender",
+    "address": "Address",
+    "mobile_link": "Mobile linked",
+    "documents": "Documents updated in 10 years"
+  },
+  "reason": {
+    "spacing": "The spacing of your name on {document} is different from {reference}.",
+    "initials": "{document} uses an initial instead of your full name as on {reference}.",
+    "abbreviation": "Your name is shortened on {document} (for example \"Mohd.\"). It should match {reference} exactly.",
+    "transliteration": "Your name is spelt differently on {document} and {reference}.",
+    "word_order": "The parts of your name are in a different order on {document}.",
+    "different_name": "The name on {document} is different from {reference}.",
+    "missing_or_extra_part": "Part of your name is missing or extra on {document} compared with {reference}.",
+    "date_differs": "The date of birth on {document} is different from {reference}.",
+    "year_only": "{document} shows only your year of birth.",
+    "year_differs": "The year of birth on {document} is different from {reference}.",
+    "gender_differs": "The gender on {document} is different from {reference}.",
+    "address_differs": "The address on {document} is different from {reference}.",
+    "moved": "You have moved, so the address on {document} needs updating.",
+    "mobile_not_linked": "No mobile number is linked to your Aadhaar, so you cannot receive OTPs.",
+    "documents_not_updated_10y": "Your Aadhaar documents have not been updated in the last 10 years."
+  },
+  "tip": {
+    "check_mobile_link": "Not sure if a mobile is linked to your Aadhaar? You can check on the myAadhaar portal or at an Aadhaar centre.",
+    "check_document_update": "Not sure when you last updated your Aadhaar documents? You can check on the myAadhaar portal.",
+    "check_address": "If you have moved, update your address — Aadhaar first, then your Voter ID."
+  },
+  "help": {
+    "title": "Get assisted help",
+    "intro": "A trained Identity volunteer can help you at the help desk, on a WhatsApp video call, at a community camp, or at home for elderly people and people with disabilities.",
+    "soon": "Online booking is coming soon. Until then, please visit the Identity help desk at Islamic Information Centre, Bengaluru.",
+    "bring": "Bring your original documents. If an OTP is needed, you will type it yourself.",
+    "backHome": "Back to home"
+  }
+}

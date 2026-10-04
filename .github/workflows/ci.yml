@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Spec gates, tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      - name: Unit and example tests (specs as fixtures)
+        run: npm test
+      - name: i18n completeness (F04)
+        run: npm run check:i18n
+      - name: No Aadhaar numbers (C-03)
+        run: npm run check:aadhaar
+      - name: Content bundle (F02)
+        run: npm run check:content
+      - name: Traceability (F12)
+        run: npm run trace
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Acceptance tests
+        run: npm run test:e2e
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            docs/traceability.md
+            playwright-report/
+          if-no-files-found: ignore

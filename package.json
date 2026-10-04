@@ -1,0 +1,36 @@
+{
+  "name": "identity",
+  "private": true,
+  "type": "module",
+  "description": "Identity Web App — citizen document-care platform (Islamic Information Centre)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "npm run dev -w @identity/web",
+    "build": "npm run build -w @identity/web",
+    "start": "npm run start -w @identity/web",
+    "typecheck": "tsc -p tsconfig.json --noEmit && npm run typecheck -w @identity/web",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "check:i18n": "tsx tools/i18n-check.ts",
+    "check:aadhaar": "tsx tools/aadhaar-scan.ts",
+    "check:content": "tsx tools/content-check.ts",
+    "trace": "tsx tools/trace.ts",
+    "ci": "npm run typecheck && npm test && npm run check:i18n && npm run check:aadhaar && npm run check:content && npm run trace && npm run build && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3",
+    "yaml": "^2.9.1"
+  }
+}

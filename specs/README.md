@@ -19,15 +19,17 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 
 **Status values:** Seeded → Draft → In review → Approved → Planned → In build → Verified → Released (or Superseded).
 
+> **Increment 1 (October 2026).** At the product sponsor's request, F01, F02, F03, F04, F12, M01 and M02 were specified in full and built ahead of Gate 1, using the proposed defaults in `open-questions.md`. They stay *In review* until the product owner and privacy officer are appointed (DEC-2) and approve them; `npm run trace` then starts enforcing full test coverage for them. See [`docs/traceability.md`](../docs/traceability.md).
+
 ## Register
 
 | ID | Spec | Phase | Size | Spec approved by | Build | Spec owner (role) | Depends on | Status |
 |---|---|---|---|---|---|---|---|---|
 | — | [Constitution](./constitution.md) | — | — | Week 1 | — | Product owner + privacy officer | — | Draft |
-| F01 | Domain model, glossary & case lifecycle | P1 | Full | Week 3 | S1 | Tech lead | Constitution | Seeded |
-| F02 | Document rules & content model | P1 | Full | Week 3 | S1 | Tech lead + content lead | F01 | Seeded |
-| F03 | Urbanist UI design system & status system | P1 | Full | Week 3 | S1 → S2 | UI/UX designer | — | Seeded |
-| F04 | Internationalisation & RTL | P1 | Full | Week 3 | S1 | Tech lead + content lead | F03 | Seeded |
+| F01 | [Domain model, glossary & case lifecycle](./F01-domain-model/spec.md) | P1 | Full | Week 3 | S1 | Tech lead | Constitution | In review · built in increment 1 |
+| F02 | [Document rules & content model](./F02-content-model/spec.md) | P1 | Full | Week 3 | S1 | Tech lead + content lead | F01 | In review · built in increment 1 |
+| F03 | [Urbanist UI design system & status system](./F03-design-system/spec.md) | P1 | Full | Week 3 | S1 → S2 | UI/UX designer | — | In review · built in increment 1 |
+| F04 | [Internationalisation & RTL](./F04-i18n/spec.md) | P1 | Full | Week 3 | S1 | Tech lead + content lead | F03 | In review · built in increment 1 |
 | F05 | Authentication & sessions | P1 | Full | Week 3 | S1 | Tech lead | F01, M15 | Seeded |
 | F06 | Privacy, consent & data lifecycle | P1 | Full | Week 3 | S1 → S4 | Privacy officer | F01 | Seeded |
 | F07 | Secure document handling | P1 | Full | Week 7 | S3 | Tech lead | F01, F06, M15 | Seeded |
@@ -35,9 +37,9 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | F09 | PWA, performance & offline | P1 | Full | Week 5 | S2 | Tech lead | F02, F03 | Seeded |
 | F10 | Trust & safety cues | P1 | Lite | Week 5 | S2 | UI/UX designer | F03, F04 | Seeded |
 | F11 | Measurement & KPI events | P1 | Full | Week 9 | S4 | Product owner | F01, F08 | Seeded |
-| F12 | Platform, environments & delivery | P1 | Full | Week 3 | S1 | Tech lead | ADR-001–004 | Seeded |
-| M01 | Health Check | P1 | Full | Week 5 | S2 | Product owner + designer | F02, F03, F04, F09, M02, D01–D03 | Seeded |
-| M02 | Mismatch Detector | P1 | Full | Week 5 | S2 | Product owner + tech lead | F02, D01–D04 | Seeded |
+| F12 | [Platform, environments & delivery](./F12-platform/spec.md) | P1 | Full | Week 3 | S1 | Tech lead | ADR-001–004 | In review · built in increment 1 |
+| M01 | [Health Check](./M01-health-check/spec.md) | P1 | Full | Week 5 | S2 | Product owner + designer | F02, F03, F04, F09, M02, D01–D03 | In review · built in increment 1 |
+| M02 | [Mismatch Detector](./M02-mismatch-detector/spec.md) | P1 | Full | Week 5 | S2 | Product owner + tech lead | F02, D01–D04 | In review · built in increment 1 |
 | M03 | Smart Guides | P1 | Full | Week 5 | S2 | Content lead + designer | F02, F09, F10, M13, D01–D04 | Seeded |
 | M04 | Request Help | P1 | Full | Week 7 | S3 | Product owner + designer | F01, F05, F06, F07, F08 | Seeded |
 | M05 | Book Appointment | P1 | Full | Week 7 | S3 | Product owner + field coordinator | F01, F05, F08 | Seeded |
@@ -51,9 +53,9 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | M13 | Content Manager | P1 | Full | Week 3 | S1 | Content lead + tech lead | F02, F04, M15 | Seeded |
 | M14 | Impact Dashboard | P2 | Full | Week 14 | Month 6 | Product owner | F11, M09, M11, M12 | Seeded |
 | M15 | Access & Audit | P1 | Full | Week 3 | S1 → S4 | Tech lead + privacy officer | F01, F05, F06 | Seeded |
-| D01 | Aadhaar | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seeded |
-| D02 | PAN | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seeded |
-| D03 | Voter ID (EPIC) | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seeded |
+| D01 | Aadhaar | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seed content entered (unverified) |
+| D02 | PAN | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seed content entered (unverified) |
+| D03 | Voter ID (EPIC) | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seed content entered (unverified) |
 | D04 | Cross-document journeys | P1 | Content | Week 5 | S2–S3 entry | Content lead | D01–D03 | Seeded |
 | D05 | Ration card | P2 | Content | Week 14 | Months 4–6 | Content lead | F02 | Seeded |
 | D06 | Birth & death certificates | P2 | Content | Week 14 | Months 4–6 | Content lead | F02 | Seeded |
