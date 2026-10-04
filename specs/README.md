@@ -1,0 +1,75 @@
+# Specs — register
+
+This folder is the **source of truth** for the behaviour of the Identity Web App. Read [`docs/sdd-plan.md`](../docs/sdd-plan.md) for how specs are written, reviewed, built and verified.
+
+| File | Purpose |
+|---|---|
+| [`constitution.md`](./constitution.md) | Non-negotiable principles C-01 to C-15. Every plan checks against them. |
+| [`backlog.md`](./backlog.md) | Seeded requirements, examples and acceptance scenarios for every spec below, taken from the DPR. |
+| [`open-questions.md`](./open-questions.md) | DPR decisions DEC-1 to DEC-6 and spec clarifications Q-01 to Q-25. |
+| [`_templates/`](./_templates/) | `spec.md`, `plan.md`, `tasks.md` templates. |
+
+## Starting a spec
+
+1. Copy `_templates/spec.md` to `specs/<ID>-<slug>/spec.md` (e.g. `specs/M02-mismatch-detector/spec.md`).
+2. Expand the seed from `backlog.md`; mark unknowns `[NEEDS CLARIFICATION: Q-xx]`.
+3. Open a pull request titled `spec(<ID>): …`; book it into the weekly spec review slot.
+4. After Gate 1, add `plan.md` (and `data-model.md`, `contracts/` if needed), then `tasks.md`.
+5. Update the **Status** column below in the same pull request whenever status changes.
+
+**Status values:** Seeded → Draft → In review → Approved → Planned → In build → Verified → Released (or Superseded).
+
+## Register
+
+| ID | Spec | Phase | Size | Spec approved by | Build | Spec owner (role) | Depends on | Status |
+|---|---|---|---|---|---|---|---|---|
+| — | [Constitution](./constitution.md) | — | — | Week 1 | — | Product owner + privacy officer | — | Draft |
+| F01 | Domain model, glossary & case lifecycle | P1 | Full | Week 3 | S1 | Tech lead | Constitution | Seeded |
+| F02 | Document rules & content model | P1 | Full | Week 3 | S1 | Tech lead + content lead | F01 | Seeded |
+| F03 | Urbanist UI design system & status system | P1 | Full | Week 3 | S1 → S2 | UI/UX designer | — | Seeded |
+| F04 | Internationalisation & RTL | P1 | Full | Week 3 | S1 | Tech lead + content lead | F03 | Seeded |
+| F05 | Authentication & sessions | P1 | Full | Week 3 | S1 | Tech lead | F01, M15 | Seeded |
+| F06 | Privacy, consent & data lifecycle | P1 | Full | Week 3 | S1 → S4 | Privacy officer | F01 | Seeded |
+| F07 | Secure document handling | P1 | Full | Week 7 | S3 | Tech lead | F01, F06, M15 | Seeded |
+| F08 | Notifications — WhatsApp & SMS | P1 | Full | Week 7 | S3 (→ S4) | Tech lead | F01, F04, F06 | Seeded |
+| F09 | PWA, performance & offline | P1 | Full | Week 5 | S2 | Tech lead | F02, F03 | Seeded |
+| F10 | Trust & safety cues | P1 | Lite | Week 5 | S2 | UI/UX designer | F03, F04 | Seeded |
+| F11 | Measurement & KPI events | P1 | Full | Week 9 | S4 | Product owner | F01, F08 | Seeded |
+| F12 | Platform, environments & delivery | P1 | Full | Week 3 | S1 | Tech lead | ADR-001–004 | Seeded |
+| M01 | Health Check | P1 | Full | Week 5 | S2 | Product owner + designer | F02, F03, F04, F09, M02, D01–D03 | Seeded |
+| M02 | Mismatch Detector | P1 | Full | Week 5 | S2 | Product owner + tech lead | F02, D01–D04 | Seeded |
+| M03 | Smart Guides | P1 | Full | Week 5 | S2 | Content lead + designer | F02, F09, F10, M13, D01–D04 | Seeded |
+| M04 | Request Help | P1 | Full | Week 7 | S3 | Product owner + designer | F01, F05, F06, F07, F08 | Seeded |
+| M05 | Book Appointment | P1 | Full | Week 7 | S3 | Product owner + field coordinator | F01, F05, F08 | Seeded |
+| M06 | Reminders | P2 | Full | Week 14 | Month 4 | Product owner | F02, F06, F08, M07 | Seeded |
+| M07 | Family Profile | P2 | Full | Week 14 | Month 4 | Product owner + privacy officer | F05, F06, M01 | Seeded |
+| M08 | Hub & Scam Alerts | P1 | Lite | Week 5 | S2 | Content lead | F02, F09, F10, M13 | Seeded |
+| M09 | Case Queue & SLA | P1 | Full | Week 7 | S3 | Field coordinator + designer | F01, F05, F07, M15 | Seeded |
+| M10 | Filing Assistant | P1 | Full | Week 9 | S4 | Field coordinator + content lead | M09, M13, D01–D03, F07, F08 | Seeded |
+| M11 | Camp Manager | P2 | Full | Week 14 | Month 5 | Field coordinator | M05, M09, M12 | Seeded |
+| M12 | Volunteer Hub | P2 | Full | Week 14 | Month 5 | Field coordinator | M15 | Seeded |
+| M13 | Content Manager | P1 | Full | Week 3 | S1 | Content lead + tech lead | F02, F04, M15 | Seeded |
+| M14 | Impact Dashboard | P2 | Full | Week 14 | Month 6 | Product owner | F11, M09, M11, M12 | Seeded |
+| M15 | Access & Audit | P1 | Full | Week 3 | S1 → S4 | Tech lead + privacy officer | F01, F05, F06 | Seeded |
+| D01 | Aadhaar | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seeded |
+| D02 | PAN | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seeded |
+| D03 | Voter ID (EPIC) | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seeded |
+| D04 | Cross-document journeys | P1 | Content | Week 5 | S2–S3 entry | Content lead | D01–D03 | Seeded |
+| D05 | Ration card | P2 | Content | Week 14 | Months 4–6 | Content lead | F02 | Seeded |
+| D06 | Birth & death certificates | P2 | Content | Week 14 | Months 4–6 | Content lead | F02 | Seeded |
+| D07 | Income, caste & residence certificates | P2 | Content | Week 14 | Months 4–6 | Content lead | F02 | Seeded |
+| D08 | Passport | P2 | Content | Week 14 | Months 4–6 | Content lead | F02 | Seeded |
+| D09 | Driving licence | P2 | Content | Week 14 | Months 4–6 | Content lead | F02 | Seeded |
+| D10 | Scholarship document readiness (NSP, SSP) | P3 | Content | Month 6 | Months 7–12 | Content lead | F02 | Seeded |
+| D11 | e-Shram card | P3 | Content | Month 6 | Months 7–12 | Content lead | F02 | Seeded |
+| D12 | Ayushman Bharat (PM-JAY) | P3 | Content | Month 6 | Months 7–12 | Content lead | F02 | Seeded |
+| D13 | UDID disability card | P3 | Content | Month 6 | Months 7–12 | Content lead | F02 | Seeded |
+| D14 | Senior-citizen & pension document checks | P3 | Content | Month 6 | Months 7–12 | Content lead | F02 | Seeded |
+| X01 | DigiLocker / API Setu | P3 | Spike → Full | Month 8 | Months 8–10 | Tech lead + privacy officer | Eligibility | Seeded |
+| X02 | Partner centres | P3 | Full | Month 6 | Months 7–9 | Product owner | F01, M09, M15 | Seeded |
+| O01 | Pilot plan & measurement | P1 | Lite | Week 9 | Weeks 12–14 | Product owner | F11 | Seeded |
+| O02 | Incident response & breach runbook | P1 | Lite | Week 9 | S4 | Privacy officer | F06, M15 | Seeded |
+| O03 | Content verification operations | P1 | Lite | Week 9 | S4, monthly | Content lead | M13 | Seeded |
+| O04 | DPDP readiness check | P2 | Lite | Month 5 | Month 7 | Privacy officer | F06, F07, M15, O02 | Seeded |
+
+**MVP (Phase 1) modules:** M01, M02, M03, M04, M05, M08, M09, M10, M13, M15 — 10 modules, as in DPR §05.

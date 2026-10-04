@@ -1,0 +1,54 @@
+# Decisions and clarifications register
+
+Every open item that blocks or shapes a spec. During *Clarify*, the spec owner records the answer here **and** in the spec, then sets the status to *Resolved*.
+
+**Rules**
+
+- Each item has a proposed default. If no decision is made within **3 working days** of its "needed by" week, the default applies and is recorded as such.
+- *Blocking* items stop a spec passing Gate 1. Non-blocking items may proceed with the default.
+- Weeks are counted from project start (week 1 = w/c 2 November 2026, assuming approval).
+
+---
+
+## DPR decisions for IIC (DPR §13)
+
+| ID | Decision | Blocks | Needed by | Recommendation for the SDD plan | Status |
+|---|---|---|---|---|---|
+| DEC-1 | Approve Phase 0–1 scope (Aadhaar, PAN, Voter ID) and the ₹7.3 lakh indicative budget | Everything | Before week 1 | — | Open |
+| DEC-2 | Appoint a product owner and a privacy & grievance officer | **All spec approvals** (both are mandatory approvers) and constitution ratification | Week 1 | Appoint both before the first stakeholder workshop | Open |
+| DEC-3 | Confirm pilot location(s) and help-desk hours | M05 slots, M09 SLA calendar, O01 | Week 5 | Include evening hours (persona Ravi) | Open |
+| DEC-4 | Fee policy: fully free, or a nominal charge for assisted filing | M04, M05 (and Q-22) | Week 3 | Keep P1 fully free; revisit after the pilot with data | Open |
+| DEC-5 | Choose the web address; confirm the "Identity" name and mark | F03 branding, F08 sender names and DLT headers, F10 disclaimers and verification pages | Week 2 | Decide early: WhatsApp and DLT registrations depend on it | Open |
+| DEC-6 | Agree the funding route — donors, CSR or community contributions | M14 report formats | Month 4 | — | Open |
+
+---
+
+## Spec clarifications
+
+| ID | Question | Specs | Blocking? | Needed by | Proposed default | Owner | Status |
+|---|---|---|---|---|---|---|---|
+| Q-01 | **Health score model.** How is the 0–100 score calculated, and what are the bands? | M01 | Yes | Week 5 | A flat deduction of 14 points per open issue (floor 0) reproduces both DPR examples: 3 issues → 58, 2 issues → 72. Bands: 100 "All valid"; 70–99 "Good — N issues"; below 70 "Needs attention". Severity weighting only if pilot evidence supports it — and the DPR fixtures must still pass or be updated. | Product owner | Open |
+| Q-02 | **Reference document.** Which document do others get compared against? | M02 | Yes | Week 5 | Aadhaar ("align every document with Aadhaar", DPR §03). If the citizen says Aadhaar itself is wrong, the plan starts with an Aadhaar correction. | Product owner | Open |
+| Q-03 | **Name variants.** Which differences count as a mismatch — abbreviations (Mohd./Mohammed), transliterations (Mohammed/Muhammad), initials, word order, honorifics? | M02, D04 | Yes | Week 5 | Only case, spacing and punctuation differences are a *match*. Abbreviations, initials, transliterations and word order are *variants*, shown as mismatches with a gentler explanation, because they still fail KYC and PAN–Aadhaar linking. Confirm against the Phase 0 help-desk sample. | Product owner + content lead | Open |
+| Q-04 | **Where Health Check results live.** The DPR says nothing is stored unless a case is opened, but the home screen shows "Last check: today". | M01, M07 | Yes | Week 5 | Stored on the device only, with "clear my data". Synced to an account only with explicit consent, and only from P2 (Family Profile). | Privacy officer | Open |
+| Q-05 | **Account holder vs applicant; no phone; shared phones.** How are cases opened for someone else (e.g. a parent), and for people with no phone of their own (Haji Yusuf)? | F01, F05, M01, M04 | Yes | Week 3 | A case has an *applicant* separate from the *account holder*; the applicant's consent is recorded. Staff can create a case at the desk for someone with no phone; updates then go to a nominated number or are given at the desk. | Product owner + privacy officer | Open |
+| Q-06 | **Minors.** The DPDP Act treats people under 18 as children, requiring verifiable consent from a parent or guardian. How do personas like Ayesha (17) and child biometric reminders work? | F06, M01, M04, M06, M07 | Yes | Week 3 | Cases for under-18s are opened by a parent or guardian account, with guardian consent recorded; the Health Check (on-device) needs no consent. Confirm in the legal review. | Privacy officer | Open |
+| Q-07 | **Unmasked Aadhaar uploads.** What happens when a citizen uploads a copy showing the full number? | F07, M04, M09 | Yes | Week 7 | Guidance and a checkbox before upload. At "documents checked", staff flag an unmasked copy, request a masked one and delete the original immediately (audited). A client-side masking tool is considered for P2. | Privacy officer | Open |
+| Q-08 | **SLA definition.** Which days count as working days, and what pauses the clock? | M09, F11 | Yes | Week 7 | Desk working days (per DEC-3) excluding Karnataka public holidays. The clock pauses only in `awaiting_citizen`. | Field coordinator | Open |
+| Q-09 | **Priority rules.** What makes a case "elderly", "disability" or "deadline" priority, and in what order? | M09 | Yes | Week 7 | Deadline within 7 days first; then elderly (age threshold to be confirmed, e.g. 60+) or disability (self-declared); then normal; ties broken by SLA due time. | Field coordinator | Open |
+| Q-10 | **Doorstep visits.** Who is eligible and what area is covered? | M05 | Yes | Week 7 | Elderly with mobility difficulty, people with disabilities, the bedridden; within a set radius of the desk; coordinator approval. | Field coordinator | Open |
+| Q-11 | **Camp tokens in P1.** The DPR lists camp tokens under Book Appointment (P1) but Camp Manager is P2. Where is the line? | M05, M11 | No | Week 7 | P1: pre-booked QR tokens for the single pilot camp, set up by an admin. M11 (P2) adds events, registrations, on-site intake and token display. | Product owner | Open |
+| Q-12 | **External centres.** The DPR worked example says "Nearest Aadhaar centre · ₹75 · book a slot in-app". Identity cannot book UIDAI slots. What does "book a slot" mean? | M02, M03, M05 | Yes | Week 5 | Deep-link to official centre locators and appointment pages. "Book a slot in-app" books **Identity's** assisted help (desk or doorstep) to accompany the citizen. | Product owner | Open |
+| Q-13 | **WhatsApp provider, opt-in and fallback.** | F08 | Yes | Week 4 | Provider chosen in the first 30 days (ADR-009); opt-in at case creation; SMS fallback for "case received", appointment and "filed" messages. | Tech lead | Open |
+| Q-14 | **Anonymisation.** What exactly does "case records anonymised after 12 months" remove and keep? | F06, M15, M14 | Yes | Week 7 | Remove name, mobile, address, Aadhaar last four digits, acknowledgement numbers and free text. Keep service type, locality (ward level), dates, outcome, SLA and survey score. | Privacy officer | Open |
+| Q-15 | **Retention for other data** — audit logs, consent records, notification logs, staff accounts. | F06, M15 | Yes | Week 7 | Set in the legal review against the DPDP Act and Rules; configured, not coded. | Privacy officer | Open |
+| Q-16 | **Staff console language.** The DPR specifies four languages for citizens; the console is not mentioned. | F04, M09–M15 | No | Week 3 | English in P1, built translation-ready; Kannada considered for P2. | Product owner | Open |
+| Q-17 | **Device and network baseline** for the performance budget. | F09 | No | Week 5 | Low-end Android phone (2–3 GB RAM) on Chrome over throttled 3G / slow 4G; the latest two iOS Safari versions. | Tech lead | Open |
+| Q-18 | **Content workflow and staleness limit.** | F02, M13, O03 | Yes | Week 3 | Draft → language reviewer (per language) → publisher. Fees, forms and links need a second person to verify. Flagged as stale 35 days after last verification; shown as "re-checking" after 60. | Content lead | Open |
+| Q-19 | **Analytics tool, and how Health Checks are counted.** | F11 | No | Week 5 | Self-hosted, cookieless analytics in the India region (ADR-008). Count completions with issue-type counts only. | Tech lead + privacy officer | Open |
+| Q-20 | **Volunteer certification before the Volunteer Hub (P2).** | M15, M12 | Yes | Week 3 | In P1 a coordinator attests, in M15, identity verification, signed undertaking and training before case access is granted. | Field coordinator | Open |
+| Q-21 | **Content Manager: build or adopt?** | M13, F02 | Yes | Week 2 | Decide in ADR-003: build in-app, or adopt a Postgres-backed headless CMS that runs within the same stack (C-15). | Tech lead | Open |
+| Q-22 | **Payments.** | M04, M05 | No | Week 3 (after DEC-4) | No payment collection in P1 in any case. If a nominal assisted-filing charge is chosen, it gets its own spec in P2. Official fees are never collected (C-01). | Product owner | Open |
+| Q-23 | **Digits in Kannada, Hindi and Urdu.** Native or Western Arabic digits? | F04 | No | Week 3 | Western Arabic digits (0–9) everywhere, matching what is printed on documents and official portals. | Content lead | Open |
+| Q-24 | **Verified volunteer IDs.** How can a citizen check a volunteer is genuine? | F10, M15, M12 | No | Week 7 | ID card with photo and a QR code linking to a page on Identity's domain showing name, photo and active status only. | Field coordinator | Open |
+| Q-25 | **Backup recovery targets.** | F12 | No | Week 3 | Recovery point ≤ 24 hours (daily backups, per DPR); recovery time ≤ 8 hours; point-in-time recovery if the managed database offers it. | Tech lead | Open |
