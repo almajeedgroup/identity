@@ -23,6 +23,11 @@
   --color-amber-50: #FEF3DC;
   --color-coral-50: #FDECEC;
   --color-sky-50: #EAF1FE;
+  --color-yellow-700: #7A5C00;
+  --color-yellow-50: #FFF8D6;
+  --color-orange-700: #A84300;
+  --color-orange-50: #FFEEDF;
+  --color-slate-50: #EEF1F3;
 }
 
 @layer base {

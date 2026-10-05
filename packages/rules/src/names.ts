@@ -41,7 +41,7 @@ export function buildNameDictionary(groups: readonly NameVariantGroup[]): NameDi
   return map;
 }
 
-type TokenRelation = 'equal' | 'transliteration' | 'abbreviation' | 'initials' | 'different';
+export type TokenRelation = 'equal' | 'transliteration' | 'abbreviation' | 'initials' | 'different';
 const STRENGTH: Record<Exclude<TokenRelation, 'different'>, number> = {
   equal: 0,
   transliteration: 1,
@@ -49,7 +49,8 @@ const STRENGTH: Record<Exclude<TokenRelation, 'different'>, number> = {
   initials: 3,
 };
 
-function relation(x: string, y: string, dict: NameDictionary): TokenRelation {
+/** How two name words relate: shared by the Quick Check and the Full Check engine. */
+export function tokenRelation(x: string, y: string, dict: NameDictionary): TokenRelation {
   if (x === y) return 'equal';
   const ex = dict.get(x);
   const ey = dict.get(y);
@@ -59,12 +60,12 @@ function relation(x: string, y: string, dict: NameDictionary): TokenRelation {
 }
 
 /** Is there a one-to-one pairing of tokens where every pair is related? (small inputs: backtracking) */
-function hasRelatedPermutation(a: string[], b: string[], dict: NameDictionary): boolean {
+export function hasRelatedPermutation(a: string[], b: string[], dict: NameDictionary): boolean {
   const used = new Array<boolean>(b.length).fill(false);
   const visit = (i: number): boolean => {
     if (i === a.length) return true;
     for (let j = 0; j < b.length; j++) {
-      if (!used[j] && relation(a[i]!, b[j]!, dict) !== 'different') {
+      if (!used[j] && tokenRelation(a[i]!, b[j]!, dict) !== 'different') {
         used[j] = true;
         if (visit(i + 1)) return true;
         used[j] = false;
@@ -82,7 +83,7 @@ export function compareNames(a: string, b: string, dict: NameDictionary): NameCo
   if (ta.join('') === tb.join('')) return { result: 'variant', reason: 'spacing' };
   if (ta.length !== tb.length) return { result: 'different', reason: 'missing_or_extra_part' };
 
-  const relations = ta.map((x, i) => relation(x, tb[i]!, dict));
+  const relations = ta.map((x, i) => tokenRelation(x, tb[i]!, dict));
   if (!relations.includes('different')) {
     const strongest = (relations as Exclude<TokenRelation, 'different'>[]).reduce((s, r) => (STRENGTH[r] > STRENGTH[s] ? r : s), 'equal');
     // 'equal' cannot be strongest here: identical token lists returned 'match' above.

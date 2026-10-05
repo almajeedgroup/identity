@@ -314,6 +314,8 @@ export const seedBundle: ContentBundle = {
       { canonical: 'yusuf', variants: ['yusuf', 'yousuf', 'yusuff', 'yousaf', 'yusaf'], abbreviations: [] },
       { canonical: 'abdul', variants: ['abdul', 'abdool'], abbreviations: ['abd'] },
       { canonical: 'kumar', variants: ['kumar'], abbreviations: ['kr'] },
+      { canonical: 'rahim', variants: ['rahim', 'raheem', 'rahem'], abbreviations: [] },
+      { canonical: 'ibrahim', variants: ['ibrahim', 'ebrahim', 'ibraheem'], abbreviations: [] },
     ],
   },
 };

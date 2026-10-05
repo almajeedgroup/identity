@@ -21,6 +21,12 @@ export const colors = {
   amber50: '#FEF3DC',
   coral50: '#FDECEC',
   sky50: '#EAF1FE',
+  // F03-FR-08 severity tokens (PRD §12)
+  yellow700: '#7A5C00',
+  yellow50: '#FFF8D6',
+  orange700: '#A84300',
+  orange50: '#FFEEDF',
+  slate50: '#EEF1F3',
 } as const;
 
 export type ColorToken = keyof typeof colors;
@@ -33,6 +39,16 @@ export const status = {
 } as const satisfies Record<string, { text: ColorToken; tint: ColorToken }>;
 
 export type StatusKind = keyof typeof status;
+
+/** F03-FR-08 · The six Full Check statuses (M02-FR-14). */
+export const severity = {
+  exact_match: { colour: 'green', text: 'emerald700', tint: 'emerald50', icon: 'check' },
+  formatting_variation: { colour: 'green', text: 'emerald700', tint: 'emerald50', icon: 'check' },
+  likely_equivalent: { colour: 'yellow', text: 'yellow700', tint: 'yellow50', icon: 'approx' },
+  potential_discrepancy: { colour: 'orange', text: 'orange700', tint: 'orange50', icon: 'warning' },
+  major_discrepancy: { colour: 'red', text: 'coral700', tint: 'coral50', icon: 'cross' },
+  missing: { colour: 'grey', text: 'slate500', tint: 'slate50', icon: 'dash' },
+} as const satisfies Record<string, { colour: string; text: ColorToken; tint: ColorToken; icon: string }>;
 
 /** F03-FR-03 type scale: [size px, weight]. */
 export const type = {
