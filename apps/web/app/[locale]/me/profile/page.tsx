@@ -1,9 +1,9 @@
 import type { AddressValue } from '@identity/engine';
-import { requireProfile } from '@identity/services';
 import Link from 'next/link';
 import { Banner } from '@/components/fullcheck/Banner';
 import { SubmitButton } from '@/components/fullcheck/SubmitButton';
 import { updateProfileAction } from '@/lib/server/actions';
+import { PersonBar } from '@/components/fullcheck/PersonBar';
 import { requireFullCheck } from '@/lib/server/fullcheck';
 import { errorMessage, localeOf, query, type LocaleParams, type SearchParams } from '@/lib/server/page';
 
@@ -13,8 +13,8 @@ export const dynamic = 'force-dynamic';
 export default async function ProfilePage({ params, searchParams }: { params: LocaleParams; searchParams: SearchParams }) {
   const { locale, t } = await localeOf(params);
   const q = await query(searchParams);
-  const { s, userId, citizen } = await requireFullCheck(locale);
-  const [profile, { kb }] = await Promise.all([requireProfile(s.db, userId), s.knowledge()]);
+  const { s, userId, citizen, person, hasFamily } = await requireFullCheck(locale);
+  const [profile, { kb }] = await Promise.all([person, s.knowledge()]);
   const address = (profile.currentAddress ?? {}) as AddressValue;
   const states = kb.jurisdictions.filter((j) => j.code.split('-').length === 2);
   const error = errorMessage(t, q.error);
@@ -30,10 +30,12 @@ export default async function ProfilePage({ params, searchParams }: { params: Lo
   return (
     <div className="space-y-6">
       <h1 className="text-[2rem] leading-tight font-extrabold">{t('profile.title')}</h1>
+      <PersonBar t={t} locale={locale} person={person} hasFamily={hasFamily} />
       <p>{t('profile.intro')}</p>
       {q.saved && <Banner tone="success">{t('profile.saved')}</Banner>}
       {error && <Banner tone="error">{error}</Banner>}
       <form action={updateProfileAction} className="card space-y-5">
+        <input type="hidden" name="person" value={person.id} />
         <input type="hidden" name="locale" value={locale} />
         {text('display_name', t('profile.displayName'), profile.displayName, { autoComplete: 'name' })}
         <div>

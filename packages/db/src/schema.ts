@@ -96,8 +96,13 @@ export const citizenProfiles = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    /** "self" now; family members (M07, P1) add other relationships. */
+    /** "self" for the account holder; family members (M07) are `father`, `mother`, `spouse`, `child` or `other`. */
     relationship: text('relationship').notNull().default('self'),
+    /** M07-AC-1.1 · for a child: the holder's role (`father`, `mother`, `guardian`). */
+    parentRole: text('parent_role'),
+    /** M07-FR-01 · the holder's declaration: `their_permission` or `guardian`. */
+    consentBasis: text('consent_basis'),
+    declaredAt: ts('declared_at'),
     displayName: text('display_name'),
     jurisdiction: text('jurisdiction').notNull().default('IN-KA'),
     district: text('district'),

@@ -26,6 +26,8 @@ import {
   withdrawAssistance,
   setSmsUpdates,
   acceptCaseFee,
+  addFamilyMember,
+  removeFamilyMember,
   type HelpMode,
   type DocumentValues,
   type Purpose,
@@ -34,12 +36,14 @@ import type { PriorityFlag } from '@identity/domain';
 import { redirect } from 'next/navigation';
 import { isLocale, type Locale } from '@/i18n/config';
 import { platform } from './platform';
-import { clearPendingMobile, clearSessionCookie, currentCitizen, pendingMobile, setPendingMobile, setSessionCookie } from './session';
+import { choosePerson, clearPendingMobile, clearSessionCookie, currentCitizen, pendingMobile, setPendingMobile, setSessionCookie } from './session';
 
 const str = (fd: FormData, key: string) => {
   const v = fd.get(key);
   return typeof v === 'string' ? v : '';
 };
+/** M07 · The profile a form was rendered for (a hidden `person` field); the holder's own when absent. */
+const personOf = (fd: FormData) => str(fd, 'person') || null;
 const localeOf = (fd: FormData): Locale => {
   const v = fd.get('locale');
   return isLocale(v) ? v : 'en';
@@ -134,7 +138,7 @@ export async function addTypedDocumentAction(fd: FormData) {
   const { citizen, p } = await signedIn(locale);
   const kind = str(fd, 'kind');
   await act(`/${locale}/me/documents/new/${kind}`, async () => {
-    await addTypedDocument(p.services, citizen.user.id, { kind, values: valuesFrom(fd), number: str(fd, 'number') });
+    await addTypedDocument(p.services, citizen.user.id, { kind, values: valuesFrom(fd), number: str(fd, 'number'), profileId: personOf(fd) });
     return `/${locale}/me/documents?added=1`;
   });
 }
@@ -147,7 +151,7 @@ export async function uploadDocumentAction(fd: FormData) {
   const back = `/${locale}/me/documents/new/${kind}`;
   if (!(file instanceof File) || file.size === 0) redirect(`${back}?error=no_file`);
   await act(back, async () => {
-    const outcome = await uploadDocument(p.services, citizen.user.id, { kind, bytes: new Uint8Array(await file.arrayBuffer()) });
+    const outcome = await uploadDocument(p.services, citizen.user.id, { kind, bytes: new Uint8Array(await file.arrayBuffer()), profileId: personOf(fd) });
     return `/${locale}/me/documents/${outcome.documentId}${outcome.kindMismatch && outcome.detectedKind ? `?looksLike=${outcome.detectedKind}` : ''}`;
   });
 }
@@ -213,7 +217,7 @@ export async function confirmTargetAction(fd: FormData) {
     }
   }
   await act(`${back}#target-${field}`, async () => {
-    const profile = await requireProfile(p.db, citizen.user.id);
+    const profile = await requireProfile(p.db, citizen.user.id, personOf(fd));
     await confirmTarget(p.services, { kind: 'citizen', id: citizen.user.id }, profile.id, field, value);
     return `${back}?saved=${field}#target-${field}`;
   });
@@ -227,7 +231,7 @@ export async function setOverrideAction(fd: FormData) {
   if (!isField(field)) redirect(`${back}?error=invalid_field`);
   const decision = str(fd, 'decision') === 'requires_correction' ? 'requires_correction' : 'accepted_equivalent';
   await act(`${back}#target-${field}`, async () => {
-    const profile = await requireProfile(p.db, citizen.user.id);
+    const profile = await requireProfile(p.db, citizen.user.id, personOf(fd));
     await setOverride(p.services, { kind: 'citizen', id: citizen.user.id }, profile.id, { documentId: str(fd, 'document'), field, decision, reason: str(fd, 'reason') });
     // A query change (not just a hash) makes the router fetch the updated report.
     return `${back}?decision=${field}#target-${field}`;
@@ -239,7 +243,7 @@ export async function revokeOverrideAction(fd: FormData) {
   const { citizen, p } = await signedIn(locale);
   const back = `/${locale}/me/report`;
   await act(back, async () => {
-    const profile = await requireProfile(p.db, citizen.user.id);
+    const profile = await requireProfile(p.db, citizen.user.id, personOf(fd));
     await revokeOverride(p.services, { kind: 'citizen', id: citizen.user.id }, profile.id, str(fd, 'id'));
     return `${back}?decision=removed`;
   });
@@ -257,7 +261,7 @@ export async function updateProfileAction(fd: FormData) {
       district: str(fd, 'district'),
       email: str(fd, 'email'),
       currentAddress: { line: str(fd, 'address_line'), city: str(fd, 'address_city'), district: str(fd, 'address_district'), state: str(fd, 'address_state'), pin: str(fd, 'address_pin') },
-    });
+    }, personOf(fd));
     return `/${locale}/me/profile?saved=1`;
   });
 }
@@ -279,6 +283,7 @@ export async function withdrawFullCheckAction(fd: FormData) {
   confirmed(fd, locale);
   const { citizen, p } = await signedIn(locale);
   await withdrawFullCheck(p.services, citizen.user.id);
+  await choosePerson(null);
   redirect(`/${locale}/me?done=withdrawn`);
 }
 
@@ -287,6 +292,7 @@ export async function closeAccountAction(fd: FormData) {
   confirmed(fd, locale);
   const { citizen, p } = await signedIn(locale);
   await closeAccount(p.services, citizen.user.id);
+  await choosePerson(null);
   await clearSessionCookie();
   redirect(`/${locale}/goodbye`);
 }
@@ -363,5 +369,44 @@ export async function acceptFeeAction(fd: FormData) {
   await act(`/${locale}/me/cases/${id}`, async () => {
     await acceptCaseFee(p.services, citizen.user.id, id);
     return `/${locale}/me/cases/${id}?feeAccepted=1`;
+  });
+}
+
+// ---------------------------------------------------------------- family (M07)
+
+export async function addFamilyMemberAction(fd: FormData) {
+  const locale = localeOf(fd);
+  const { citizen, p } = await signedIn(locale);
+  await act(`/${locale}/me/family`, async () => {
+    const id = await addFamilyMember(p.services, citizen.user.id, {
+      name: str(fd, 'name'),
+      relationship: str(fd, 'relationship'),
+      parentRole: str(fd, 'parent_role') || undefined,
+      declared: str(fd, 'declared') === 'yes',
+    });
+    await choosePerson(id);
+    return `/${locale}/me/documents?person=added`;
+  });
+}
+
+/** M07-FR-02 · Choose whose documents to look at; the id is checked on every request. */
+export async function choosePersonAction(fd: FormData) {
+  const locale = localeOf(fd);
+  const { citizen, p } = await signedIn(locale);
+  await act(`/${locale}/me/family`, async () => {
+    const profile = await requireProfile(p.db, citizen.user.id, personOf(fd));
+    await choosePerson(profile.relationship === 'self' ? null : profile.id);
+    return `/${locale}/me?person=${profile.relationship === 'self' ? 'self' : 'member'}`;
+  });
+}
+
+export async function removeFamilyMemberAction(fd: FormData) {
+  const locale = localeOf(fd);
+  const back = `/${locale}/me/family`;
+  if (str(fd, 'confirm') !== 'yes') redirect(`${back}?error=must_confirm`);
+  const { citizen, p } = await signedIn(locale);
+  await act(back, async () => {
+    await removeFamilyMember(p.services, citizen.user.id, str(fd, 'person'));
+    return `${back}?removed=1`;
   });
 }

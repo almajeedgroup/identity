@@ -9,6 +9,7 @@ import { Banner } from '@/components/fullcheck/Banner';
 import { DocumentFieldsForm, type ReadField } from '@/components/fullcheck/DocumentFieldsForm';
 import { SubmitButton } from '@/components/fullcheck/SubmitButton';
 import { changeKindAction, confirmDocumentAction, deleteDocumentAction, editDocumentAction } from '@/lib/server/actions';
+import { PersonBar } from '@/components/fullcheck/PersonBar';
 import { requireFullCheck } from '@/lib/server/fullcheck';
 import { errorMessage, formatDate, localeOf, query, type SearchParams } from '@/lib/server/page';
 
@@ -19,7 +20,7 @@ export default async function DocumentPage({ params, searchParams }: { params: P
   const { locale, t } = await localeOf(params);
   const { id } = await params;
   const q = await query(searchParams);
-  const { s, userId } = await requireFullCheck(locale);
+  const { s, userId, person, hasFamily } = await requireFullCheck(locale);
   const doc = await getDocument(s, userId, id);
   if (!doc) notFound();
   const { kb } = await s.knowledge();
@@ -48,6 +49,7 @@ export default async function DocumentPage({ params, searchParams }: { params: P
     return (
       <div className="space-y-6">
         <h1 className="text-[2rem] leading-tight font-extrabold">{t('verify.title', { document: label })}</h1>
+        <PersonBar t={t} locale={locale} person={person} hasFamily={hasFamily} />
         <p className="text-lg">{t('verify.intro')}</p>
         {error && <Banner tone="error">{error}</Banner>}
         {looksLike && (
@@ -77,6 +79,7 @@ export default async function DocumentPage({ params, searchParams }: { params: P
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-[2rem] leading-tight font-extrabold">{label}</h1>
+        <PersonBar t={t} locale={locale} person={person} hasFamily={hasFamily} />
         <StatusChip status="ok" label={t('docs.status.verified')} />
       </div>
       {q.confirmed && <Banner tone="success">{t('verify.confirmed')}</Banner>}

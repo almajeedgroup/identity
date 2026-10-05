@@ -69,9 +69,9 @@ export interface CheckResult {
  * Runs the engine on the citizen's confirmed data. A snapshot is stored whenever the outcome changes, so the report can
  * say which issues were resolved since the previous check.
  */
-export async function runFullCheck(s: Services, userId: string): Promise<CheckResult> {
+export async function runFullCheck(s: Services, userId: string, profileId?: string | null): Promise<CheckResult> {
   await requireConsent(s.db, userId, 'full_check');
-  const profile = await requireProfile(s.db, userId);
+  const profile = await requireProfile(s.db, userId, profileId);
   const knowledge = await s.knowledge();
   const now = nowOf(s);
   const { input, overrides, pending } = await buildAnalyseInput(s.db, profile);

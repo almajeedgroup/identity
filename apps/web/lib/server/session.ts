@@ -51,3 +51,15 @@ export async function pendingMobile(): Promise<string | null> {
 export async function clearPendingMobile() {
   (await cookies()).delete(PENDING_MOBILE_COOKIE);
 }
+
+/** M07-FR-02 · Whose documents the holder is looking at: a profile id, checked against the holder on every request. */
+export const PERSON_COOKIE = 'identity_person';
+
+export async function chosenPerson(): Promise<string | null> {
+  return (await cookies()).get(PERSON_COOKIE)?.value ?? null;
+}
+
+export async function choosePerson(profileId: string | null) {
+  if (profileId) (await cookies()).set(PERSON_COOKIE, profileId, await cookieOptions(SESSION_POLICY.citizen.maxMs / 1000));
+  else (await cookies()).delete(PERSON_COOKIE);
+}

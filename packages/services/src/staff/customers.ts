@@ -20,6 +20,8 @@ export interface CustomerRow {
   uploads: boolean;
   documents: number;
   issues: number | null;
+  /** M07 · family members managed from this account. */
+  family: number;
 }
 
 export interface CustomerDetail extends CustomerRow {
@@ -34,7 +36,7 @@ async function rowsFor(s: Services, list: (typeof users.$inferSelect)[]): Promis
   const ids = list.map((u) => u.id);
   const [active, profiles] = await Promise.all([
     s.db.select({ userId: consents.userId, purpose: consents.purpose }).from(consents).where(and(inArray(consents.userId, ids), isNull(consents.withdrawnAt))),
-    s.db.select({ id: citizenProfiles.id, userId: citizenProfiles.userId }).from(citizenProfiles).where(inArray(citizenProfiles.userId, ids)),
+    s.db.select({ id: citizenProfiles.id, userId: citizenProfiles.userId, relationship: citizenProfiles.relationship }).from(citizenProfiles).where(inArray(citizenProfiles.userId, ids)),
   ]);
   const profileIds = profiles.map((p) => p.id);
   const [docs, runs] = profileIds.length
@@ -44,7 +46,8 @@ async function rowsFor(s: Services, list: (typeof users.$inferSelect)[]): Promis
       ])
     : [[], []];
   return list.map((u) => {
-    const profile = profiles.find((p) => p.userId === u.id);
+    const own = profiles.filter((p) => p.userId === u.id);
+    const profile = own.find((p) => p.relationship === 'self');
     const latest = profile ? runs.find((r) => r.profileId === profile.id) : undefined;
     return {
       id: u.id,
@@ -54,8 +57,9 @@ async function rowsFor(s: Services, list: (typeof users.$inferSelect)[]): Promis
       lastSeenAt: u.lastSeenAt,
       fullCheck: active.some((c) => c.userId === u.id && c.purpose === 'full_check'),
       uploads: active.some((c) => c.userId === u.id && c.purpose === 'uploads'),
-      documents: profile ? docs.filter((d) => d.profileId === profile.id).length : 0,
+      documents: docs.filter((d) => own.some((p) => p.id === d.profileId)).length,
       issues: latest ? latest.issueCount : null,
+      family: own.filter((p) => p.relationship !== 'self').length,
     };
   });
 }
@@ -82,8 +86,11 @@ export async function getCustomer(s: Services, actor: StaffActor, userId: string
   const [user] = await s.db.select().from(users).where(eq(users.id, userId)).limit(1);
   if (!user) return null;
   const [row] = await rowsFor(s, [user]);
-  const [profile] = await s.db.select({ id: citizenProfiles.id }).from(citizenProfiles).where(eq(citizenProfiles.userId, userId)).limit(1);
-  const kinds = profile ? await s.db.select({ kind: documents.kind, status: documents.status }).from(documents).where(eq(documents.profileId, profile.id)) : [];
+  const kinds = await s.db
+    .select({ kind: documents.kind, status: documents.status })
+    .from(documents)
+    .innerJoin(citizenProfiles, eq(documents.profileId, citizenProfiles.id))
+    .where(eq(citizenProfiles.userId, userId));
   await writeAudit(s.db, { actorKind: 'staff', actorId: actor.id, action: 'customer.viewed', subjectKind: 'user', subjectId: userId }, nowOf(s));
   return { ...row!, documentKinds: kinds };
 }

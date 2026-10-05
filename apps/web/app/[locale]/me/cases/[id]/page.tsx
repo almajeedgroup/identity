@@ -28,6 +28,7 @@ export default async function CasePage({ params, searchParams }: { params: Promi
       <div className="space-y-1">
         <h1 className="text-[2rem] leading-tight font-extrabold">{t('cases.caseTitle', { id: ltr(c.caseId) })}</h1>
         <p className="text-lg">{kb.catalogue.find((d) => d.kind === c.documentKind)?.label[locale]}</p>
+        {c.person.relationship !== 'self' && <p data-testid="case-person">{t('cases.forPerson', { name: c.person.name ?? '', relationship: t(`family.rel.${c.person.relationship}`) })}</p>}
       </div>
       {q.created && <Banner tone="success">{t('cases.created', { id: ltr(c.caseId) })}</Banner>}
       {q.existing && <Banner tone="success">{t('cases.existing')}</Banner>}

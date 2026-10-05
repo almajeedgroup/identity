@@ -65,7 +65,10 @@ export type ErrorCode =
   | 'not_allowed'
   | 'not_awaiting'
   | 'proof_required'
-  | 'already_assigned';
+  | 'already_assigned'
+  // family (M07)
+  | 'family_full'
+  | 'declaration_required';
 
 /** A refusal the citizen can act on; the web layer turns the code into a message. */
 export class ServiceError extends Error {

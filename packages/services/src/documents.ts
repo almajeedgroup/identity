@@ -56,9 +56,9 @@ const numberColumns = (n: CleanNumber | null | undefined) => (n === undefined ? 
 // ---------------------------------------------------------------- typed (M17 US1)
 
 /** M17-AC-1.2 · Typed values are original and confirmed at once; the document counts immediately. */
-export async function addTypedDocument(s: Services, userId: string, input: { kind: string; values: DocumentValues; number?: string }): Promise<string> {
+export async function addTypedDocument(s: Services, userId: string, input: { kind: string; values: DocumentValues; number?: string; profileId?: string | null }): Promise<string> {
   await requireConsent(s.db, userId, 'full_check');
-  const profile = await requireProfile(s.db, userId);
+  const profile = await requireProfile(s.db, userId, input.profileId);
   const { kb } = await s.knowledge();
   const kind = checkKind(kb, input.kind);
   const values = cleanValues(kb, kind, input.values);
@@ -158,10 +158,10 @@ export interface UploadOutcome {
  * M17-FR-03 · Read first, store after: an upload showing a full Aadhaar number is discarded before anything is
  * written (M17-AC-2.3), and a file without text is not kept (M17-AC-4.1).
  */
-export async function uploadDocument(s: Services, userId: string, input: { kind: string; bytes: Uint8Array }): Promise<UploadOutcome> {
+export async function uploadDocument(s: Services, userId: string, input: { kind: string; bytes: Uint8Array; profileId?: string | null }): Promise<UploadOutcome> {
   await requireConsent(s.db, userId, 'full_check');
   await requireConsent(s.db, userId, 'uploads');
-  const profile = await requireProfile(s.db, userId);
+  const profile = await requireProfile(s.db, userId, input.profileId);
   const { kb } = await s.knowledge();
   const kind = checkKind(kb, input.kind);
   if (input.bytes.byteLength > MAX_UPLOAD_BYTES) throw new ServiceError('too_large');
@@ -431,8 +431,8 @@ async function views(s: Services, docs: DocumentRow[]): Promise<DocumentView[]> 
   });
 }
 
-export async function listDocuments(s: Services, userId: string): Promise<DocumentView[]> {
-  const profile = await requireProfile(s.db, userId);
+export async function listDocuments(s: Services, userId: string, profileId?: string | null): Promise<DocumentView[]> {
+  const profile = await requireProfile(s.db, userId, profileId);
   const { kb } = await s.knowledge();
   const docs = await s.db.select().from(documents).where(eq(documents.profileId, profile.id)).orderBy(asc(documents.createdAt));
   const rank = (k: string) => kb.catalogue.findIndex((c) => c.kind === k);

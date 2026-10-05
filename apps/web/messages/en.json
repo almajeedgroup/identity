@@ -205,7 +205,9 @@
     "assistance_consent_required": "Please agree to the assistance notice first.",
     "no_correction_step": "There is no correction for this document in your plan right now.",
     "case_closed": "This case has already ended.",
-    "not_awaiting": "You can reply when 1dentity asks you for something."
+    "not_awaiting": "You can reply when 1dentity asks you for something.",
+    "family_full": "You can add up to 8 family members.",
+    "declaration_required": "Tick the box to confirm you may manage their documents."
   },
   "signIn": {
     "title": "Sign in for the Full Check",
@@ -281,7 +283,9 @@
     "navSettings": "Privacy and deletion",
     "navSettingsText": "See what you agreed to, withdraw it, or delete everything.",
     "navCases": "My help requests",
-    "navCasesText": "Follow the cases where 1dentity is helping you."
+    "navCasesText": "Follow the cases where 1dentity is helping you.",
+    "navFamily": "My family",
+    "navFamilyText": "Add family members and check their documents too."
   },
   "docs": {
     "title": "My documents",
@@ -651,7 +655,8 @@
       "completed": "Completed",
       "closed": "Closed",
       "withdrawn": "Withdrawn"
-    }
+    },
+    "forPerson": "For: {name} ({relationship})"
   },
   "notify": {
     "title": "Notifications",
@@ -702,5 +707,52 @@
     },
     "serviceFee": "For 1dentity's assistance with your correction.",
     "receiptNote": "This is not a government fee. Government fees are paid only to the issuing authority."
+  },
+  "family": {
+    "title": "My family",
+    "intro": "Check the documents of your family too. Each person has their own documents, report and plan — they are never mixed.",
+    "viewing": "Documents of: {name} ({relationship})",
+    "you": "You",
+    "change": "Change person",
+    "rel": {
+      "self": "you",
+      "father": "father",
+      "mother": "mother",
+      "spouse": "spouse",
+      "child": "child",
+      "other": "other"
+    },
+    "relLabel": {
+      "father": "My father",
+      "mother": "My mother",
+      "spouse": "My husband or wife",
+      "child": "My child",
+      "other": "Someone else in my family"
+    },
+    "roleLabel": {
+      "father": "Their father",
+      "mother": "Their mother",
+      "guardian": "Their guardian"
+    },
+    "add": "Add a family member",
+    "name": "Their name",
+    "relationship": "Who are they?",
+    "parentRole": "For a child: you are",
+    "declare": "I have their permission to manage their documents — or, for a child under 18, I am their parent or guardian.",
+    "limit": "You can add up to {count} family members.",
+    "added": "Family member added. You are now looking at their documents.",
+    "removed": "The family member and all their documents have been deleted.",
+    "empty": "You have not added any family members yet.",
+    "show": "Look at their documents",
+    "showing": "Now showing",
+    "showMine": "Look at my own documents",
+    "documents_one": "{count} document",
+    "documents_other": "{count} documents",
+    "remove": "Remove and delete their data",
+    "removeConfirm": "I understand that all their documents, files, reports and help requests will be deleted.",
+    "notesTitle": "Names of relatives on documents",
+    "notesIntro": "This is information only. It does not mean anything is wrong with your family relationship. Banks and offices may ask about it.",
+    "noteLine": "{document} of {whose}: {field} is printed as “{printed}”; the confirmed name is “{expected}”.",
+    "noNotes": "The relatives' names we could compare match."
   }
 }

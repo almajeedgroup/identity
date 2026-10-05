@@ -11,7 +11,7 @@ import { nowOf, ServiceError, type Services } from '../services';
 import { caseLedger, type LedgerEntry } from './payments';
 import { caseIdOf, cleanBody, isOpen, isUuid, loadCase, STANDARD_CHECKLIST, storeCaseFile, type CaseRow } from './common';
 
-const { caseEvents, caseFiles, caseNotes, caseTasks, cases, documentFields, documents, staffUsers } = tables;
+const { caseEvents, caseFiles, caseNotes, caseTasks, cases, citizenProfiles, documentFields, documents, staffUsers } = tables;
 
 export const HELP_MODES = ['desk', 'whatsapp_video', 'doorstep'] as const;
 export type HelpMode = (typeof HELP_MODES)[number];
@@ -24,9 +24,23 @@ export interface HelpRequest {
   deadlineNote?: string;
 }
 
-/** The correction step the citizen is asking help with, from their current roadmap. */
+/** The profile (the holder's or a family member's, M07-AC-1.3) that a document of this account belongs to. */
+async function profileOfDocument(s: Services, userId: string, documentId: string): Promise<string | null> {
+  if (!isUuid(documentId)) return null;
+  const [row] = await s.db
+    .select({ profileId: documents.profileId })
+    .from(documents)
+    .innerJoin(citizenProfiles, eq(documents.profileId, citizenProfiles.id))
+    .where(and(eq(documents.id, documentId), eq(citizenProfiles.userId, userId)))
+    .limit(1);
+  return row?.profileId ?? null;
+}
+
+/** The correction step the citizen is asking help with, from the roadmap of the person the document belongs to. */
 export async function correctionStepFor(s: Services, userId: string, documentId: string): Promise<CorrectionStep | null> {
-  const check = await runFullCheck(s, userId);
+  const profileId = await profileOfDocument(s, userId, documentId);
+  if (!profileId) return null;
+  const check = await runFullCheck(s, userId, profileId);
   const step = check.roadmap.steps.find((x): x is CorrectionStep => x.kind === 'correction' && x.document === documentId);
   return step ?? null;
 }
@@ -48,7 +62,7 @@ async function applicantName(s: Services, profileId: string, documentId: string,
 export async function requestHelp(s: Services, userId: string, input: HelpRequest): Promise<{ caseId: string; existing: boolean }> {
   await requireConsent(s.db, userId, 'full_check');
   await requireConsent(s.db, userId, 'assistance');
-  const profile = await requireProfile(s.db, userId);
+  const profile = await requireProfile(s.db, userId, await profileOfDocument(s, userId, input.documentId));
   if (!HELP_MODES.includes(input.helpMode)) throw new ServiceError('invalid_value');
   const priority = [...new Set(input.priority ?? [])].filter((p) => ['age60', 'disability', 'deadline'].includes(p));
   let deadline: string | null = null;
@@ -111,11 +125,18 @@ export interface CitizenCaseSummary {
   documentKind: string;
   createdAt: Date;
   updatedAt: Date;
+  /** M07-AC-1.3 · whose document the case is for: `self` or the family member's relationship and name. */
+  person: { relationship: string; name: string | null };
 }
 
 export async function listMyCases(s: Services, userId: string): Promise<CitizenCaseSummary[]> {
-  const rows = await s.db.select().from(cases).where(eq(cases.userId, userId)).orderBy(desc(cases.createdAt));
-  return rows.map((r) => ({ id: r.id, caseId: caseIdOf(r), state: r.state, documentKind: r.documentKind, createdAt: r.createdAt, updatedAt: r.updatedAt }));
+  const rows = await s.db
+    .select({ c: cases, relationship: citizenProfiles.relationship })
+    .from(cases)
+    .innerJoin(citizenProfiles, eq(cases.profileId, citizenProfiles.id))
+    .where(eq(cases.userId, userId))
+    .orderBy(desc(cases.createdAt));
+  return rows.map(({ c: r, relationship }) => ({ id: r.id, caseId: caseIdOf(r), state: r.state, documentKind: r.documentKind, createdAt: r.createdAt, updatedAt: r.updatedAt, person: { relationship, name: r.applicantName } }));
 }
 
 export interface CitizenCaseView extends CitizenCaseSummary {
@@ -148,6 +169,7 @@ export async function getMyCase(s: Services, userId: string, caseId: string): Pr
   const staffIds = [...new Set([row.assignedToId, ...notes.filter((n) => n.authorKind === 'staff').map((n) => n.authorId)].filter((x): x is string => !!x))];
   const people = staffIds.length ? await s.db.select({ id: staffUsers.id, name: staffUsers.name }).from(staffUsers).where(inArray(staffUsers.id, staffIds)) : [];
   const nameOf = (id: string | null) => (id ? shortName(people.find((p) => p.id === id)?.name ?? '', '1dentity') : null);
+  const [profile] = await s.db.select({ relationship: citizenProfiles.relationship }).from(citizenProfiles).where(eq(citizenProfiles.id, row.profileId)).limit(1);
   return {
     id: row.id,
     caseId: caseIdOf(row),
@@ -155,6 +177,7 @@ export async function getMyCase(s: Services, userId: string, caseId: string): Pr
     documentKind: row.documentKind,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
+    person: { relationship: profile?.relationship ?? 'self', name: row.applicantName },
     issues: (row.issues as { field: string; current: string; target: string }[]).map(({ field, current, target }) => ({ field, current, target })),
     governmentFees: row.governmentFees as CorrectionStep['governmentFees'],
     serviceFee: row.serviceFee as { amountInr: number } | null,

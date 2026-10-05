@@ -29,7 +29,7 @@ A citizen document-care platform from **1dentity, a unit of Islamic Information 
 | `tools/` | Spec loader, traceability, i18n, content and Aadhaar-number checks; OCR fixture generator |
 | `tests/acceptance` | Playwright acceptance tests, tagged with spec IDs |
 
-## Status — increment 5 (October 2026): the PRD's P0 scope
+## Status — increment 6d (October 2026): the PRD's P0 and P1 scope
 
 Built and tested, in English, Kannada, Hindi and Urdu (right to left):
 
@@ -38,7 +38,8 @@ Built and tested, in English, Kannada, Hindi and Urdu (right to left):
 3. **Assistance cases** — from any correction step a citizen can ask 1dentity for help (separate consent; the 1dentity fee shown apart from the government fee); staff see a masked queue ordered by priority and SLA, claim or assign cases, open the citizen's documents only for their own cases, work a checklist, write notes, record the authority's reference and close with proof; the citizen follows the case and replies.
 4. **Notifications** — every case change and upload appears in the citizen's notification list; citizens who opt in also get an SMS with only the case ID and a link to 1dentity (held at night, retried on failure).
 5. **Service fees** — 1dentity's fee for assistance is agreed by the citizen before anything is charged, paid at the help desk with a numbered receipt that says it is not a government fee; supervisors waive or refund with a reason and see revenue. Government fees are never collected.
-6. **Staff console** (`/staff`, English) — sign-in with an authenticator app, a dashboard of counts, a customer list that shows no personal data until a citizen asks for help, a rules admin where every change is a version that a publisher publishes (a second person for fees and links), verification against official sources, service prices, a filtered audit log with hash-chain check, and team management.
+6. **Family profiles** — up to 8 family members under one account, added with a recorded declaration (their permission, or parent or guardian of a child); each has their own documents, report, plan and help requests, and every screen says whose documents they are. Differences in a parent's or spouse's name between family members' documents are shown as information, never as a judgement on the relationship.
+7. **Staff console** (`/staff`, English) — sign-in with an authenticator app, a dashboard of counts, a customer list that shows no personal data until a citizen asks for help, a rules admin where every change is a version that a publisher publishes (a second person for fees and links), verification against official sources, service prices, a filtered audit log with hash-chain check, and team management.
 
 Before a public release:
 
@@ -47,7 +48,7 @@ Before a public release:
 - Correction rules, fees, forms and links are **not yet verified** on the official portals; the app says so on every step.
 - The privacy notice is a draft for legal review; the SMS provider (ADR-005) and production object store (ADR-004) are open.
 
-Next (plan §7.7): increment 6d — family profiles.
+What stands between this build and a launch: [`docs/launch-readiness.md`](./docs/launch-readiness.md).
 
 ## Running it
 

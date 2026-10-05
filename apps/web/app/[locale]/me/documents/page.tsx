@@ -2,6 +2,7 @@ import { listDocuments } from '@identity/services';
 import Link from 'next/link';
 import { Banner } from '@/components/fullcheck/Banner';
 import { StatusChip } from '@/components/StatusChip';
+import { PersonBar } from '@/components/fullcheck/PersonBar';
 import { requireFullCheck } from '@/lib/server/fullcheck';
 import { errorMessage, localeOf, query, type LocaleParams, type SearchParams } from '@/lib/server/page';
 
@@ -10,14 +11,16 @@ export const dynamic = 'force-dynamic';
 export default async function DocumentsPage({ params, searchParams }: { params: LocaleParams; searchParams: SearchParams }) {
   const { locale, t } = await localeOf(params);
   const q = await query(searchParams);
-  const { s, userId } = await requireFullCheck(locale);
-  const [docs, { kb }] = await Promise.all([listDocuments(s, userId), s.knowledge()]);
+  const { s, userId, person, hasFamily } = await requireFullCheck(locale);
+  const [docs, { kb }] = await Promise.all([listDocuments(s, userId, person.id), s.knowledge()]);
   const label = (kind: string) => kb.catalogue.find((c) => c.kind === kind)?.label[locale] ?? kind;
   const error = errorMessage(t, q.error);
 
   return (
     <div className="space-y-6">
       <h1 className="text-[2rem] leading-tight font-extrabold">{t('docs.title')}</h1>
+      <PersonBar t={t} locale={locale} person={person} hasFamily={hasFamily} />
+      {q.person === 'added' && <Banner tone="success">{t('family.added')}</Banner>}
       {q.added && <Banner tone="success">{t('docs.added')}</Banner>}
       {q.deleted && <Banner tone="success">{t('docs.deleted')}</Banner>}
       {error && <Banner tone="error">{error}</Banner>}

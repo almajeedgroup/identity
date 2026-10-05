@@ -7,6 +7,7 @@ import { SeverityChip } from '@/components/fullcheck/SeverityChip';
 import { SubmitButton } from '@/components/fullcheck/SubmitButton';
 import type { Translate } from '@/i18n/translate';
 import { confirmTargetAction, revokeOverrideAction, setOverrideAction } from '@/lib/server/actions';
+import { PersonBar } from '@/components/fullcheck/PersonBar';
 import { requireFullCheck } from '@/lib/server/fullcheck';
 import { errorMessage, localeOf, query, type LocaleParams, type SearchParams } from '@/lib/server/page';
 
@@ -31,8 +32,8 @@ function choices(fa: FieldAnalysis): { value: FieldValue; display: string; docum
 export default async function ReportPage({ params, searchParams }: { params: LocaleParams; searchParams: SearchParams }) {
   const { locale, t } = await localeOf(params);
   const q = await query(searchParams);
-  const { s, userId } = await requireFullCheck(locale);
-  const [check, { kb }] = await Promise.all([runFullCheck(s, userId), s.knowledge()]);
+  const { s, userId, person, hasFamily } = await requireFullCheck(locale);
+  const [check, { kb }] = await Promise.all([runFullCheck(s, userId, person.id), s.knowledge()]);
   const kindOf = new Map(check.analysis.documents.map((d) => [d.id, d.kind]));
   const docLabel = (id: string) => {
     const kind = kindOf.get(id);
@@ -44,6 +45,7 @@ export default async function ReportPage({ params, searchParams }: { params: Loc
   return (
     <div className="space-y-6">
       <h1 className="text-[2rem] leading-tight font-extrabold">{t('report.title')}</h1>
+      <PersonBar t={t} locale={locale} person={person} hasFamily={hasFamily} />
       <p>{t('report.intro')}</p>
       {error && <Banner tone="error">{error}</Banner>}
       {q.saved && <Banner tone="success">{t('report.targetSaved')}</Banner>}
@@ -74,7 +76,7 @@ export default async function ReportPage({ params, searchParams }: { params: Loc
             {analysis.issueCount > 0 ? t('report.issues', { count: analysis.issueCount }) : t('report.noIssues')}
           </p>
           {analysis.fields.map((fa) => (
-            <FieldSection key={fa.field} fa={fa} t={t} locale={locale} docLabel={docLabel} overrides={check.overrides} />
+            <FieldSection key={fa.field} fa={fa} t={t} locale={locale} docLabel={docLabel} overrides={check.overrides} personId={person.id} />
           ))}
           {analysis.notCompared.length > 0 && <p className="text-slate-500">{t('report.notCompared')}</p>}
           <Link href={`/${locale}/me/roadmap`} className="btn-primary">
@@ -92,12 +94,14 @@ function FieldSection({
   locale,
   docLabel,
   overrides,
+  personId,
 }: {
   fa: FieldAnalysis;
   t: Translate;
   locale: string;
   docLabel: (id: string) => string;
   overrides: { id: string; document: string; field: string; decision: string; reason?: string }[];
+  personId: string;
 }) {
   const options = choices(fa);
   const confirmed = fa.target?.status === 'confirmed';
@@ -133,6 +137,7 @@ function FieldSection({
           <summary className="cursor-pointer font-bold">{t('report.chooseTarget')}</summary>
           <p className="mt-2 text-[0.875rem]">{t('report.targetHint')}</p>
           <form action={confirmTargetAction} className="mt-3 space-y-3">
+            <input type="hidden" name="person" value={personId} />
             <input type="hidden" name="locale" value={locale} />
             <input type="hidden" name="field" value={fa.field} />
             <fieldset className="space-y-2">
@@ -172,6 +177,7 @@ function FieldSection({
               {r.reason && r.status !== 'exact_match' && <p className="text-[0.875rem] text-slate-500">{t(`report.reasons.${r.reason}`)}</p>}
               {override ? (
                 <form action={revokeOverrideAction} className="flex flex-wrap items-center gap-2 text-[0.875rem]">
+                  <input type="hidden" name="person" value={personId} />
                   <input type="hidden" name="locale" value={locale} />
                   <input type="hidden" name="id" value={override.id} />
                   <span className="rounded-full bg-sky-50 px-2 py-0.5 font-bold text-sky-600">{t('report.overridden')}</span>
@@ -186,6 +192,7 @@ function FieldSection({
                   <details>
                     <summary className="cursor-pointer text-[0.875rem] font-semibold text-sky-600">{t('report.dispute')}</summary>
                     <form action={setOverrideAction} className="mt-2 space-y-3">
+                      <input type="hidden" name="person" value={personId} />
                       <input type="hidden" name="locale" value={locale} />
                       <input type="hidden" name="field" value={fa.field} />
                       <input type="hidden" name="document" value={r.document} />

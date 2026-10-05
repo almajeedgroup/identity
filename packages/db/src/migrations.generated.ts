@@ -27,5 +27,9 @@ export const MIGRATIONS: { id: string; sql: string }[] = [
   {
     "id": "0006_payments",
     "sql": "CREATE TABLE \"payments\" (\n\t\"id\" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,\n\t\"number\" serial NOT NULL,\n\t\"case_id\" uuid,\n\t\"case_label\" text NOT NULL,\n\t\"kind\" text NOT NULL,\n\t\"amount_inr\" integer NOT NULL,\n\t\"method\" text NOT NULL,\n\t\"reference\" text,\n\t\"note\" text,\n\t\"recorded_by_id\" uuid NOT NULL,\n\t\"at\" timestamp with time zone DEFAULT now() NOT NULL,\n\tCONSTRAINT \"payments_number_unique\" UNIQUE(\"number\")\n);\n--> statement-breakpoint\nALTER TABLE \"cases\" ADD COLUMN \"fee_status\" text DEFAULT 'not_set' NOT NULL;--> statement-breakpoint\nALTER TABLE \"cases\" ADD COLUMN \"fee_amount_inr\" integer;--> statement-breakpoint\nALTER TABLE \"cases\" ADD COLUMN \"fee_note\" text;--> statement-breakpoint\nALTER TABLE \"payments\" ADD CONSTRAINT \"payments_case_id_cases_id_fk\" FOREIGN KEY (\"case_id\") REFERENCES \"public\".\"cases\"(\"id\") ON DELETE set null ON UPDATE no action;"
+  },
+  {
+    "id": "0007_family_profiles",
+    "sql": "ALTER TABLE \"citizen_profiles\" ADD COLUMN \"parent_role\" text;--> statement-breakpoint\nALTER TABLE \"citizen_profiles\" ADD COLUMN \"consent_basis\" text;--> statement-breakpoint\nALTER TABLE \"citizen_profiles\" ADD COLUMN \"declared_at\" timestamp with time zone;"
   }
 ];

@@ -3,6 +3,7 @@ import { runFullCheck } from '@identity/services';
 import Link from 'next/link';
 import { SourceLink } from '@/components/fullcheck/SourceLink';
 import { formatInr, formatIsoDate } from '@/i18n/format';
+import { PersonBar } from '@/components/fullcheck/PersonBar';
 import { requireFullCheck } from '@/lib/server/fullcheck';
 import { localeOf, type LocaleParams } from '@/lib/server/page';
 
@@ -11,8 +12,8 @@ export const dynamic = 'force-dynamic';
 /** M18 · The correction roadmap: order, reasons, official routes, government fees and the separate service fee (C-01, C-18). */
 export default async function RoadmapPage({ params }: { params: LocaleParams }) {
   const { locale, t } = await localeOf(params);
-  const { s, userId } = await requireFullCheck(locale);
-  const [check, { kb }] = await Promise.all([runFullCheck(s, userId), s.knowledge()]);
+  const { s, userId, person, hasFamily } = await requireFullCheck(locale);
+  const [check, { kb }] = await Promise.all([runFullCheck(s, userId, person.id), s.knowledge()]);
   const { roadmap, analysis } = check;
   const kindOf = new Map(analysis.documents.map((d) => [d.id, d.kind]));
   const docLabel = (id: string) => kb.catalogue.find((c) => c.kind === kindOf.get(id))?.label[locale] ?? '';
@@ -21,6 +22,7 @@ export default async function RoadmapPage({ params }: { params: LocaleParams }) 
   return (
     <div className="space-y-6">
       <h1 className="text-[2rem] leading-tight font-extrabold">{t('roadmap.title')}</h1>
+      <PersonBar t={t} locale={locale} person={person} hasFamily={hasFamily} />
       <p>{t('roadmap.intro')}</p>
       {roadmap.warnings.length > 0 && <p className="rounded-xl border-2 border-amber-400 bg-amber-50 p-4 font-semibold text-amber-700">{t('roadmap.cycle')}</p>}
 

@@ -240,6 +240,53 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     await expect(page.getByTestId('summary')).toContainText('You have not added any documents yet.');
   });
 
+  test('@M07-AC-1.1 @M07-AC-1.2 @M07-AC-2.1 @M07-AC-3.1 a family member has their own documents, relationship names are information only, and removal deletes them', async ({ page, context }) => {
+    test.setTimeout(120_000);
+    await signIn(page);
+    await startFullCheck(page);
+    await addTyped(page, 'aadhaar', { Name: 'Mohammed Ibrahim' });
+    await addTyped(page, 'sslc', { Name: 'Mohammed Ibrahim' });
+    await go(page, '/en/me/report');
+    await page.getByTestId('field-name').getByRole('button', { name: 'Confirm target' }).click();
+    await expect(page.getByText('Target confirmed.')).toBeVisible();
+    await go(page, '/en/me/family');
+    await expect(page.getByText('You have not added any family members yet.')).toBeVisible();
+    await page.getByLabel('Their name').fill('Ayesha Ibrahim');
+    await page.getByRole('radio', { name: 'My child' }).check();
+    await page.getByLabel('For a child: you are').selectOption('father');
+    await page.getByLabel(/I have their permission to manage their documents/).check();
+    await page.getByRole('button', { name: 'Add a family member' }).click();
+    await expect(page.getByText('Family member added.')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId('person-bar')).toContainText('Documents of: Ayesha Ibrahim (child)');
+    await expect(page.getByText('No documents yet.')).toBeVisible();
+    const cookie = (await context.cookies()).find((c) => c.name === 'identity_person')!;
+    expect(cookie).toMatchObject({ httpOnly: true, sameSite: 'Lax' });
+
+    await addTyped(page, 'sslc', { Name: 'Ayesha Ibrahim', "Father's name": 'Ibrahim Khan' });
+    await expect(page.getByTestId('person-bar')).toContainText('Ayesha Ibrahim');
+    await expect(page.getByTestId('documents').getByRole('listitem')).toHaveCount(1);
+
+    // Back to the holder: only their own document.
+    await go(page, '/en/me/family');
+    await page.getByRole('button', { name: 'Look at my own documents' }).click();
+    await expect(page.getByTestId('person-bar')).toContainText('Documents of: You (you)', { timeout: 20_000 });
+    await go(page, '/en/me/documents');
+    await expect(page.getByTestId('documents').getByRole('listitem')).toHaveCount(2);
+
+    // The child's SSLC prints a father's name that differs from the holder's confirmed name: information only.
+    await go(page, '/en/me/family');
+    const member = page.getByTestId('family-member');
+    await expect(member).toContainText('1 document');
+    await expect(member.getByTestId('relationship-notes')).toContainText('It does not mean anything is wrong with your family relationship.');
+    await expect(member.getByTestId('relationship-notes')).toContainText('“Ibrahim Khan”; the confirmed name is “Mohammed Ibrahim”');
+
+    await page.locator('summary', { hasText: 'Remove and delete their data' }).click();
+    await page.locator('details[open]').getByLabel(/I understand that all their documents/).check();
+    await page.locator('details[open]').getByRole('button', { name: 'Remove and delete their data' }).click();
+    await expect(page.getByText('The family member and all their documents have been deleted.')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('You have not added any family members yet.')).toBeVisible();
+  });
+
   test('@F06-AC-2.1 the privacy notice exists in all four languages with the retention schedule', async ({ page }) => {
     for (const locale of ['en', 'kn', 'hi', 'ur']) {
       await go(page, `/${locale}/privacy`);
@@ -276,5 +323,7 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     }
     await go(page, '/en/me/roadmap');
     await scan('roadmap');
+    await go(page, '/en/me/family');
+    await scan('family');
   });
 });

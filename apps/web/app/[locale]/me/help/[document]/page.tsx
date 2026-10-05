@@ -5,6 +5,7 @@ import { ConsentNotice } from '@/components/fullcheck/ConsentNotice';
 import { SubmitButton } from '@/components/fullcheck/SubmitButton';
 import { formatInr } from '@/i18n/format';
 import { requestHelpAction } from '@/lib/server/actions';
+import { PersonBar } from '@/components/fullcheck/PersonBar';
 import { requireFullCheck } from '@/lib/server/fullcheck';
 import { errorMessage, localeOf, query, type SearchParams } from '@/lib/server/page';
 
@@ -15,7 +16,7 @@ export default async function RequestHelpPage({ params, searchParams }: { params
   const { locale, t } = await localeOf(params);
   const { document } = await params;
   const q = await query(searchParams);
-  const { s, userId, consents } = await requireFullCheck(locale);
+  const { s, userId, consents, person, hasFamily } = await requireFullCheck(locale);
   const [step, { kb }] = await Promise.all([correctionStepFor(s, userId, document), s.knowledge()]);
   const error = errorMessage(t, q.error);
   const here = `/${locale}/me/help/${document}`;
@@ -23,6 +24,7 @@ export default async function RequestHelpPage({ params, searchParams }: { params
     return (
       <div className="space-y-6">
         <h1 className="text-[2rem] leading-tight font-extrabold">{t('assist.title')}</h1>
+        <PersonBar t={t} locale={locale} person={person} hasFamily={hasFamily} />
         <p className="card">{t('errors.no_correction_step')}</p>
         <Link href={`/${locale}/me/roadmap`} className="btn-secondary">
           {t('me.navRoadmap')}
@@ -34,6 +36,7 @@ export default async function RequestHelpPage({ params, searchParams }: { params
   return (
     <div className="space-y-6">
       <h1 className="text-[2rem] leading-tight font-extrabold">{t('assist.title')}</h1>
+      <PersonBar t={t} locale={locale} person={person} hasFamily={hasFamily} />
       <p className="text-lg">{t('assist.intro', { document: label })}</p>
       {error && <Banner tone="error">{error}</Banner>}
       <section className="card space-y-2">

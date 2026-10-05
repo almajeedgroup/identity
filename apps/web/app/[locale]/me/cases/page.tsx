@@ -26,6 +26,7 @@ export default async function MyCasesPage({ params }: { params: LocaleParams }) 
                     {c.caseId}
                   </span>
                   <span className="block">{kb.catalogue.find((d) => d.kind === c.documentKind)?.label[locale]}</span>
+                  {c.person.relationship !== 'self' && <span className="block text-slate-500">{t('cases.forPerson', { name: c.person.name ?? '', relationship: t(`family.rel.${c.person.relationship}`) })}</span>}
                 </span>
                 <span className="text-end">
                   <span className="block font-bold text-emerald-700">{t(`cases.stage.${STATE_INFO[c.state as CaseState].citizenStage}`)}</span>

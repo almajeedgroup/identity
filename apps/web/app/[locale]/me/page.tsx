@@ -1,10 +1,11 @@
-import { runFullCheck, unreadCount } from '@identity/services';
+import { listProfiles, runFullCheck, unreadCount } from '@identity/services';
 import Link from 'next/link';
 import { Banner } from '@/components/fullcheck/Banner';
 import { ConsentNotice } from '@/components/fullcheck/ConsentNotice';
 import type { Translate } from '@/i18n/translate';
 import { signOutAction } from '@/lib/server/actions';
-import { citizenContext } from '@/lib/server/fullcheck';
+import { PersonBar } from '@/components/fullcheck/PersonBar';
+import { citizenContext, personProfile } from '@/lib/server/fullcheck';
 import { errorMessage, localeOf, ltr, query, type LocaleParams, type SearchParams } from '@/lib/server/page';
 
 export const dynamic = 'force-dynamic';
@@ -26,7 +27,8 @@ export default async function MePage({ params, searchParams }: { params: LocaleP
     );
   }
 
-  const [check, unread] = await Promise.all([runFullCheck(s, citizen.user.id), unreadCount(s, citizen.user.id)]);
+  const [person, profiles] = await Promise.all([personProfile(s.db, citizen.user.id), listProfiles(s.db, citizen.user.id)]);
+  const [check, unread] = await Promise.all([runFullCheck(s, citizen.user.id, person.id), unreadCount(s, citizen.user.id)]);
   const confirmed = check.analysis.documents.length;
   const nav = [
     ['documents', 'navDocuments'],
@@ -34,6 +36,7 @@ export default async function MePage({ params, searchParams }: { params: LocaleP
     ['roadmap', 'navRoadmap'],
     ['cases', 'navCases'],
     ['profile', 'navProfile'],
+    ['family', 'navFamily'],
     ['settings', 'navSettings'],
   ] as const;
 
@@ -44,6 +47,7 @@ export default async function MePage({ params, searchParams }: { params: LocaleP
         <p className="text-slate-500">{t('me.signedInAs', { mobile: ltr(citizen.user.mobile) })}</p>
       </div>
       {error && <Banner tone="error">{error}</Banner>}
+      <PersonBar t={t} locale={locale} person={person} hasFamily={profiles.length > 1} />
 
       <Link href={`/${locale}/me/notifications`} className="btn-secondary" data-testid="notifications-link">
         {unread > 0 ? t('notify.unread', { count: unread }) : t('notify.title')}

@@ -2,7 +2,7 @@
 import { COMPARED_FIELDS, type ComparedField } from '@identity/content';
 import { canonicalJson, tables, writeAudit, type Db } from '@identity/db';
 import type { AddressValue, FieldValue, Override, Target } from '@identity/engine';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull } from 'drizzle-orm';
 import { requireConsent } from './consents';
 import { nowOf, ServiceError, type Actor, type Services } from './services';
 import { cleanAddress, cleanText } from './values';
@@ -27,11 +27,30 @@ export async function ensureProfile(db: Db, userId: string, locale: string, now:
   return row!;
 }
 
-/** The profile of a citizen who has agreed to the Full Check (F06-FR-02). */
-export async function requireProfile(db: Db, userId: string): Promise<Profile> {
-  const profile = await findProfile(db, userId);
-  if (!profile) throw new ServiceError('consent_required');
-  return profile;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+/**
+ * The profile of a citizen who has agreed to the Full Check (F06-FR-02): their own, or — with `profileId` — one of
+ * their family members (M07-AC-1.2). A profile of anyone else is "not found".
+ */
+export async function requireProfile(db: Db, userId: string, profileId?: string | null): Promise<Profile> {
+  const own = await findProfile(db, userId);
+  if (!own) throw new ServiceError('consent_required');
+  if (!profileId || profileId === own.id) return own;
+  if (!UUID.test(profileId)) throw new ServiceError('not_found');
+  const [member] = await db
+    .select()
+    .from(citizenProfiles)
+    .where(and(eq(citizenProfiles.id, profileId), eq(citizenProfiles.userId, userId)))
+    .limit(1);
+  if (!member) throw new ServiceError('not_found');
+  return member;
+}
+
+/** Every profile of the account: the holder's first, then family members in the order they were added. */
+export async function listProfiles(db: Db, userId: string): Promise<Profile[]> {
+  const rows = await db.select().from(citizenProfiles).where(eq(citizenProfiles.userId, userId)).orderBy(asc(citizenProfiles.createdAt));
+  return [...rows.filter((r) => r.relationship === 'self'), ...rows.filter((r) => r.relationship !== 'self')];
 }
 
 export interface ProfileUpdate {
@@ -43,9 +62,9 @@ export interface ProfileUpdate {
 }
 
 /** M16-FR-01 */
-export async function updateProfile(s: Services, userId: string, update: ProfileUpdate): Promise<Profile> {
+export async function updateProfile(s: Services, userId: string, update: ProfileUpdate, profileId?: string | null): Promise<Profile> {
   await requireConsent(s.db, userId, 'full_check');
-  const profile = await requireProfile(s.db, userId);
+  const profile = await requireProfile(s.db, userId, profileId);
   const now = nowOf(s);
   const { kb } = await s.knowledge();
   if (update.jurisdiction !== undefined && !kb.jurisdictions.some((j) => j.code === update.jurisdiction)) throw new ServiceError('invalid_value');

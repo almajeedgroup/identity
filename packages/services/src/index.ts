@@ -8,3 +8,4 @@ export * from './values';
 export * from './staff';
 export * from './cases';
 export * from './notifications';
+export * from './family';
