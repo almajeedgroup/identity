@@ -66,6 +66,16 @@ export const STAGE_LABELS: Record<string, string> = {
   withdrawn: 'Withdrawn',
 };
 
+export const FEE_LABELS: Record<string, string> = {
+  not_set: 'Not set',
+  awaiting_acceptance: 'Waiting for the citizen to accept',
+  due: 'Due',
+  paid: 'Paid',
+  waived: 'Waived',
+  refunded: 'Refunded',
+};
+export const METHOD_LABELS: Record<string, string> = { cash: 'Cash', upi: 'UPI', card: 'Card', other: 'Other' };
+
 export const MODE_LABELS: Record<string, string> = { desk: 'Help desk', whatsapp_video: 'WhatsApp video', doorstep: 'Home visit' };
 export const PRIORITY_LABELS: Record<string, string> = { age60: '60+', disability: 'Disability', deadline: 'Deadline' };
 export const SLA_LABELS: Record<string, string> = {

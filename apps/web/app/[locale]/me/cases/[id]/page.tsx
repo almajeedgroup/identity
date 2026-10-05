@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Banner } from '@/components/fullcheck/Banner';
 import { SubmitButton } from '@/components/fullcheck/SubmitButton';
-import { citizenReplyAction, withdrawCaseAction } from '@/lib/server/actions';
+import { formatInr } from '@/i18n/format';
+import { acceptFeeAction, citizenReplyAction, withdrawCaseAction } from '@/lib/server/actions';
 import { requireFullCheck } from '@/lib/server/fullcheck';
 import { errorMessage, formatDate, localeOf, ltr, query, type SearchParams } from '@/lib/server/page';
 
@@ -32,6 +33,7 @@ export default async function CasePage({ params, searchParams }: { params: Promi
       {q.existing && <Banner tone="success">{t('cases.existing')}</Banner>}
       {q.replied && <Banner tone="success">{t('cases.replied')}</Banner>}
       {q.withdrawn && <Banner tone="success">{t('cases.withdrawnDone')}</Banner>}
+      {q.feeAccepted && <Banner tone="success">{t('fee.accepted')}</Banner>}
       {error && <Banner tone="error">{error}</Banner>}
 
       <section className="card space-y-2" data-testid="case-status">
@@ -43,6 +45,37 @@ export default async function CasePage({ params, searchParams }: { params: Promi
         {c.appointmentAt && <p>{t('cases.appointment', { date: formatDate(c.appointmentAt) })}</p>}
         {c.applicationRef && (
           <p data-testid="reference">{t('cases.reference', { ref: ltr(c.applicationRef), date: c.applicationDate ? c.applicationDate.split('-').reverse().join('-') : '' })}</p>
+        )}
+      </section>
+
+      <section className="rounded-xl bg-sky-50 p-4 space-y-2" aria-labelledby="fee-title" data-testid="fee">
+        <h2 id="fee-title" className="text-lg font-bold">
+          {t('fee.title')}
+        </h2>
+        <p data-testid="fee-status">
+          {c.fee.amountInr !== null && c.fee.status !== 'not_set' ? `${formatInr(c.fee.amountInr)} · ` : ''}
+          {t(`fee.status.${c.fee.status}`)}
+        </p>
+        {c.fee.note && <p className="text-[0.875rem]">{c.fee.note}</p>}
+        <p className="text-[0.875rem]">{t('fee.notGovernment')}</p>
+        {c.fee.status === 'awaiting_acceptance' && (
+          <form action={acceptFeeAction} className="space-y-2">
+            <input type="hidden" name="locale" value={locale} />
+            <input type="hidden" name="id" value={c.id} />
+            <SubmitButton>{t('fee.accept', { amount: formatInr(c.fee.amountInr ?? 0) })}</SubmitButton>
+            <p className="text-[0.875rem]">{t('fee.decline')}</p>
+          </form>
+        )}
+        {c.receipts.length > 0 && (
+          <ul className="space-y-1">
+            {c.receipts.map((r) => (
+              <li key={r.number}>
+                <Link href={`/${locale}/me/cases/${c.id}/receipt/${r.number}`}>
+                  {t(r.kind === 'payment' ? 'fee.receiptLink' : 'fee.refundLink', { number: ltr(r.number), amount: formatInr(r.amountInr) })}
+                </Link>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
 

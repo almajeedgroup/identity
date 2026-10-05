@@ -670,5 +670,37 @@
       "recheck": "{caseId} is completed — update your documents and look at your report again.",
       "verify_upload": "Your upload has been read. Please check the details."
     }
+  },
+  "fee": {
+    "title": "1dentity service fee",
+    "status": {
+      "not_set": "The fee will be confirmed before any work is charged.",
+      "awaiting_acceptance": "Please accept the fee to continue.",
+      "due": "To pay at the help desk.",
+      "paid": "Paid. Thank you.",
+      "waived": "No fee to pay.",
+      "refunded": "Refunded."
+    },
+    "notGovernment": "This is 1dentity's fee for helping you. Government fees are paid only to the issuing office.",
+    "accept": "I accept the fee of {amount}",
+    "decline": "If you do not want to pay, you can withdraw the request below.",
+    "accepted": "Thank you — the fee is accepted.",
+    "receiptLink": "Receipt {number} · {amount}",
+    "refundLink": "Refund {number} · {amount}",
+    "receiptTitle": "Receipt — 1dentity service fee",
+    "refundTitle": "Refund — 1dentity service fee",
+    "receiptNumber": "Receipt number",
+    "date": "Date",
+    "case": "Case",
+    "amount": "Amount",
+    "method": "Paid by",
+    "methods": {
+      "cash": "Cash",
+      "upi": "UPI",
+      "card": "Card",
+      "other": "Other"
+    },
+    "serviceFee": "For 1dentity's assistance with your correction.",
+    "receiptNote": "This is not a government fee. Government fees are paid only to the issuing authority."
   }
 }

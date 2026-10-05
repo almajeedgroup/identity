@@ -25,6 +25,7 @@ import {
   withdrawMyCase,
   withdrawAssistance,
   setSmsUpdates,
+  acceptCaseFee,
   type HelpMode,
   type DocumentValues,
   type Purpose,
@@ -350,5 +351,17 @@ export async function setSmsUpdatesAction(fd: FormData) {
   await act(`/${locale}/me/settings`, async () => {
     await setSmsUpdates(p.services, citizen.user.id, str(fd, 'on') === 'yes', locale);
     return `/${locale}/me/settings?done=sms`;
+  });
+}
+
+// ---------------------------------------------------------------- service fee (M19)
+
+export async function acceptFeeAction(fd: FormData) {
+  const locale = localeOf(fd);
+  const { citizen, p } = await signedIn(locale);
+  const id = str(fd, 'id');
+  await act(`/${locale}/me/cases/${id}`, async () => {
+    await acceptCaseFee(p.services, citizen.user.id, id);
+    return `/${locale}/me/cases/${id}?feeAccepted=1`;
   });
 }

@@ -37,7 +37,8 @@ Built and tested, in English, Kannada, Hindi and Urdu (right to left):
 2. **Full Check** — sign in with a one-time code; agree per purpose; add documents by typing or by uploading a photo or PDF that is read on our own servers (never a full Aadhaar number); confirm what was read; compare every field across documents with six statuses; choose target details; dispute a result; follow a dependency-ordered correction plan with official sources, government fees and the separate 1dentity service fee; withdraw or delete everything.
 3. **Assistance cases** — from any correction step a citizen can ask 1dentity for help (separate consent; the 1dentity fee shown apart from the government fee); staff see a masked queue ordered by priority and SLA, claim or assign cases, open the citizen's documents only for their own cases, work a checklist, write notes, record the authority's reference and close with proof; the citizen follows the case and replies.
 4. **Notifications** — every case change and upload appears in the citizen's notification list; citizens who opt in also get an SMS with only the case ID and a link to 1dentity (held at night, retried on failure).
-5. **Staff console** (`/staff`, English) — sign-in with an authenticator app, a dashboard of counts, a customer list that shows no personal data until a citizen asks for help, a rules admin where every change is a version that a publisher publishes (a second person for fees and links), verification against official sources, service prices, a filtered audit log with hash-chain check, and team management.
+5. **Service fees** — 1dentity's fee for assistance is agreed by the citizen before anything is charged, paid at the help desk with a numbered receipt that says it is not a government fee; supervisors waive or refund with a reason and see revenue. Government fees are never collected.
+6. **Staff console** (`/staff`, English) — sign-in with an authenticator app, a dashboard of counts, a customer list that shows no personal data until a citizen asks for help, a rules admin where every change is a version that a publisher publishes (a second person for fees and links), verification against official sources, service prices, a filtered audit log with hash-chain check, and team management.
 
 Before a public release:
 
@@ -46,7 +47,7 @@ Before a public release:
 - Correction rules, fees, forms and links are **not yet verified** on the official portals; the app says so on every step.
 - The privacy notice is a draft for legal review; the SMS provider (ADR-005) and production object store (ADR-004) are open.
 
-Next (plan §7.7): increment 6c — service fees and payments; then 6d family profiles.
+Next (plan §7.7): increment 6d — family profiles.
 
 ## Running it
 

@@ -312,6 +312,10 @@ export const cases = pgTable(
     completedAt: ts('completed_at'),
     completionNote: text('completion_note'),
     endedAt: ts('ended_at'),
+    /** M19-FR-01 · the 1dentity service fee for this help (never a government fee). */
+    feeStatus: text('fee_status', { enum: ['not_set', 'awaiting_acceptance', 'due', 'paid', 'waived', 'refunded'] }).notNull().default('not_set'),
+    feeAmountInr: integer('fee_amount_inr'),
+    feeNote: text('fee_note'),
     createdAt: created(),
     updatedAt: ts('updated_at').notNull().defaultNow(),
   },
@@ -377,6 +381,22 @@ export const caseFiles = pgTable('case_files', {
   createdAt: created(),
   purgeAfter: ts('purge_after'),
   purgedAt: ts('purged_at'),
+});
+
+/** M19-FR-02 · The service-fee ledger; kept for accounts when a case or account is deleted (only the case ID text stays). */
+export const payments = pgTable('payments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  /** Receipt R-00001… */
+  number: serial('number').notNull().unique(),
+  caseId: uuid('case_id').references(() => cases.id, { onDelete: 'set null' }),
+  caseLabel: text('case_label').notNull(),
+  kind: text('kind', { enum: ['payment', 'refund'] }).notNull(),
+  amountInr: integer('amount_inr').notNull(),
+  method: text('method', { enum: ['cash', 'upi', 'card', 'other'] }).notNull(),
+  reference: text('reference'),
+  note: text('note'),
+  recordedById: uuid('recorded_by_id').notNull(),
+  at: ts('at').notNull().defaultNow(),
 });
 
 /** F08 · In-app notifications and SMS delivery status. Parameters hold no personal data. */

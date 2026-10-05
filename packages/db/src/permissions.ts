@@ -2,12 +2,12 @@
 export const STAFF_ROLES = ['volunteer', 'supervisor', 'content_editor', 'publisher', 'privacy_officer', 'admin'] as const;
 export type StaffRole = (typeof STAFF_ROLES)[number];
 
-export const PERMISSIONS = ['dashboard.read', 'customers.read', 'rules.read', 'rules.edit', 'rules.publish', 'audit.read', 'staff.manage', 'cases.work', 'cases.manage'] as const;
+export const PERMISSIONS = ['dashboard.read', 'customers.read', 'rules.read', 'rules.edit', 'rules.publish', 'audit.read', 'staff.manage', 'cases.work', 'cases.manage', 'payments.record', 'payments.manage', 'payments.read'] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
 const MATRIX: Record<StaffRole, readonly Permission[]> = {
-  volunteer: ['dashboard.read', 'customers.read', 'cases.work'],
-  supervisor: ['dashboard.read', 'customers.read', 'cases.work', 'cases.manage'],
+  volunteer: ['dashboard.read', 'customers.read', 'cases.work', 'payments.record'],
+  supervisor: ['dashboard.read', 'customers.read', 'cases.work', 'cases.manage', 'payments.record', 'payments.manage', 'payments.read'],
   content_editor: ['dashboard.read', 'rules.read', 'rules.edit'],
   publisher: ['dashboard.read', 'rules.read', 'rules.edit', 'rules.publish'],
   privacy_officer: ['dashboard.read', 'customers.read', 'audit.read'],

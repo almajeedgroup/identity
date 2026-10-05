@@ -2,6 +2,10 @@
 
 import { revokeSessionByToken, staffSignIn, verifyStaffTotp, type Permission } from '@identity/db';
 import {
+  recordPayment,
+  refundFee,
+  setCaseFee,
+  waiveFee,
   addCaseNote,
   addStaffCaseFile,
   assignCase,
@@ -256,5 +260,35 @@ export async function caseFileAction(fd: FormData) {
     if (!(file instanceof File) || file.size === 0) throw new ServiceError('invalid_value');
     await addStaffCaseFile(s, actor, id, { bytes: new Uint8Array(await file.arrayBuffer()), label: str(fd, 'label') || file.name.slice(0, 80) });
     return q(casePath(id), { saved: 'file' });
+  });
+}
+
+// ---------------------------------------------------------------- service fee (M19)
+
+export async function setFeeAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    await setCaseFee(s, actor, id, { amountInr: Number(str(fd, 'amount')), note: str(fd, 'note') });
+    return q(casePath(id), { saved: 'fee' });
+  });
+}
+
+export async function recordPaymentAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    const receipt = await recordPayment(s, actor, id, { method: str(fd, 'method'), reference: str(fd, 'reference') });
+    return q(casePath(id), { saved: 'paid', receipt });
+  });
+}
+
+export async function waiveFeeAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    await waiveFee(s, actor, id, str(fd, 'reason'));
+    return q(casePath(id), { saved: 'waived' });
+  });
+}
+
+export async function refundFeeAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    await refundFee(s, actor, id, { method: str(fd, 'method'), reason: str(fd, 'reason') });
+    return q(casePath(id), { saved: 'refunded' });
   });
 }

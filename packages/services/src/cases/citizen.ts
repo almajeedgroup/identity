@@ -8,6 +8,7 @@ import { notify } from '../notifications';
 import { loadTargets, requireProfile } from '../profile';
 import { runFullCheck } from '../report';
 import { nowOf, ServiceError, type Services } from '../services';
+import { caseLedger, type LedgerEntry } from './payments';
 import { caseIdOf, cleanBody, isOpen, isUuid, loadCase, STANDARD_CHECKLIST, storeCaseFile, type CaseRow } from './common';
 
 const { caseEvents, caseFiles, caseNotes, caseTasks, cases, documentFields, documents, staffUsers } = tables;
@@ -76,6 +77,9 @@ export async function requestHelp(s: Services, userId: string, input: HelpReques
         rule: step.rule ? { ...step.rule, authority: step.authority } : null,
         governmentFees: step.governmentFees,
         serviceFee: step.serviceFee ? { id: step.serviceFee.id, amountInr: step.serviceFee.amountInr } : null,
+        // M19-AC-1.1 · a price shown on the request page is agreed by asking; otherwise it is set later.
+        feeStatus: step.serviceFee ? (step.serviceFee.amountInr > 0 ? 'due' : 'waived') : 'not_set',
+        feeAmountInr: step.serviceFee?.amountInr ?? null,
         helpMode: input.helpMode,
         priority,
         deadline,
@@ -128,6 +132,8 @@ export interface CitizenCaseView extends CitizenCaseSummary {
   timeline: { kind: string; toState: string | null; at: Date; byCitizen: boolean }[];
   notes: { body: string; byCitizen: boolean; at: Date; author: string | null }[];
   files: { id: string; label: string | null; kind: string; mime: string; at: Date; purged: boolean }[];
+  fee: { status: CaseRow['feeStatus']; amountInr: number | null; note: string | null };
+  receipts: LedgerEntry[];
 }
 
 /** M04-AC-2.1 · What the citizen sees — never internal notes or staff details beyond a first name and initial. */
@@ -161,6 +167,8 @@ export async function getMyCase(s: Services, userId: string, caseId: string): Pr
     timeline: events.filter((e) => e.citizenVisible).map((e) => ({ kind: e.kind, toState: e.toState, at: e.at, byCitizen: e.actorKind === 'citizen' })),
     notes: notes.map((n) => ({ body: n.body, byCitizen: n.authorKind === 'citizen', at: n.createdAt, author: n.authorKind === 'staff' ? nameOf(n.authorId) : null })),
     files: files.map((f) => ({ id: f.id, label: f.label, kind: f.kind, mime: f.mime, at: f.createdAt, purged: !!f.purgedAt })),
+    fee: { status: row.feeStatus, amountInr: row.feeAmountInr, note: row.feeNote },
+    receipts: await caseLedger(s, row.id),
   };
 }
 

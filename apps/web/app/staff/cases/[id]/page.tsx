@@ -1,5 +1,5 @@
 import { CLOSURE_REASONS } from '@identity/domain';
-import { caseWorkers, getStaffCase, ServiceError, unmaskName, type StaffCaseView } from '@identity/services';
+import { caseLedger, caseWorkers, getStaffCase, PAYMENT_METHODS, ServiceError, unmaskName, type StaffCaseView } from '@identity/services';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Notice, StaffShell } from '@/components/staff/StaffShell';
@@ -14,10 +14,14 @@ import {
   caseTaskAction,
   claimCaseAction,
   moveCaseAction,
+  recordPaymentAction,
+  refundFeeAction,
+  setFeeAction,
   unmaskNameAction,
+  waiveFeeAction,
 } from '@/lib/server/staff-actions';
 import { requireStaff } from '@/lib/server/staff';
-import { formatDateTime, MODE_LABELS, PRIORITY_LABELS, SLA_LABELS, STAGE_LABELS, staffError } from '@/lib/staff-text';
+import { FEE_LABELS, formatDateTime, METHOD_LABELS, MODE_LABELS, PRIORITY_LABELS, SLA_LABELS, STAGE_LABELS, staffError } from '@/lib/staff-text';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Case' };
@@ -32,6 +36,10 @@ const SAVED: Record<string, string> = {
   filed: 'Filing recorded. The citizen sees the reference.',
   completed: 'Case completed.',
   file: 'File added.',
+  fee: 'Fee set. The citizen must accept it before paying.',
+  paid: 'Payment recorded.',
+  waived: 'Fee waived.',
+  refunded: 'Refund recorded.',
 };
 
 /** M09 US2–US3 · Work on one case. */
@@ -54,6 +62,21 @@ export default async function StaffCasePage({ params, searchParams }: { params: 
   const error = staffError(q.error);
   const hidden = <input type="hidden" name="id" value={c.id} />;
   const today = new Date().toISOString().slice(0, 10);
+  const ledger = await caseLedger(s, c.id);
+  const methodSelect = (idPrefix: string) => (
+    <div>
+      <label className="field-label" htmlFor={`${idPrefix}-method`}>
+        Method
+      </label>
+      <select id={`${idPrefix}-method`} name="method" className="field-input">
+        {PAYMENT_METHODS.map((m) => (
+          <option key={m} value={m}>
+            {METHOD_LABELS[m]}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
 
   return (
     <StaffShell name={actor.name} roles={[...actor.roles]} can={can} title={`Case ${c.caseId}`}>
@@ -156,6 +179,92 @@ export default async function StaffCasePage({ params, searchParams }: { params: 
           <p className="font-semibold text-amber-700">The citizen’s documents are not available (case ended or consent withdrawn).</p>
         )}
         {r.applicationRef && <p data-testid="reference">Application reference: {r.applicationRef} ({r.applicationDate})</p>}
+      </section>
+
+      <section className="card space-y-3" aria-labelledby="fee-title" data-testid="fee">
+        <h2 id="fee-title" className="text-xl font-bold">
+          1dentity service fee
+        </h2>
+        <p data-testid="fee-status">
+          {FEE_LABELS[r.feeStatus]}
+          {r.feeAmountInr !== null ? ` · ₹${r.feeAmountInr}` : ''}
+          {r.feeNote ? ` · ${r.feeNote}` : ''}
+        </p>
+        <p className="text-[0.875rem] text-slate-500">Government fees are never collected by 1dentity; the citizen pays them to the issuing office.</p>
+        {q.receipt && <p className="font-semibold text-emerald-700">Receipt {q.receipt}</p>}
+        {ledger.length > 0 && (
+          <ul className="space-y-1" data-testid="ledger">
+            {ledger.map((e) => (
+              <li key={e.number}>
+                {e.number} · {e.kind} · ₹{e.amountInr} · {METHOD_LABELS[e.method]} · {formatDateTime(e.at)}
+              </li>
+            ))}
+          </ul>
+        )}
+        {can('payments.manage') && open && ['not_set', 'awaiting_acceptance'].includes(r.feeStatus) && (
+          <form action={setFeeAction} className="flex flex-wrap items-end gap-2">
+            {hidden}
+            <div>
+              <label className="field-label" htmlFor="fee-amount">
+                Fee (₹)
+              </label>
+              <input id="fee-amount" name="amount" type="number" min={0} max={100000} step={1} className="field-input" required />
+            </div>
+            <div className="grow">
+              <label className="field-label" htmlFor="fee-note">
+                Note for the citizen
+              </label>
+              <input id="fee-note" name="note" className="field-input" maxLength={200} />
+            </div>
+            <button type="submit" className="btn-secondary">
+              Set fee
+            </button>
+          </form>
+        )}
+        {can('payments.record') && r.feeStatus === 'due' && (
+          <form action={recordPaymentAction} className="flex flex-wrap items-end gap-2">
+            {hidden}
+            {methodSelect('pay')}
+            <div className="grow">
+              <label className="field-label" htmlFor="pay-ref">
+                Transaction reference (optional)
+              </label>
+              <input id="pay-ref" name="reference" className="field-input" maxLength={80} />
+            </div>
+            <button type="submit" className="btn-primary">
+              Record payment of ₹{r.feeAmountInr}
+            </button>
+          </form>
+        )}
+        {can('payments.manage') && ['not_set', 'awaiting_acceptance', 'due'].includes(r.feeStatus) && (
+          <form action={waiveFeeAction} className="flex flex-wrap items-end gap-2">
+            {hidden}
+            <div className="grow">
+              <label className="field-label" htmlFor="waive-reason">
+                Waive — reason
+              </label>
+              <input id="waive-reason" name="reason" className="field-input" maxLength={300} required />
+            </div>
+            <button type="submit" className="btn-quiet">
+              Waive fee
+            </button>
+          </form>
+        )}
+        {can('payments.manage') && r.feeStatus === 'paid' && (
+          <form action={refundFeeAction} className="flex flex-wrap items-end gap-2">
+            {hidden}
+            {methodSelect('refund')}
+            <div className="grow">
+              <label className="field-label" htmlFor="refund-reason">
+                Refund — reason
+              </label>
+              <input id="refund-reason" name="reason" className="field-input" maxLength={300} required />
+            </div>
+            <button type="submit" className="btn-quiet">
+              Refund
+            </button>
+          </form>
+        )}
       </section>
 
       {open && (

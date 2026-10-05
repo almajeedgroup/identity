@@ -146,8 +146,8 @@ test.describe('Staff console (F05, M13, M15)', () => {
     await expect(page).toHaveURL(/\/staff\/sign-in$/);
   });
 
-  test('@F08-AC-1.1 @F08-AC-2.1 @F08-AC-3.1 @M04-AC-1.1 @M04-AC-1.3 @M04-AC-2.1 @M04-AC-2.2 @M09-AC-1.1 @M09-AC-3.1 @M09-AC-3.4 a citizen asks for help; staff work the case; the citizen follows it', async ({ browser }) => {
-    test.setTimeout(120_000);
+  test('@M19-AC-1.2 @M19-AC-2.1 @M19-AC-3.1 @F08-AC-1.1 @F08-AC-2.1 @F08-AC-3.1 @M04-AC-1.1 @M04-AC-1.3 @M04-AC-2.1 @M04-AC-2.2 @M09-AC-1.1 @M09-AC-3.1 @M09-AC-3.4 a citizen asks for help; staff work the case; the citizen follows it', async ({ browser }) => {
+    test.setTimeout(240_000);
     const citizen = await (await browser.newContext()).newPage();
     const mobile = `9${String(Math.floor(Math.random() * 1e9)).padStart(9, '0')}`;
     await go(citizen, '/en/sign-in');
@@ -191,7 +191,7 @@ test.describe('Staff console (F05, M13, M15)', () => {
     await expect(admin.getByTestId('assignee')).toHaveText('Development admin');
     await admin.getByRole('button', { name: '→ In progress' }).click();
     await admin.getByLabel('New note').fill('Please upload your SSLC marks card.');
-    await admin.getByLabel('For the citizen').check();
+    await admin.getByRole('radio', { name: 'For the citizen' }).check();
     await admin.getByRole('button', { name: 'Save note' }).click();
     await expect(admin.getByTestId('notes')).toContainText('visible to the citizen');
     await admin.getByRole('button', { name: '→ Awaiting citizen' }).click();
@@ -226,10 +226,29 @@ test.describe('Staff console (F05, M13, M15)', () => {
     await expect(citizen.getByTestId('notifications-link')).toContainText('new notification');
     await citizen.getByTestId('notifications-link').click();
     await expect(citizen.getByTestId('notifications').locator('[data-kind="case_filed"]')).toContainText(`Your application for`);
+
+    // M19 · the fee is set, accepted by the citizen, paid at the desk, and receipted — never a government fee.
+    await go(admin, admin.url().replace(/\?.*$/, ''));
+    await admin.getByLabel('Fee (₹)').fill('199');
+    await admin.getByRole('button', { name: 'Set fee' }).click();
+    await expect(admin.getByTestId('fee-status')).toContainText('Waiting for the citizen to accept');
+    await go(citizen, '/en/me/cases');
+    await citizen.getByTestId('cases').getByRole('link').first().click();
+    await citizen.getByRole('button', { name: /I accept the fee of ₹199/ }).click();
+    await expect(citizen.getByTestId('fee-status')).toContainText('To pay at the help desk.');
+    await go(admin, admin.url().replace(/\?.*$/, ''));
+    await admin.getByRole('button', { name: 'Record payment of ₹199' }).click();
+    await expect(admin.getByTestId('ledger')).toContainText('payment · ₹199 · Cash');
+    await go(citizen, citizen.url().replace(/\?.*$/, ''));
+    await expect(citizen.getByTestId('fee-status')).toContainText('Paid');
+    await citizen.getByRole('link', { name: /Receipt \W?R-\d{5}/ }).click();
+    await expect(citizen.getByTestId('receipt')).toContainText('This is not a government fee.');
+    await go(admin, '/staff/revenue');
+    await expect(admin.getByTestId('rev-Collected')).toContainText('₹199');
   });
 
   test('@F03-AC-1.1 no serious accessibility violations on the staff console', async () => {
-    for (const path of ['/staff', '/staff/cases', '/staff/rules', '/staff/rules/rule/voter-form-8-correction', '/staff/audit', '/staff/team', '/staff/customers']) {
+    for (const path of ['/staff', '/staff/cases', '/staff/revenue', '/staff/rules', '/staff/rules/rule/voter-form-8-correction', '/staff/audit', '/staff/team', '/staff/customers']) {
       await go(admin, path);
       const results = await new AxeBuilder({ page: admin }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
       const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
