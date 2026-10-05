@@ -9,7 +9,7 @@
 | **Approvers** | Product owner · Privacy & grievance officer · QA & security tester |
 | **DPR trace** | §05 (Access & Audit), §09 (security controls, volunteer code of conduct) · **PRD** §19 (audit logs), §23 (RBAC, least privilege, masking, audit of access/downloads/edits/case actions), §28 (override audit trail), §33 ("all important staff actions are auditable") |
 | **Depends on** | [F01](../F01-domain-model/spec.md) v0.3, [F05](../F05-auth/spec.md) |
-| **Version** | 0.3 |
+| **Version** | 0.4 |
 
 > **Approval note.** Built ahead of approval (DEC-2): controls in increment 3, the staff console (US5, US6, audit viewer) in increment 5. Deletion jobs for case documents arrive with cases (P1); the upload-retention job (Q-26) runs hourly.
 
@@ -83,6 +83,11 @@ cases:
   - { roles: [admin],           permission: audit.read,      allowed: true }
   - { roles: [content_editor, privacy_officer], permission: audit.read, allowed: true }
   - { roles: [],                permission: dashboard.read,  allowed: false }
+  - { roles: [volunteer],       permission: cases.work,      allowed: true }
+  - { roles: [volunteer],       permission: cases.manage,    allowed: false }
+  - { roles: [supervisor],      permission: cases.manage,    allowed: true }
+  - { roles: [privacy_officer], permission: cases.work,      allowed: false }
+  - { roles: [content_editor],  permission: cases.work,      allowed: false }
 ```
 
 ```yaml
@@ -110,3 +115,4 @@ Case-document deletion (P1); monthly access reviews as a scheduled report (P1).
 | 0.1 | 2026-10-04 | Seed in `backlog.md` | — |
 | 0.2 | 2026-10-05 | Full spec for the PRD P0 build | *Pending* |
 | 0.3 | 2026-10-05 | Staff console (increment 5): dashboard and customer list without personal data, team management, audit viewer details, first admin | *Pending* |
+| 0.4 | 2026-10-05 | Case permissions `cases.work` and `cases.manage` (M09, increment 6a) | *Pending* |

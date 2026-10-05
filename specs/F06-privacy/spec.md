@@ -9,7 +9,7 @@
 | **Approvers** | Product owner · Privacy & grievance officer |
 | **DPR trace** | §09 (DPDP-ready by design, data lifecycle) · **PRD** §23 (consent, privacy notice, retention and deletion policies, legal review), §27 ("Settings/privacy/data deletion") |
 | **Depends on** | [F01](../F01-domain-model/spec.md) v0.4, [F05](../F05-auth/spec.md), [M15](../M15-access-audit/spec.md) |
-| **Version** | 0.2 |
+| **Version** | 0.3 |
 
 > **Approval note.** Built ahead of approval; the notice text is a draft for the legal review required before launch (PRD §34). The grievance officer is not yet appointed (DEC-2), so the notice points to the help desk until then.
 
@@ -23,6 +23,7 @@ A citizen is told, in their language, what the Full Check stores and why, and ag
 
 - **F06-AC-1.1** — *Given* a signed-in citizen without Full Check consent, *when* they open the Full Check, *then* they see the notice for that purpose and nothing is stored until they agree; the consent records the notice version, language and time.
 - **F06-AC-1.2** — *Given* the uploads purpose, *when* the citizen first uploads, *then* a separate notice is shown and agreed (M17-AC-2.1).
+- **F06-AC-1.3** — *Given* the assistance purpose, *when* a citizen first asks 1dentity for help (M04), *then* a separate notice explains that the assigned volunteer and their supervisors will see the documents and details needed for that case, and nothing is shared with staff until the citizen agrees.
 
 ### US2 — A notice anyone can read *(must)*
 
@@ -32,11 +33,12 @@ A citizen is told, in their language, what the Full Check stores and why, and ag
 
 - **F06-AC-3.1** — *Given* a citizen withdraws Full Check consent, *when* they confirm, *then* their profile, targets, overrides, documents and files are deleted, the consent is marked withdrawn, and they can start again later.
 - **F06-AC-3.2** — *Given* a citizen withdraws upload consent, *when* they confirm, *then* every stored upload and OCR text of theirs is deleted, and uploads they never confirmed are deleted with them; typed and confirmed values stay.
+- **F06-AC-3.4** — *Given* a citizen withdraws the assistance consent, *when* they confirm, *then* every open case is withdrawn and staff lose access at once (M04-AC-3.1).
 - **F06-AC-3.3** — *Given* a citizen closes their account, *when* they confirm, *then* everything about them is deleted (F01-AC-4.3), their sessions end, and only pseudonymous audit events remain.
 
 ## 4. Functional requirements
 
-- **F06-FR-01** — Purposes: `full_check` (store profile, documents, targets, reports), `uploads` (store files and OCR text), later `assistance` and `whatsapp` (P1). Notice version `2026-10-v1`.
+- **F06-FR-01** — Purposes: `full_check` (store profile, documents, targets, reports), `uploads` (store files and OCR text), `assistance` (staff on the case see what the case needs, increment 6a), later `whatsapp` (F08). Notice version `2026-10-v2` (v1 plus the assistance section).
 - **F06-FR-02** — Consent is checked on the server before every write for that purpose.
 - **F06-FR-03** — Deletion removes stored files from the object store before rows are deleted, and writes one audit event with counts only.
 - **F06-FR-04** — Retention schedule (configuration, Q-26): uploads 30 days after verification; profile and documents until the citizen deletes them; one-time codes 1 day; audit per Q-15.
@@ -68,3 +70,4 @@ Data export ("download my data"), guardians and minors, WhatsApp consent — P1.
 |---|---|---|---|
 | 0.1 | 2026-10-04 | Seed in `backlog.md` | — |
 | 0.2 | 2026-10-05 | P0 consent, notice, withdrawal and deletion for the Full Check | *Pending* |
+| 0.3 | 2026-10-05 | Assistance purpose, notice v2 (increment 6a) | *Pending* |

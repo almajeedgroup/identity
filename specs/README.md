@@ -41,12 +41,12 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | M01 | [Health Check](./M01-health-check/spec.md) | P1 | Full | Week 5 | S2 | Product owner + designer | F02, F03, F04, F09, M02, D01–D03 | In review · built in increment 1 |
 | M02 | [Mismatch Detector](./M02-mismatch-detector/spec.md) | P1 | Full | Week 5 | S2 | Product owner + tech lead | F02, D01–D04 | In review · built in increment 1 |
 | M03 | Smart Guides | P1 | Full | Week 5 | S2 | Content lead + designer | F02, F09, F10, M13, D01–D04 | Seeded |
-| M04 | Request Help | P1 | Full | Week 7 | S3 | Product owner + designer | F01, F05, F06, F07, F08 | Seeded |
+| M04 | [Request help and track my case](./M04-request-help/spec.md) | P1 (PRD) | Full | Increment 6a | Inc. 6a | Product owner + designer | F01, F05, F06, F07, M18, M09 | In review · built in increment 6a |
 | M05 | Book Appointment | P1 | Full | Week 7 | S3 | Product owner + field coordinator | F01, F05, F08 | Seeded |
 | M06 | Reminders | P2 | Full | Week 14 | Month 4 | Product owner | F02, F06, F08, M07 | Seeded |
 | M07 | Family Profile | P2 | Full | Week 14 | Month 4 | Product owner + privacy officer | F05, F06, M01 | Seeded |
 | M08 | Hub & Scam Alerts | P1 | Lite | Week 5 | S2 | Content lead | F02, F09, F10, M13 | Seeded |
-| M09 | Case Queue & SLA | P1 | Full | Week 7 | S3 | Field coordinator + designer | F01, F05, F07, M15 | Seeded |
+| M09 | [Case queue, case work and SLA](./M09-case-queue/spec.md) (includes M10's filing record) | P1 (PRD) | Full | Increment 6a | Inc. 6a | Field coordinator + designer | F01, F05, F07, M15, M04 | In review · built in increment 6a |
 | M10 | Filing Assistant | P1 | Full | Week 9 | S4 | Field coordinator + content lead | M09, M13, D01–D03, F07, F08 | Seeded |
 | M11 | Camp Manager | P2 | Full | Week 14 | Month 5 | Field coordinator | M05, M09, M12 | Seeded |
 | M12 | Volunteer Hub | P2 | Full | Week 14 | Month 5 | Field coordinator | M15 | Seeded |
