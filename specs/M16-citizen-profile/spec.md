@@ -9,9 +9,9 @@
 | **Approvers** | Product owner · Privacy & grievance officer |
 | **DPR trace** | §03 (personas), §06 · **PRD** §7 (steps 2, 10, 18), §8, §17, §21, §28 |
 | **Depends on** | [F01](../F01-domain-model/spec.md), [M02](../M02-mismatch-detector/spec.md), [F05](../F05-auth/spec.md) |
-| **Version** | 0.1 |
+| **Version** | 0.2 |
 
-> **Approval note.** Specified from the Developer PRD and built ahead of approval (DEC-2). The suggestion engine is built in increment 2; the stored profile and screens in increment 4.
+> **Approval note.** Specified from the Developer PRD and built ahead of approval (DEC-2). The suggestion engine was built in increment 2; the stored profile, targets, overrides and screens in increment 4 (`packages/services`, `/[locale]/me/report`, `/[locale]/me/profile`).
 
 ## 1. Summary
 
@@ -37,7 +37,7 @@ To fix a set of documents, a citizen first has to decide what the *right* detail
 
 - **M16-AC-3.1** — *Given* a suggested target, *when* the citizen has not confirmed it, *then* reports and roadmaps say the target is not confirmed and the roadmap begins with "Confirm your target details".
 - **M16-AC-3.2** — *Given* a confirmed target, *when* new documents make a different value the majority, *then* the confirmed target stays, and the citizen is told the suggestion now differs (`M16-EX-stability`).
-- **M16-AC-3.3** — *Given* a citizen changes a confirmed target, *when* they save, *then* the old and new values, time and actor are recorded in the audit log.
+- **M16-AC-3.3** — *Given* a citizen changes a confirmed target, *when* they save, *then* the old and new values, time and actor are recorded in the profile's target history, and an audit event records the change with the field and actor only (M15-FR-03).
 
 ### US4 — Disputes and overrides *(must)*
 
@@ -51,7 +51,8 @@ To fix a set of documents, a citizen first has to decide what the *right* detail
 ## 4. Functional requirements
 
 - **M16-FR-01** — Profile fields (PRD §8): full name (target), date of birth, gender, father's, mother's and spouse's names, place of birth, current address, permanent address, mobile number, email, state, district, language preference; plus derived lists: documents available, issues found, correction status.
-- **M16-FR-02** — Each **target value** records: field, value, status (`suggested` or `confirmed`), source (`suggestion`, `document:<id>`, `manual`), confirmed-at, confirmed-by.
+- **M16-FR-02** — Each stored **target value** records: field, value, source, confirmed-at, confirmed-by. Only confirmed targets are stored; suggestions are computed on every check and never stored, so a suggestion can never be mistaken for a decision (M16-FR-05).
+- **M16-FR-02a** — **Target history**: every confirmation or change stores the old value, new value, actor, time and (for staff) reason, with the profile. It is deleted with the profile (F06); personal values never enter the append-only audit log.
 - **M16-FR-03** — **Suggestion rule**: group the documents' values into formatting-equivalent groups (M02-FR-22); choose the group with the **most documents**; break ties by the **lowest document tier** (civil first, M18), then by document order in the catalogue. The displayed value is the value as written on the highest-ranked document in the group. Reason: `only_value`, `majority` or `tie_foundational`.
 - **M16-FR-04** — For **address**, the citizen's stated current address is the suggestion when present (reason `profile`); otherwise the rule above applies.
 - **M16-FR-05** — A suggestion is never treated as confirmed. A confirmed target changes only by an explicit citizen action (or staff with a reason), and every change is audited (C-17).
@@ -110,9 +111,10 @@ expect:
 |---|---|---|---|---|---|---|
 | Profile and target values | Compare documents; build the roadmap | Full Check consent (F06) | Database | The citizen; staff only within an assistance case (P1) | Until the citizen deletes them or their account | Settings → delete (F06) |
 | Overrides with reasons | Respect the citizen's decisions; audit | Full Check consent | Database | As above | As above | As above |
+| Target history (old and new values) | Show who changed a target and when (M16-AC-3.3) | Full Check consent | Database, with the profile | As above | As above | As above |
 | Mobile number, email | Sign-in and contact | Account (F05) | Database | The citizen; staff in a case | Account lifetime | Account deletion |
 
-Audit events: `target.confirmed`, `target.changed`, `comparison.overridden`.
+Audit events: `target.confirmed`, `target.changed`, `comparison.overridden`, `comparison.override_removed`, `profile.updated` — field names and ids only.
 
 ## 7. Language, accessibility and assisted mode
 
@@ -133,3 +135,4 @@ Family members' profiles (M07, P1); document storage (M17).
 | Version | Date | Change | Approved by |
 |---|---|---|---|
 | 0.1 | 2026-10-05 | First draft from the Developer PRD | *Pending* |
+| 0.2 | 2026-10-05 | As built in increment 4: target history kept with the profile instead of personal values in the audit log; only confirmed targets are stored | *Pending* |

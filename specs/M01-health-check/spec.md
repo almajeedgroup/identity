@@ -74,7 +74,7 @@ As a citizen, I want to check my documents without creating an account and witho
 ### Results
 
 - **M01-FR-06** — Results show: score dial with band and issue count; one card per document with status; the mismatch report (if 2+ documents) laid out **one block per detail** — the detail, its result, then what each card says — as in the DPR §07 "Mismatch report" screen, so nothing scrolls sideways on a 360 px phone; tips for "Not sure" answers; the action plan from M02 with content from F02 (form, channel, fee resolved for today's date, verification status, official links); "Fix N issues" (moves to the plan); "Book assisted help"; "Clear my data".
-- **M01-FR-07** — Every official link shows the official-link badge and the OTP warning "Identity will never ask for your OTP, PIN or password" is visible on the results screen (C-02).
+- **M01-FR-07** — Every official link shows the official-link badge and the OTP warning "1dentity will never ask for your OTP, PIN or password" is visible on the results screen (C-02).
 
 ### Device storage *(Q-04, Q-05 defaults)*
 

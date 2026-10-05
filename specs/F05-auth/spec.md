@@ -9,7 +9,7 @@
 | **Approvers** | Product owner · Privacy & grievance officer · QA & security tester |
 | **DPR trace** | §08 ("OTP for citizens · 2FA for staff"), §09 (security controls) · **PRD** §7 step 1, §23 ("MFA for staff/admin accounts"), §24 ("passwordless/OTP or strong authentication"), §27 (sign in, staff login) |
 | **Depends on** | [F01](../F01-domain-model/spec.md) v0.3, [M15](../M15-access-audit/spec.md) |
-| **Version** | 0.2 |
+| **Version** | 0.3 |
 
 > **Approval note.** Built ahead of approval (DEC-2). The SMS provider (ADR-005) is not chosen; until it is, one-time codes go to a **development outbox** that refuses to run in production.
 
@@ -54,6 +54,8 @@ Citizens sign in with a **one-time code sent to their own mobile** — no passwo
 - **F05-FR-06** — Sessions: 32 random bytes, base64url, in cookie `identity_session`; database keeps `sha256(token)`, subject, kind, created, last seen, expiry, MFA flag, revoked time.
 - **F05-FR-07** — Every sign-in, sign-out, failed attempt, lockout, enrolment and revocation writes an audit event (M15).
 - **F05-FR-08** — Assisted creation of accounts at the desk is P1 (with M09); not in this version.
+- **F05-FR-09** — While a code is pending, the normalised number is kept in an `HttpOnly`, `SameSite=Lax` cookie (`identity_pending_mobile`, 10 minutes) so the citizen does not retype it. In development and tests the last code sent to a number is readable at `/api/dev/outbox` — only when the `dev-outbox` sender is configured, which production refuses (F05-AC-4.1).
+- **F05-FR-10** — Staff sessions will use their own cookie, separate from citizens' (increment 5).
 
 ## 5. Executable examples
 
@@ -104,3 +106,4 @@ SMS/WhatsApp provider (ADR-005); single sign-on for staff; assisted account crea
 |---|---|---|---|
 | 0.1 | 2026-10-04 | Seed in `backlog.md` | — |
 | 0.2 | 2026-10-05 | Full spec for the PRD P0 build | *Pending* |
+| 0.3 | 2026-10-05 | Citizen sign-in screens (increment 4): pending-number cookie, development outbox route, separate staff cookie | *Pending* |

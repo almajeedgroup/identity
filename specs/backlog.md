@@ -228,7 +228,7 @@ Each entry below is the **seed** for one spec: what the DPR already commits to, 
 **Seed requirements**
 - The DPR §09 disclaimer, verbatim, in four languages: in the footer of every page and in first-run onboarding.
 - "Official link" badge on every outbound link, plus a leaving-Identity interstitial that shows the destination domain and the OTP warning.
-- OTP warning ("Identity will never ask for your OTP, PIN or password") on outbound links, the case tracker and the Filing Assistant.
+- OTP warning ("1dentity will never ask for your OTP, PIN or password") on outbound links, the case tracker and the Filing Assistant.
 - "Last verified" date on every guide and fee.
 - Verified volunteer IDs: a citizen can check a volunteer is genuine (Q-24).
 - No government emblems or look-alike styling (C-01).

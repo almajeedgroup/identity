@@ -18,5 +18,6 @@ One file per decision. Status: Proposed → Accepted → Superseded. A new runti
 | [ADR-012](./ADR-012-ocr-provider.md) | OCR behind a provider interface; local Tesseract first | Accepted (provisional) |
 | [ADR-013](./ADR-013-application-encryption.md) | Application-level AES-256-GCM for sensitive values and files | Accepted (provisional) |
 | [ADR-014](./ADR-014-sessions-and-codes.md) | Server-side sessions; staff TOTP; one-time codes through a sender interface | Accepted (provisional) |
+| [ADR-015](./ADR-015-services-and-server-actions.md) | Application services package; server actions with plain forms; one platform per process | Accepted (provisional) |
 
 "Provisional" means accepted by the build team ahead of the product owner's appointment (DEC-2); to be confirmed at the first stage gate.

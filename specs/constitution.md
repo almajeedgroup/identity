@@ -31,7 +31,7 @@ These principles are **non-negotiable**. They apply to every spec, plan, line of
 ### C-02 · Never handle government credentials
 - The system MUST NEVER ask for, collect, store, transmit or log an **OTP, PIN or password for any government portal**.
 - During assisted filing, **the citizen enters their own OTP** on the official portal.
-- Every flow that leads to an official portal shows the warning: *"Identity will never ask for your OTP, PIN or password."*
+- Every flow that leads to an official portal shows the warning: *"1dentity will never ask for your OTP, PIN or password."*
 - The only OTP the system handles is the one-time code for logging in to Identity itself (F05), which is never shown to staff.
 
 *Why:* DPR §01, §05 (Filing Assistant), §09 "No OTPs, PINs or passwords".
