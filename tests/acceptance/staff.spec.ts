@@ -146,7 +146,7 @@ test.describe('Staff console (F05, M13, M15)', () => {
     await expect(page).toHaveURL(/\/staff\/sign-in$/);
   });
 
-  test('@M04-AC-1.1 @M04-AC-1.3 @M04-AC-2.1 @M04-AC-2.2 @M09-AC-1.1 @M09-AC-3.1 @M09-AC-3.4 a citizen asks for help; staff work the case; the citizen follows it', async ({ browser }) => {
+  test('@F08-AC-1.1 @F08-AC-2.1 @F08-AC-3.1 @M04-AC-1.1 @M04-AC-1.3 @M04-AC-2.1 @M04-AC-2.2 @M09-AC-1.1 @M09-AC-3.1 @M09-AC-3.4 a citizen asks for help; staff work the case; the citizen follows it', async ({ browser }) => {
     test.setTimeout(120_000);
     const citizen = await (await browser.newContext()).newPage();
     const mobile = `9${String(Math.floor(Math.random() * 1e9)).padStart(9, '0')}`;
@@ -176,6 +176,7 @@ test.describe('Staff console (F05, M13, M15)', () => {
     await citizen.getByLabel(/I agree that the 1dentity staff on my case/).check();
     await citizen.getByRole('button', { name: 'Agree and continue' }).click();
     await citizen.getByLabel('I am 60 or older').check();
+    await citizen.getByLabel(/Send me SMS updates about my case/).check();
     await citizen.getByRole('button', { name: 'Request help' }).click();
     await expect(citizen.getByTestId('banner-success')).toContainText(/Your case ID is \W?ID-\d{5}/);
     await expect(citizen.getByTestId('stage')).toHaveText('Request received');
@@ -215,6 +216,16 @@ test.describe('Staff console (F05, M13, M15)', () => {
     await expect(citizen.getByTestId('stage')).toHaveText('Filed on the official portal');
     await expect(citizen.getByTestId('reference')).toContainText('PAN-CR-881234');
     await expect(citizen.getByTestId('timeline')).toContainText('Request received');
+
+    // F08 · the SMS carries only the case ID and a link to 1dentity; the notification list shows what changed.
+    const sms = ((await (await citizen.request.get(`/api/dev/outbox?mobile=${mobile}`)).json()) as { body: string }).body;
+    expect(sms).toContain(`your application for ${caseId} has been filed`);
+    expect(sms).toMatch(/http:\/\/[^ ]+\/en\/me\/cases\//);
+    expect(sms).not.toContain('Ibrahim');
+    await go(citizen, '/en/me');
+    await expect(citizen.getByTestId('notifications-link')).toContainText('new notification');
+    await citizen.getByTestId('notifications-link').click();
+    await expect(citizen.getByTestId('notifications').locator('[data-kind="case_filed"]')).toContainText(`Your application for`);
   });
 
   test('@F03-AC-1.1 no serious accessibility violations on the staff console', async () => {

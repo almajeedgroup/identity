@@ -531,7 +531,12 @@
     "assistanceTitle": "Help from 1dentity",
     "withdrawAssistance": "Stop staff access to my documents",
     "withdrawAssistanceText": "Withdraws all your open help requests. Staff can no longer see your documents.",
-    "assistanceDone": "Staff access has ended and your open requests are withdrawn."
+    "assistanceDone": "Staff access has ended and your open requests are withdrawn.",
+    "smsTitle": "SMS updates",
+    "smsText": "We can send a short SMS when your case changes. It contains only the case ID and a link to this site — never your details.",
+    "smsOn": "Send me SMS updates",
+    "smsOff": "Stop SMS updates",
+    "smsSaved": "Your SMS choice is saved."
   },
   "privacy": {
     "title": "Privacy notice",
@@ -600,7 +605,8 @@
     "deadline": "Deadline date",
     "deadlineNote": "What is the deadline for?",
     "submit": "Request help",
-    "diy": "No thanks — I will do it myself"
+    "diy": "No thanks — I will do it myself",
+    "sms": "Send me SMS updates about my case (only the case ID and a link)"
   },
   "cases": {
     "title": "My help requests",
@@ -645,6 +651,24 @@
       "completed": "Completed",
       "closed": "Closed",
       "withdrawn": "Withdrawn"
+    }
+  },
+  "notify": {
+    "title": "Notifications",
+    "empty": "Nothing new yet.",
+    "new": "New",
+    "unread_one": "{count} new notification",
+    "unread_other": "{count} new notifications",
+    "kind": {
+      "case_received": "We received your request {caseId}.",
+      "documents_needed": "We need something from you for {caseId}.",
+      "appointment_set": "An appointment is set for {caseId}.",
+      "case_filed": "Your application for {caseId} has been filed.",
+      "with_authority": "{caseId} is now with the issuing office.",
+      "case_completed": "{caseId} is completed.",
+      "case_closed": "{caseId} has been closed.",
+      "recheck": "{caseId} is completed — update your documents and look at your report again.",
+      "verify_upload": "Your upload has been read. Please check the details."
     }
   }
 }

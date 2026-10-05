@@ -4,6 +4,7 @@ import { tables, writeAudit } from '@identity/db';
 import type { CorrectionStep } from '@identity/engine';
 import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { markWithdrawn, requireConsent } from '../consents';
+import { notify } from '../notifications';
 import { loadTargets, requireProfile } from '../profile';
 import { runFullCheck } from '../report';
 import { nowOf, ServiceError, type Services } from '../services';
@@ -88,6 +89,7 @@ export async function requestHelp(s: Services, userId: string, input: HelpReques
     await tx.insert(caseEvents).values({ caseId: row!.id, kind: 'state', fromState: null, toState: 'new', actorKind: 'citizen', actorId: userId, at: now });
     return row!;
   });
+  await notify(s, { userId, kind: 'case_received', caseId: created.id, caseLabel: caseIdOf(created) });
   await writeAudit(s.db, { actorKind: 'citizen', actorId: userId, action: 'case.requested', subjectKind: 'case', subjectId: created.id, details: { documentKind: step.documentKind, helpMode: input.helpMode, priority } }, now);
   return { caseId: created.id, existing: false };
 }

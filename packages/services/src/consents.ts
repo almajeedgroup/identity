@@ -8,7 +8,7 @@ const { consents } = tables;
 
 /** F06-FR-01 */
 export const NOTICE_VERSION = '2026-10-v2';
-export const PURPOSES = ['full_check', 'uploads', 'assistance'] as const;
+export const PURPOSES = ['full_check', 'uploads', 'assistance', 'sms'] as const;
 export type Purpose = (typeof PURPOSES)[number];
 
 export async function activeConsents(db: Db, userId: string): Promise<Set<Purpose>> {

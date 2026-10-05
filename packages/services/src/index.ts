@@ -7,3 +7,4 @@ export * from './services';
 export * from './values';
 export * from './staff';
 export * from './cases';
+export * from './notifications';

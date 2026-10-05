@@ -1,4 +1,4 @@
-import { runFullCheck } from '@identity/services';
+import { runFullCheck, unreadCount } from '@identity/services';
 import Link from 'next/link';
 import { Banner } from '@/components/fullcheck/Banner';
 import { ConsentNotice } from '@/components/fullcheck/ConsentNotice';
@@ -26,7 +26,7 @@ export default async function MePage({ params, searchParams }: { params: LocaleP
     );
   }
 
-  const check = await runFullCheck(s, citizen.user.id);
+  const [check, unread] = await Promise.all([runFullCheck(s, citizen.user.id), unreadCount(s, citizen.user.id)]);
   const confirmed = check.analysis.documents.length;
   const nav = [
     ['documents', 'navDocuments'],
@@ -44,6 +44,10 @@ export default async function MePage({ params, searchParams }: { params: LocaleP
         <p className="text-slate-500">{t('me.signedInAs', { mobile: ltr(citizen.user.mobile) })}</p>
       </div>
       {error && <Banner tone="error">{error}</Banner>}
+
+      <Link href={`/${locale}/me/notifications`} className="btn-secondary" data-testid="notifications-link">
+        {unread > 0 ? t('notify.unread', { count: unread }) : t('notify.title')}
+      </Link>
 
       <section className="card space-y-3" aria-labelledby="summary-title" data-testid="summary">
         <h2 id="summary-title" className="text-lg font-bold">

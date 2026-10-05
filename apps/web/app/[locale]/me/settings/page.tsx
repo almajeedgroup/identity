@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Banner } from '@/components/fullcheck/Banner';
 import { SubmitButton } from '@/components/fullcheck/SubmitButton';
 import type { Translate } from '@/i18n/translate';
-import { closeAccountAction, signOutAction, withdrawAssistanceAction, withdrawFullCheckAction, withdrawUploadsAction } from '@/lib/server/actions';
+import { closeAccountAction, setSmsUpdatesAction, signOutAction, withdrawAssistanceAction, withdrawFullCheckAction, withdrawUploadsAction } from '@/lib/server/actions';
 import { citizenContext } from '@/lib/server/fullcheck';
 import { errorMessage, formatDate, localeOf, query, type LocaleParams, type SearchParams } from '@/lib/server/page';
 
@@ -27,6 +27,7 @@ export default async function SettingsPage({ params, searchParams }: { params: L
       <h1 className="text-[2rem] leading-tight font-extrabold">{t('settings.title')}</h1>
       <p>{t('settings.intro')}</p>
       {q.done === 'uploads' && <Banner tone="success">{t('settings.uploadsDone')}</Banner>}
+      {q.done === 'sms' && <Banner tone="success">{t('settings.smsSaved')}</Banner>}
       {q.done === 'assistance' && <Banner tone="success">{t('settings.assistanceDone')}</Banner>}
       {error && <Banner tone="error">{error}</Banner>}
 
@@ -36,6 +37,19 @@ export default async function SettingsPage({ params, searchParams }: { params: L
         </h2>
         {status('uploads')}
         {consent('uploads') && <DangerForm t={t} locale={locale} action={withdrawUploadsAction} text={t('settings.withdrawUploadsText')} button={t('settings.withdrawUploads')} />}
+      </section>
+
+      <section className="card space-y-3" aria-labelledby="sms-title">
+        <h2 id="sms-title" className="text-xl font-bold">
+          {t('settings.smsTitle')}
+        </h2>
+        <p>{t('settings.smsText')}</p>
+        {status('sms')}
+        <form action={setSmsUpdatesAction}>
+          <input type="hidden" name="locale" value={locale} />
+          <input type="hidden" name="on" value={consent('sms') ? 'no' : 'yes'} />
+          <SubmitButton variant="secondary">{consent('sms') ? t('settings.smsOff') : t('settings.smsOn')}</SubmitButton>
+        </form>
       </section>
 
       <section className="card space-y-3" aria-labelledby="assistance-title">

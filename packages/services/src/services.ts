@@ -1,6 +1,6 @@
 /** Application services for the Full Check (M16, M17, F06): everything the web app does with citizen data. */
 import type { KnowledgeBase } from '@identity/content';
-import type { Db, Keyring, ObjectStore } from '@identity/db';
+import type { Db, Keyring, ObjectStore, OtpSender } from '@identity/db';
 import type { EngineContext } from '@identity/engine';
 import type { Providers } from '@identity/ocr';
 
@@ -20,6 +20,8 @@ export interface Services {
   now?: () => Date;
   /** M09-FR-04 · Holidays for SLA counting (YYYY-MM-DD). */
   holidays?: readonly string[];
+  /** F08 · SMS through the sender interface (ADR-014) and the public URL for links; absent = in-app only. */
+  messaging?: { sender: OtpSender; appUrl: string; /** F08-AC-2.3 · default true; tests may turn it off. */ quietHours?: boolean };
 }
 
 export const nowOf = (s: Pick<Services, 'now'>) => s.now?.() ?? new Date();

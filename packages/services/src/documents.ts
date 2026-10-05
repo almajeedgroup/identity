@@ -19,6 +19,7 @@ import type { AddressValue } from '@identity/engine';
 import { extractFields, readDocument, type Extraction } from '@identity/ocr';
 import { and, asc, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { requireConsent } from './consents';
+import { notify } from './notifications';
 import { requireProfile, type Profile } from './profile';
 import { nowOf, ServiceError, type Services } from './services';
 import { cleanNumber, cleanValues, normalisedOf, valueEntries, type CleanNumber, type DocumentValues } from './values';
@@ -234,6 +235,7 @@ export async function uploadDocument(s: Services, userId: string, input: { kind:
     },
     now,
   );
+  await notify(s, { userId, kind: 'verify_upload', documentId: ids.documentId });
   return { documentId: ids.documentId, detectedKind: read.detectedKind, kindMismatch: read.kindMismatch };
 }
 

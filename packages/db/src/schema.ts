@@ -80,7 +80,7 @@ export const consents = pgTable('consents', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  purpose: text('purpose', { enum: ['full_check', 'uploads', 'assistance', 'whatsapp'] }).notNull(),
+  purpose: text('purpose', { enum: ['full_check', 'uploads', 'assistance', 'sms', 'whatsapp'] }).notNull(),
   noticeVersion: text('notice_version').notNull(),
   locale: text('locale').notNull(),
   grantedAt: created(),
@@ -378,6 +378,28 @@ export const caseFiles = pgTable('case_files', {
   purgeAfter: ts('purge_after'),
   purgedAt: ts('purged_at'),
 });
+
+/** F08 · In-app notifications and SMS delivery status. Parameters hold no personal data. */
+export const notifications = pgTable(
+  'notifications',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    kind: text('kind').notNull(),
+    caseId: uuid('case_id').references(() => cases.id, { onDelete: 'set null' }),
+    documentId: uuid('document_id'),
+    params: jsonb('params').notNull().default({}),
+    createdAt: created(),
+    readAt: ts('read_at'),
+    sms: text('sms', { enum: ['none', 'pending', 'sent', 'failed'] }).notNull().default('none'),
+    smsAttempts: integer('sms_attempts').notNull().default(0),
+    smsSentAt: ts('sms_sent_at'),
+    smsError: text('sms_error'),
+  },
+  (t) => [index('notifications_user').on(t.userId, t.createdAt), index('notifications_sms').on(t.sms)],
+);
 
 // ---------------------------------------------------------------- knowledge base (F02 v0.3, F01-FR-11)
 

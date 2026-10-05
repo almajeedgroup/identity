@@ -24,6 +24,7 @@ import {
   citizenReply,
   withdrawMyCase,
   withdrawAssistance,
+  setSmsUpdates,
   type HelpMode,
   type DocumentValues,
   type Purpose,
@@ -296,6 +297,7 @@ export async function requestHelpAction(fd: FormData) {
   const { citizen, p } = await signedIn(locale);
   const documentId = str(fd, 'document');
   await act(`/${locale}/me/help/${documentId}`, async () => {
+    if (str(fd, 'sms') === 'yes') await setSmsUpdates(p.services, citizen.user.id, true, locale);
     const { caseId, existing } = await requestHelp(p.services, citizen.user.id, {
       documentId,
       helpMode: str(fd, 'mode') as HelpMode,
@@ -338,4 +340,15 @@ export async function withdrawAssistanceAction(fd: FormData) {
   const { citizen, p } = await signedIn(locale);
   await withdrawAssistance(p.services, citizen.user.id);
   redirect(`/${locale}/me/settings?done=assistance`);
+}
+
+// ---------------------------------------------------------------- SMS updates (F08)
+
+export async function setSmsUpdatesAction(fd: FormData) {
+  const locale = localeOf(fd);
+  const { citizen, p } = await signedIn(locale);
+  await act(`/${locale}/me/settings`, async () => {
+    await setSmsUpdates(p.services, citizen.user.id, str(fd, 'on') === 'yes', locale);
+    return `/${locale}/me/settings?done=sms`;
+  });
 }

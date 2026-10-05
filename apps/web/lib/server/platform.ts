@@ -21,7 +21,7 @@ import {
 } from '@identity/db';
 import { createContext } from '@identity/engine';
 import { PdfTextProvider, TesseractProvider } from '@identity/ocr';
-import { purgeEndedCaseFiles, type Knowledge, type Services } from '@identity/services';
+import { deliverSms, purgeEndedCaseFiles, purgeOldNotifications, type Knowledge, type Services } from '@identity/services';
 
 /**
  * One platform per server process (ADR-011, ADR-013, ADR-014): configuration, database (migrated and seeded),
@@ -70,7 +70,10 @@ async function boot(): Promise<Platform> {
 
   // M09-FR-04 · holidays for SLA counting until a calendar is maintained (DEC-3, Q-08).
   const holidays = (process.env.CASE_HOLIDAYS ?? '').split(',').map((d) => d.trim()).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d));
-  const services: Services = { db, keyring: config.keyring, store, ocr: { image: new TesseractProvider(), pdf: new PdfTextProvider() }, knowledge, holidays };
+  const otp = createOtpSender(config.otpSender, config.appEnv, db);
+  // F08 · SMS updates use the same sender as sign-in codes (ADR-014); links point to our own site.
+  const messaging = { sender: otp, appUrl: process.env.APP_URL ?? `http://localhost:${process.env.PORT ?? 3000}`, quietHours: process.env.SMS_QUIET_HOURS !== 'off' || config.appEnv === 'production' };
+  const services: Services = { db, keyring: config.keyring, store, ocr: { image: new TesseractProvider(), pdf: new PdfTextProvider() }, knowledge, holidays, messaging };
 
   // F06-FR-04 · retention: uploads 30 days after verification, sign-in codes 1 day.
   const housekeeping = async () => {
@@ -78,6 +81,8 @@ async function boot(): Promise<Platform> {
       await purgeDueUploads(db, store);
       await pruneOtpChallenges(db);
       await purgeEndedCaseFiles(services);
+      await deliverSms(services);
+      await purgeOldNotifications(services);
     } catch (error) {
       console.error('Housekeeping failed', error);
     }
@@ -88,7 +93,7 @@ async function boot(): Promise<Platform> {
   return {
     config,
     db,
-    otp: createOtpSender(config.otpSender, config.appEnv, db),
+    otp,
     services,
     invalidateKnowledge: () => {
       cached = null;

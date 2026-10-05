@@ -3,6 +3,7 @@ import { allowedTransitions, CLOSURE_REASONS, istDate, orderQueue, shortName, tr
 import { can, decryptValue, maskAadhaar, maskNumber, tables, writeAudit } from '@identity/db';
 import { and, asc, desc, eq, inArray, isNull, lte } from 'drizzle-orm';
 import { activeConsents } from '../consents';
+import { notify, type NotificationKind } from '../notifications';
 import { nowOf, ServiceError, type Services, type StaffActor } from '../services';
 import { requirePermission } from '../staff/guard';
 import { caseIdOf, CASE_FILE_RETENTION_DAYS, cleanBody, isOpen, isUuid, loadCase, slaOf, storeCaseFile, type CaseRow } from './common';
@@ -26,6 +27,9 @@ async function workableCase(s: Services, actor: StaffActor, caseId: string): Pro
 async function event(s: Services, row: CaseRow, actor: StaffActor, e: { kind: 'state' | 'assigned' | 'filed' | 'note'; from?: string | null; to?: string | null; reason?: string | null; citizenVisible?: boolean }, now: Date) {
   await s.db.insert(caseEvents).values({ caseId: row.id, kind: e.kind, fromState: e.from ?? null, toState: e.to ?? null, actorKind: 'staff', actorId: actor.id, reason: e.reason ?? null, citizenVisible: e.citizenVisible ?? true, at: now });
 }
+
+/** F08-EX-events · tell the citizen what changed on their case. */
+const tell = (s: Services, row: CaseRow, kind: NotificationKind) => notify(s, { userId: row.userId, kind, caseId: row.id, caseLabel: caseIdOf(row) });
 
 const audit = (s: Services, actor: StaffActor, action: string, row: CaseRow, details: Record<string, unknown>, now: Date) =>
   writeAudit(s.db, { actorKind: 'staff', actorId: actor.id, action, subjectKind: 'case', subjectId: row.id, details }, now);
@@ -197,6 +201,8 @@ export async function moveCase(s: Services, actor: StaffActor, caseId: string, t
     .where(eq(cases.id, row.id));
   await event(s, row, actor, { kind: 'state', from: row.state, to, reason: closure ?? null }, now);
   await audit(s, actor, 'case.state_changed', row, { from: row.state, to }, now);
+  const kind: Partial<Record<string, NotificationKind>> = { awaiting_citizen: 'documents_needed', with_authority: 'with_authority', closed_not_proceeding: 'case_closed', withdrawn: 'case_closed' };
+  if (kind[to]) await tell(s, row, kind[to]!);
 }
 
 /** M09-AC-3.3 · Notes are internal or for the citizen; Aadhaar numbers are masked before storing. */
@@ -239,6 +245,7 @@ export async function setCaseSchedule(s: Services, actor: StaffActor, caseId: st
     .set({ appointmentAt: appointment, nextAction: input.nextAction?.trim().slice(0, 200) || null, nextActionDue: input.nextActionDue || null, updatedAt: now })
     .where(eq(cases.id, row.id));
   await audit(s, actor, 'case.scheduled', row, { appointment: !!appointment, nextAction: !!input.nextAction }, now);
+  if (appointment && appointment.getTime() !== row.appointmentAt?.getTime()) await tell(s, row, 'appointment_set');
 }
 
 /** M09-AC-3.4 / M10 · The authority's reference marks the case filed. */
@@ -252,6 +259,7 @@ export async function recordFiling(s: Services, actor: StaffActor, caseId: strin
   await s.db.update(cases).set({ state: 'filed', applicationRef: cleanBody(reference, 80), applicationDate: input.date, updatedAt: now }).where(eq(cases.id, row.id));
   await event(s, row, actor, { kind: 'state', from: row.state, to: 'filed' }, now);
   await audit(s, actor, 'case.filed', row, {}, now);
+  await tell(s, row, 'case_filed');
 }
 
 /** M09-AC-3.5 · Completion needs a date and proof (a file, or a note when nothing is issued). */
@@ -269,6 +277,8 @@ export async function completeCase(s: Services, actor: StaffActor, caseId: strin
     .where(eq(cases.id, row.id));
   await event(s, row, actor, { kind: 'state', from: row.state, to: 'completed' }, now);
   await audit(s, actor, 'case.completed', row, { proof: !!input.proof }, now);
+  await tell(s, row, 'case_completed');
+  await tell(s, row, 'recheck');
 }
 
 export async function addStaffCaseFile(s: Services, actor: StaffActor, caseId: string, input: { bytes: Uint8Array; label?: string }): Promise<string> {

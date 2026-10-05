@@ -109,6 +109,10 @@ export default async function RequestHelpPage({ params, searchParams }: { params
               </div>
             </div>
           </fieldset>
+          <label className="choice">
+            <input type="checkbox" name="sms" value="yes" defaultChecked={consents.has('sms')} />
+            <span>{t('assist.sms')}</span>
+          </label>
           <SubmitButton>{t('assist.submit')}</SubmitButton>
         </form>
       )}
