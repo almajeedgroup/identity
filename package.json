@@ -2,7 +2,7 @@
   "name": "identity",
   "private": true,
   "type": "module",
-  "description": "Identity Web App — citizen document-care platform (Islamic Information Centre)",
+  "description": "1dentity — citizen document-care platform (Islamic Information Centre)",
   "workspaces": [
     "apps/*",
     "packages/*"

@@ -53,7 +53,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <main id="main" tabIndex={-1} className="mx-auto max-w-2xl px-4 py-6 outline-none">
             {children}
           </main>
-          <SiteFooter t={t} />
+          <SiteFooter t={t} locale={locale} />
         </I18nProvider>
       </body>
     </html>

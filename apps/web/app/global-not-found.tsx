@@ -3,7 +3,7 @@ import { localeNames, locales } from '@/i18n/config';
 import './fonts';
 import './globals.css';
 
-export const metadata: Metadata = { title: 'Page not found — Identity' };
+export const metadata: Metadata = { title: 'Page not found — 1dentity' };
 
 /** F04 edge case · Unknown pages and unknown locales: 404 with links to the four languages. */
 export default function GlobalNotFound() {

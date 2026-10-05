@@ -370,9 +370,9 @@ The PRD re-prioritises scope into P0 / P1 / P2 (PRD §32). Increments follow it;
 | Increment | PRD priority | Specs | Delivers | Status |
 |---|---|---|---|---|
 | 1 | — | F01–F04, F12, M01, M02 v0.2 | Anonymous Quick Check on the device | Done |
-| 2 | P0 | M02 v1.0, M16 (engine), M18, F02 v0.3, F03 v0.3 | Normalisation, six-status comparison, target suggestions, issue report, rules knowledge base, dependency-ordered roadmap — pure, tested engines | In progress |
-| 3 | P0 | F01 v0.3, F05, M15, F07 | Database, encryption, audit log, encrypted file store, citizen sign-in, staff sign-in with MFA, roles | Next |
-| 4 | P0 | M16, M17, F06 | Full Check: profile, documents, upload + OCR + verification, report, targets and overrides, roadmap, privacy and deletion | Next |
+| 2 | P0 | M02 v1.0, M16 (engine), M18, F02 v0.3, F03 v0.3 | Normalisation, six-status comparison, target suggestions, issue report, rules knowledge base, dependency-ordered roadmap — pure, tested engines | Done |
+| 3 | P0 | F01 v0.3, F05, M15, F07 | Database, encryption, audit log, encrypted file store, citizen sign-in, staff sign-in with MFA, roles | Done |
+| 4 | P0 | M16 v0.2, M17, F06, ADR-015 | Full Check: sign-in, consent, profile, documents (typed or uploaded), OCR and verification, report, targets and overrides, roadmap, privacy notice, withdrawal and deletion | Done |
 | 5 | P0 | M13, M15 | Staff dashboard, rules admin (versions, verification, publishing), audit log viewer, customer list | Next |
 | 6 | P1 | M04, M09, M10, M19, F08, M07 | Assistance cases, tasks, service fees and payments, notifications, family profiles | Later |
 | 7 | P2 | M06, X01, X02, D-series | Mobile app, advanced address matching, more states and boards, multilingual OCR, authorised integrations, expiry reminders | Later |

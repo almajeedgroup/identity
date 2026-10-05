@@ -128,6 +128,28 @@ export const masterValues = pgTable(
   (t) => [uniqueIndex('master_values_profile_field').on(t.profileId, t.field)],
 );
 
+/**
+ * M16-AC-3.3 · Every target change with its old and new value. Kept with the profile (and deleted with it, F06)
+ * so personal values never enter the append-only audit log, which records only the field and actor.
+ */
+export const targetChanges = pgTable(
+  'target_changes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    profileId: uuid('profile_id')
+      .notNull()
+      .references(() => citizenProfiles.id, { onDelete: 'cascade' }),
+    field: text('field').notNull(),
+    oldValue: jsonb('old_value'),
+    newValue: jsonb('new_value').notNull(),
+    actorKind: text('actor_kind', { enum: ['citizen', 'staff'] }).notNull(),
+    actorId: uuid('actor_id').notNull(),
+    reason: text('reason'),
+    createdAt: created(),
+  },
+  (t) => [index('target_changes_profile').on(t.profileId, t.createdAt)],
+);
+
 // ---------------------------------------------------------------- documents (M17, C-16)
 
 export const documents = pgTable(

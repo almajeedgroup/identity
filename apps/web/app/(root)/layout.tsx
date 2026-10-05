@@ -5,8 +5,8 @@ import '../fonts';
 import '../globals.css';
 
 export const metadata: Metadata = {
-  title: 'Identity — choose your language',
-  description: 'Identity, a unit of Islamic Information Centre. English · ಕನ್ನಡ · हिन्दी · اردو',
+  title: '1dentity — choose your language',
+  description: '1dentity, a unit of Islamic Information Centre. English · ಕನ್ನಡ · हिन्दी · اردو',
 };
 
 /** Root layout for the language chooser at "/" (F04-AC-1.1). Locale pages have their own root layout. */

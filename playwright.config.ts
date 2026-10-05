@@ -20,7 +20,8 @@ export default defineConfig({
   projects: [{ name: 'budget-phone' }],
   webServer: {
     command: 'npm run start -w @identity/web',
-    env: { PORT: String(port), NEXT_TELEMETRY_DISABLED: '1' },
+    // The Full Check runs against an in-memory database and file store, with codes in the dev outbox (F05-AC-4.1).
+    env: { PORT: String(port), NEXT_TELEMETRY_DISABLED: '1', APP_ENV: 'test', PGLITE_DIR: 'memory://', STORAGE_DIR: 'memory://', OTP_SENDER: 'dev-outbox' },
     url: `http://127.0.0.1:${port}/en`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

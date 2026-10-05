@@ -7,5 +7,9 @@ export const MIGRATIONS: { id: string; sql: string }[] = [
   {
     "id": "0001_guards",
     "sql": "-- C-16 · Original document values are immutable.\nCREATE OR REPLACE FUNCTION identity_original_is_immutable() RETURNS trigger LANGUAGE plpgsql AS $$\nBEGIN\n  IF NEW.original IS DISTINCT FROM OLD.original THEN\n    RAISE EXCEPTION 'document_fields.original is immutable (C-16)' USING ERRCODE = 'check_violation';\n  END IF;\n  RETURN NEW;\nEND $$;\n--> statement-breakpoint\nCREATE TRIGGER document_fields_original_immutable BEFORE UPDATE ON document_fields FOR EACH ROW EXECUTE FUNCTION identity_original_is_immutable();\n--> statement-breakpoint\n-- M15-FR-05 · The audit log is append-only.\nCREATE OR REPLACE FUNCTION identity_audit_is_append_only() RETURNS trigger LANGUAGE plpgsql AS $$\nBEGIN\n  RAISE EXCEPTION 'audit_logs is append-only (M15)' USING ERRCODE = 'insufficient_privilege';\nEND $$;\n--> statement-breakpoint\nCREATE TRIGGER audit_logs_no_update BEFORE UPDATE OR DELETE ON audit_logs FOR EACH ROW EXECUTE FUNCTION identity_audit_is_append_only();\n"
+  },
+  {
+    "id": "0002_target_changes",
+    "sql": "CREATE TABLE \"target_changes\" (\n\t\"id\" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,\n\t\"profile_id\" uuid NOT NULL,\n\t\"field\" text NOT NULL,\n\t\"old_value\" jsonb,\n\t\"new_value\" jsonb NOT NULL,\n\t\"actor_kind\" text NOT NULL,\n\t\"actor_id\" uuid NOT NULL,\n\t\"reason\" text,\n\t\"created_at\" timestamp with time zone DEFAULT now() NOT NULL\n);\n--> statement-breakpoint\nALTER TABLE \"target_changes\" ADD CONSTRAINT \"target_changes_profile_id_citizen_profiles_id_fk\" FOREIGN KEY (\"profile_id\") REFERENCES \"public\".\"citizen_profiles\"(\"id\") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint\nCREATE INDEX \"target_changes_profile\" ON \"target_changes\" USING btree (\"profile_id\",\"created_at\");"
   }
 ];

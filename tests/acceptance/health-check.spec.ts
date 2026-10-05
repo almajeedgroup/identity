@@ -47,7 +47,7 @@ test.describe('M01 Health Check', () => {
     const pan = steps.nth(1);
     await expect(pan).toContainText('PAN CR-01');
     await expect(pan.getByTestId('fee')).toContainText('₹101–107');
-    await expect(pan.getByTestId('verification')).toHaveText(/Not yet verified by Identity/);
+    await expect(pan.getByTestId('verification')).toHaveText(/Not yet verified by 1dentity/);
     const links = pan.getByRole('link');
     await expect(links).toHaveCount(2);
     for (const link of await links.all()) {
@@ -56,7 +56,7 @@ test.describe('M01 Health Check', () => {
       await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     }
     await expect(steps.nth(2).getByTestId('fee')).toHaveText('Free');
-    await expect(page.getByTestId('otp-warning')).toHaveText('Identity will never ask for your OTP, PIN or password.');
+    await expect(page.getByTestId('otp-warning')).toHaveText('1dentity will never ask for your OTP, PIN or password.');
   });
 
   test('@M01-AC-1.2 nothing the citizen types leaves the device, and every request stays on our origin', async ({ page, baseURL }) => {

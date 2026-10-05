@@ -60,7 +60,7 @@ test.describe('C-01 trust cues', () => {
     }
     await page.goto('/en');
     await expect(page.getByTestId('disclaimer')).toHaveText(
-      'Identity is a community help service of Islamic Information Centre. We are not a government office. All applications are submitted on official government portals, and fees are paid only to the issuing authority. We will never ask for your OTP, PIN or password.',
+      '1dentity is a community help service of Islamic Information Centre. We are not a government office. All applications are submitted on official government portals, and fees are paid only to the issuing authority. We will never ask for your OTP, PIN or password.',
     );
   });
 

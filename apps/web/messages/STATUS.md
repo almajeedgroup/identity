@@ -9,4 +9,4 @@ A language is release-ready only when its language reviewer (DPR §11) has signe
 | `hi` | हिन्दी | Draft (AI-assisted) | Draft (AI-assisted) | Pending |
 | `ur` | اردو | Draft (AI-assisted) | Draft (AI-assisted) | Pending |
 
-Brand note: "Identity" is kept in Latin script in every language until the name and mark are confirmed (DEC-5).
+Brand note: "1dentity" (PRD, R-01) is kept in Latin script in every language until the name and mark are confirmed (DEC-5).

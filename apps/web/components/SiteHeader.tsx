@@ -10,7 +10,7 @@ export function SiteHeader({ locale, t }: { locale: Locale; t: Translate }) {
       <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 py-2">
         <Link href={`/${locale}`} className="flex min-h-12 items-center gap-2 text-ink-900 no-underline">
           <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-lg font-extrabold text-white">
-            i
+            1
           </span>
           <span className="text-xl font-extrabold tracking-tight" lang="en">
             {t('brand.name')}

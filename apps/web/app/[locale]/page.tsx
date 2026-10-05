@@ -40,6 +40,14 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </ul>
       </section>
 
+      <section className="card space-y-3" data-testid="full-check-entry">
+        <h2 className="text-lg font-bold">{t('home.fullCheckTitle')}</h2>
+        <p>{t('home.fullCheckText')}</p>
+        <Link href={`/${locale}/me`} className="btn-secondary">
+          {t('home.fullCheckLink')}
+        </Link>
+      </section>
+
       <section className="card space-y-3">
         <h2 className="text-lg font-bold">{t('home.assistedTitle')}</h2>
         <p>{t('home.assistedText')}</p>

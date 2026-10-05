@@ -22,9 +22,13 @@ const contentSecurityPolicy = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
-  transpilePackages: ['@identity/content', '@identity/domain', '@identity/rules', '@identity/ui'],
+  transpilePackages: ['@identity/content', '@identity/db', '@identity/domain', '@identity/engine', '@identity/ocr', '@identity/rules', '@identity/ui'],
+  // WebAssembly and worker-based packages load from node_modules at runtime (ADR-011, ADR-012).
+  serverExternalPackages: ['@electric-sql/pglite', 'pg', 'tesseract.js', 'tesseract.js-core', 'pdfjs-dist'],
   experimental: {
     globalNotFound: true,
+    // M17 · uploads up to 10 MB (F07-AC-3.1).
+    serverActions: { bodySizeLimit: '11mb' },
   },
   async headers() {
     return [

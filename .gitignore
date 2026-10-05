@@ -12,3 +12,6 @@ next-env.d.ts
 
 # Confidential source documents are never committed (the repository is public)
 *.docx
+
+# Local development data: database, encrypted files and generated keys (never committed)
+.data/
