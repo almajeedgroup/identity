@@ -9,7 +9,7 @@
 | **Approvers** | Product owner · UI/UX designer |
 | **DPR trace** | §07 (palette, type, status system, core components, UX principles, screen concepts) |
 | **Depends on** | — |
-| **Version** | 0.2 |
+| **Version** | 0.3 |
 
 > **Approval note.** Built ahead of approval. The contrast fix in F03-FR-02 adds four text colours that are not in the DPR palette and needs the designer's sign-off.
 
@@ -35,6 +35,10 @@ Every citizen, especially older people, people with low vision and people on sma
 
 - **F03-AC-3.1** — *Given* the large-text toggle, *when* tapped, *then* text is enlarged across the app, the choice is remembered on the device, and the page does not scroll sideways on a 360 px-wide screen.
 
+### US5 — Six comparison statuses *(must)*
+
+- **F03-AC-5.1** — *Given* the six statuses of the Full Check (M02-FR-14), *when* shown, *then* each has its own colour family, icon and word (`F03-EX-severity`), and every text/tint pair passes AA.
+
 ### US4 — Easy to tap *(must)*
 
 - **F03-AC-4.1** — *Given* buttons, links styled as buttons, and choice inputs, *when* measured, *then* each touch target is at least 48 × 48 px.
@@ -57,6 +61,7 @@ Every citizen, especially older people, people with low vision and people on sma
 - **F03-FR-05** — **Core components** in this version: primary button, secondary button, text field with uppercase caption label, radio/checkbox choice cards, status chip, document status card, health-score dial, action-plan step, official-link badge, OTP warning, disclaimer footer, language switcher, large-text toggle.
 - **F03-FR-06** — **Large-text mode** scales the root font size to 125% and is stored on the device.
 - **F03-FR-07** — **One next step**: a screen has at most one primary button (C-12).
+- **F03-FR-08** — **Severity tokens** (PRD §12): green = Emerald (exact match, formatting only) · yellow `#7A5C00` on `#FFF8D6` (likely the same) · orange `#A84300` on `#FFEEDF` (needs review) · red = Coral 700 on Coral 50 (major difference) · grey = Slate 500 on `#EEF1F3` (missing). Icons: check, check, approximately-equal, warning triangle, cross, dash.
 
 ## 5. Executable examples
 
@@ -81,6 +86,18 @@ failing_dpr_text_uses:
   - { text: amber400, background: white }
   - { text: coral500, background: white }
   - { text: sky500,   background: mist50 }
+```
+
+```yaml
+id: F03-EX-severity
+minimum: 4.5
+statuses:
+  exact_match:           { colour: green,  text: emerald700, tint: emerald50, icon: check }
+  formatting_variation:  { colour: green,  text: emerald700, tint: emerald50, icon: check }
+  likely_equivalent:     { colour: yellow, text: yellow700,  tint: yellow50,  icon: approx }
+  potential_discrepancy: { colour: orange, text: orange700,  tint: orange50,  icon: warning }
+  major_discrepancy:     { colour: red,    text: coral700,   tint: coral50,   icon: cross }
+  missing:               { colour: grey,   text: slate500,   tint: slate50,   icon: dash }
 ```
 
 ## 6. Data and privacy
@@ -121,3 +138,4 @@ None blocking. Designer to confirm the four added text colours.
 |---|---|---|---|
 | 0.1 | 2026-10-04 | Seed in `backlog.md` | — |
 | 0.2 | 2026-10-04 | Full draft with contrast fix; built ahead of approval | *Pending* |
+| 0.3 | 2026-10-05 | Severity tokens for the PRD's six comparison statuses | *Pending* |

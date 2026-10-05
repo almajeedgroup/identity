@@ -1,10 +1,10 @@
-# Identity Web App — Spec-Driven Development Plan
+# 1dentity Web App — Spec-Driven Development Plan
 
 | | |
 |---|---|
-| **Version** | 0.1 (draft for review) |
+| **Version** | 0.2 (draft for review) |
 | **Date** | 4 October 2026 |
-| **Source** | [`Identity_WebApp_DPR_v1.0.pdf`](../Identity_WebApp_DPR_v1.0.pdf) — Detailed Project Report v1.0 |
+| **Source** | [`Identity_WebApp_DPR_v1.0.pdf`](../Identity_WebApp_DPR_v1.0.pdf) — Detailed Project Report v1.0 · 1dentity Developer PRD v1.0 (confidential; not in the repository) — see [`prd-reconciliation.md`](./prd-reconciliation.md) |
 | **Covers** | Phase 0 (Discovery & design) through Phase 3 (Scale), months 1–12 |
 | **Companion files** | [`specs/constitution.md`](../specs/constitution.md) · [`specs/README.md`](../specs/README.md) (spec register) · [`specs/backlog.md`](../specs/backlog.md) (seeded specs) · [`specs/open-questions.md`](../specs/open-questions.md) · [`specs/_templates/`](../specs/_templates/) |
 
@@ -362,6 +362,22 @@ SDD activities during the pilot:
 | ADR-007 | Background jobs and scheduling (reminders, SLA timers, retention jobs) | Week 5 |
 | ADR-008 | Privacy-friendly analytics and error tracking (no advertising trackers) | Week 5 |
 | ADR-009 | WhatsApp Business Platform provider | Week 4 (onboarding lead time) |
+
+### 7.7 Build sequence after the Developer PRD (October 2026)
+
+The PRD re-prioritises scope into P0 / P1 / P2 (PRD §32). Increments follow it; each one is specified, built, verified and pushed before the next.
+
+| Increment | PRD priority | Specs | Delivers | Status |
+|---|---|---|---|---|
+| 1 | — | F01–F04, F12, M01, M02 v0.2 | Anonymous Quick Check on the device | Done |
+| 2 | P0 | M02 v1.0, M16 (engine), M18, F02 v0.3, F03 v0.3 | Normalisation, six-status comparison, target suggestions, issue report, rules knowledge base, dependency-ordered roadmap — pure, tested engines | In progress |
+| 3 | P0 | F01 v0.3, F05, M15, F07 | Database, encryption, audit log, encrypted file store, citizen sign-in, staff sign-in with MFA, roles | Next |
+| 4 | P0 | M16, M17, F06 | Full Check: profile, documents, upload + OCR + verification, report, targets and overrides, roadmap, privacy and deletion | Next |
+| 5 | P0 | M13, M15 | Staff dashboard, rules admin (versions, verification, publishing), audit log viewer, customer list | Next |
+| 6 | P1 | M04, M09, M10, M19, F08, M07 | Assistance cases, tasks, service fees and payments, notifications, family profiles | Later |
+| 7 | P2 | M06, X01, X02, D-series | Mobile app, advanced address matching, more states and boards, multilingual OCR, authorised integrations, expiry reminders | Later |
+
+Pilot rule (PRD §36): every correction recommendation is validated manually by staff during the pilot before scaling.
 
 ---
 

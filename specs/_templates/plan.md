@@ -30,6 +30,9 @@ One or two paragraphs: how the spec will be met, and the main design choice.
 | C-13 Content is verifiable | | | |
 | C-14 No advertising trackers; aggregates only | | | |
 | C-15 Lean, maintainable stack | | | |
+| C-16 Original data is preserved | | | |
+| C-17 The citizen decides | | | |
+| C-18 Recommendations, not rulings | | | |
 
 ## 3. Components touched
 

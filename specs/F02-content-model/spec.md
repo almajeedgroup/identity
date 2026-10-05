@@ -1,4 +1,4 @@
-# F02 · Document rules and content model
+# F02 · Document rules, content model and knowledge base
 
 | | |
 |---|---|
@@ -7,9 +7,10 @@
 | **Phase** | P1 |
 | **Spec owner** | Tech lead + content lead |
 | **Approvers** | Product owner · Content lead |
+| **PRD trace** | §6, §9, §14, §15, §24 ("versioned database-driven rules"), §28, §29 |
 | **DPR trace** | §04 (service scope, fees as of Oct 2026), §05 (Content Manager), §06 ("Official links only"), §10 (monthly "last verified" review), §12 (risk: rules change) |
 | **Depends on** | [F01](../F01-domain-model/spec.md) |
-| **Version** | 0.2 |
+| **Version** | 0.3 |
 
 > **Approval note.** Built ahead of approval. This version covers the content types the Health Check needs (P1 increment 1). Guides, filing scripts, journeys and Hub explainers are added in later versions of this spec before M03, M08 and M10 are built.
 
@@ -50,6 +51,26 @@ As a content editor, I want every rule, fee, form and link to carry an owner, a 
 
 - **F02-AC-5.1** — *Given* the seed bundle, *when* validated, *then* it passes, has a version, and every action referenced by the rules engine exists.
 
+**Knowledge base (v0.3, from the Developer PRD)**
+
+### US6 — A catalogue of the 11 MVP documents *(must)*
+
+- **F02-AC-6.1** — *Given* the knowledge base, *when* validated, *then* the document catalogue lists the 11 PRD §6 documents, each with labels in four languages, a tier (M18-FR-01), the fields it prints (each required or optional), how its number is labelled and masked, and the authority responsible for it in each jurisdiction it covers.
+
+### US7 — Rules with the full PRD structure *(must)*
+
+- **F02-AC-7.1** — *Given* a correction rule, *when* validated, *then* it has: document type, jurisdiction, authority, fields, issue types, minor/major category, accepted evidence, required documents, prerequisites, application route (online/offline/both, form, where), steps, tracking, what to do if rejected, escalation, government fees, official sources, priority, version, change history and the common metadata (owner, source, last verified, effective dates, status); anything missing or referring to an unknown authority, source, jurisdiction or document fails validation with the rule's id.
+- **F02-AC-7.2** — *Given* a rule whose version history is not in increasing order, or whose latest history entry does not match its version, *when* validated, *then* validation fails.
+
+### US8 — Nothing invented *(must)*
+
+- **F02-AC-8.1** — *Given* the seed knowledge base, *when* checked, *then* correction rules exist **only** for procedures described in the DPR (Aadhaar, PAN, Voter ID), every rule and source cites the DPR and has no last-verified date, and the other eight documents carry an authority but **no rule** (C-18).
+
+### US9 — Dictionaries and prices are content *(must)*
+
+- **F02-AC-9.1** — *Given* the place-variant and address-abbreviation dictionaries, *when* validated, *then* no word belongs to two groups and every group lists its canonical form.
+- **F02-AC-9.2** — *Given* service prices, *when* validated, *then* each is a 1dentity service with an amount in rupees and metadata, and none is attached to a government fee (C-01); an empty price list is valid (prices "to be confirmed").
+
 ## 4. Functional requirements
 
 ### Common metadata
@@ -84,6 +105,17 @@ Planned for later versions: guide, evidence checklist, filing script, journey, e
 ### Seed content honesty
 
 - **F02-FR-09** — Seed values taken from the DPR MUST cite "DPR v1.0 §04 (as of Oct 2026)" as their source and MUST NOT carry a `lastVerified` date until someone has checked them on the official portal (O03). Translations produced before language review are marked as drafts in the content changelog.
+
+### Knowledge base (v0.3)
+
+- **F02-FR-10** — **Jurisdictions** are hierarchical codes: `IN` (national), `IN-KA` (Karnataka), `IN-KA-<DISTRICT>`; a rule for a jurisdiction applies to it and everything below it (M18-FR-02).
+- **F02-FR-11** — **Authorities**: id, name (four languages), jurisdiction, department, official sources.
+- **F02-FR-12** — **Official sources**: id, title, URL (official-domain allowlist, F02-FR-03), authority, kind (`portal`, `form`, `notification`, `guidance`), metadata.
+- **F02-FR-13** — **Document catalogue**: kind (`aadhaar`, `pan`, `passport`, `voter_id`, `driving_licence`, `birth_certificate`, `sslc`, `puc`, `caste_certificate`, `income_certificate`, `ration_card`), label, tier, printed fields (`name`, `dob`, `gender`, `father_name`, `mother_name`, `spouse_name`, `relative_name`, `place_of_birth`, `address`, each `required` or `optional`), number label and masking pattern, authorities by jurisdiction.
+- **F02-FR-14** — **Correction rules** (PRD §14, §15): id, document kind, jurisdiction, authority, fields, issue types (`spelling`, `name_change`, `date`, `gender`, `relation`, `place`, `address`), category (`minor`, `major`, `update`), eligibility, accepted evidence, required documents, prerequisites (`{ document, fields, reason }`), route (`online` / `offline` / `both`, form, where), appointment, steps, tracking, on-rejection guidance, escalation, typical processing time (shown as "usually"), government fees (effective-dated, F02-FR-04), sources, priority, internal notes (staff only), version, change history, metadata.
+- **F02-FR-15** — Rules are **data**: stored in the database and edited by the rules admin (M13) without a code release (PRD §15, §33). The code seed initialises an empty database and is the test fixture.
+- **F02-FR-16** — **Dictionaries**: place variants (officially renamed places, e.g. Bangalore → Bengaluru) and address abbreviations (e.g. Rd → Road), each with metadata.
+- **F02-FR-17** — **Service prices** (PRD §29): service (`detailed_report`, `assistance`), optional document kind, amount in rupees, metadata. Never mixed with government fees.
 
 ## 5. Executable examples
 
@@ -135,6 +167,28 @@ cases:
   - { effectiveTo: "2027-06-14", asOf: "2027-05-15", alert: true }
   - { effectiveTo: "2027-06-14", asOf: "2027-05-14", alert: false }
   - { effectiveTo: "2027-06-14", asOf: "2027-06-15", alert: false }
+```
+
+### Knowledge-base examples
+
+```yaml
+id: F02-EX-catalogue
+documents: [aadhaar, pan, passport, voter_id, driving_licence, birth_certificate, sslc, puc, caste_certificate, income_certificate, ration_card]
+tiers: { birth_certificate: 1, sslc: 2, puc: 2, aadhaar: 3, pan: 3, passport: 4, voter_id: 4, driving_licence: 4, caste_certificate: 5, income_certificate: 5, ration_card: 5 }
+rulesOnlyFor: [aadhaar, pan, voter_id]
+```
+
+```yaml
+id: F02-EX-dictionaries
+places:
+  - { a: "Bangalore", b: "Bengaluru", same: true }
+  - { a: "Gulbarga",  b: "Kalaburagi", same: true }
+  - { a: "Mysore",    b: "Mysuru", same: true }
+  - { a: "Mysuru",    b: "Bengaluru", same: false }
+abbreviations:
+  - { short: "rd",  long: "road" }
+  - { short: "crs", long: "cross" }
+  - { short: "apts", long: "apartments" }
 ```
 
 ## 6. Data and privacy
@@ -192,3 +246,4 @@ Zero citizen-visible items past the `rechecking` threshold; 100% of seed items v
 |---|---|---|---|
 | 0.1 | 2026-10-04 | Seed in `backlog.md` | — |
 | 0.2 | 2026-10-04 | Full draft for the Health Check increment; built ahead of approval | *Pending* |
+| 0.3 | 2026-10-05 | Knowledge base from the Developer PRD: jurisdictions, authorities, official sources, 11-document catalogue, full correction rules with versions, dictionaries, service prices | *Pending* |

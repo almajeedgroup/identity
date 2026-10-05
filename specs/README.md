@@ -53,6 +53,10 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | M13 | Content Manager | P1 | Full | Week 3 | S1 | Content lead + tech lead | F02, F04, M15 | Seeded |
 | M14 | Impact Dashboard | P2 | Full | Week 14 | Month 6 | Product owner | F11, M09, M11, M12 | Seeded |
 | M15 | Access & Audit | P1 | Full | Week 3 | S1 → S4 | Tech lead + privacy officer | F01, F05, F06 | Seeded |
+| M16 | [Citizen profile and target values](./M16-citizen-profile/spec.md) | P0 (PRD) | Full | Increment 2 | Inc. 2 (engine) → 4 (screens) | Product owner + tech lead | F01, M02, F05 | In review · engine built in increment 2 |
+| M17 | Documents, upload, OCR and verification | P0 (PRD) | Full | Increment 4 | Inc. 4 | Tech lead + privacy officer | F01, F02, F07, M16 | Seeded (PRD §6, §9, §10) |
+| M18 | [Correction roadmap and dependency engine](./M18-correction-roadmap/spec.md) | P0 (PRD) | Full | Increment 2 | Inc. 2 (engine) → 4 (screens) | Product owner + tech lead | M02, M16, F02 | In review · engine built in increment 2 |
+| M19 | 1dentity service fees and payments | P1 (PRD) | Full | Increment 6 | Inc. 6 | Product owner | M04, F02 | Seeded (PRD §16B, §18, §29) |
 | D01 | Aadhaar | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seed content entered (unverified) |
 | D02 | PAN | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seed content entered (unverified) |
 | D03 | Voter ID (EPIC) | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seed content entered (unverified) |
@@ -75,3 +79,5 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | O04 | DPDP readiness check | P2 | Lite | Month 5 | Month 7 | Privacy officer | F06, F07, M15, O02 | Seeded |
 
 **MVP (Phase 1) modules:** M01, M02, M03, M04, M05, M08, M09, M10, M13, M15 — 10 modules, as in DPR §05.
+
+**Developer PRD (October 2026).** The PRD re-prioritises the build into P0 / P1 / P2 and adds M16–M19; see [`docs/prd-reconciliation.md`](../docs/prd-reconciliation.md) and plan §7.7 for the increment sequence.

@@ -7,9 +7,9 @@
 | **Phase** | P1 |
 | **Spec owner** | Product owner + tech lead |
 | **Approvers** | Product owner · Privacy & grievance officer |
-| **DPR trace** | §01 ("Compares"), §03 (impact hotspots), §05, §06 (worked example) |
+| **DPR trace** | §01 ("Compares"), §03 (impact hotspots), §05, §06 (worked example) · **PRD** §6, §11, §12, §13, §21, §28 |
 | **Depends on** | [F01](../F01-domain-model/spec.md), [F02](../F02-content-model/spec.md), D01–D04 |
-| **Version** | 0.2 |
+| **Version** | 1.0 |
 
 > **Approval note.** Built ahead of approval at the product sponsor's request. Proposed defaults for Q-02 (reference document) and Q-03 (name variants) are applied and marked below.
 
@@ -23,6 +23,10 @@ Small differences between documents — "Mohd." on PAN but "Mohammed" on Aadhaar
 - Used inside the Health Check (M01), on the citizen's phone or on a help-desk tablet with a volunteer.
 
 ## 3. User stories
+
+This spec has two parts. **Part A** (US1–US6) is the Quick Check comparison used on the device by M01. **Part B** (US7–US12) is the Full Check consistency engine required by the Developer PRD: normalisation, six comparison statuses, any number of documents and fields, and the consistency report. Both share the name normaliser and the name-variant dictionary.
+
+**Part A — Quick Check**
 
 ### US1 — Compare my documents against one reference *(must)*
 
@@ -58,6 +62,39 @@ As a citizen, I want small differences in my name explained, so that I understan
 
 - **M02-AC-6.1** — *Given* the same input, *when* the detector runs twice, *then* it returns identical output and performs no input/output of its own (pure function).
 
+**Part B — Full Check consistency engine (PRD §11–§13)**
+
+### US7 — Harmless formatting is not reported as a discrepancy *(must)*
+
+As a citizen, I want case, punctuation and date-format differences treated as harmless, so that I only worry about real differences.
+
+- **M02-AC-7.1** — *Given* each pair in `M02-EX-statuses`, *when* compared, *then* the status and reason are as listed — including the PRD §11 examples (MOHAMMED IBRAHIM vs Mohammed Ibrahim → formatting variation; 12/04/2002 vs 12-04-2002 → formatting variation; Bengaluru vs Bangalore → likely equivalent; Mohamad vs Mohammed Ibrahim → potential discrepancy; Mohammed Ibrahim vs Ibrahim Ahmed → major discrepancy).
+- **M02-AC-7.2** — *Given* any two names, *when* they are not equal after safe normalisation, *then* the result is never better than "potential discrepancy" — similar-looking names are never declared equivalent (C-18).
+
+### US8 — Every field, every document *(must)*
+
+- **M02-AC-8.1** — *Given* documents of any of the 11 PRD types, *when* analysed, *then* each compared field (name, date of birth, gender, father's, mother's and spouse's names, place of birth, address) is compared across every document that prints it, and a field a document prints but has no value for is reported as **missing**.
+- **M02-AC-8.2** — *Given* a Voter ID, Driving Licence, caste or income certificate with a relative's name and relation, *when* analysed, *then* the name is compared as the father's, mother's or spouse's name according to the relation, and a relation of "other" is not compared.
+
+### US9 — Dates and places with care *(must)*
+
+- **M02-AC-9.1** — *Given* the date cases in `M02-EX-statuses`, *then* a year-only date, swapped day and month, and a 1 January placeholder are each flagged for review, and other differences are major.
+- **M02-AC-9.2** — *Given* addresses in `M02-EX-address-full`, *then* different PIN or city is major, a different house/street line is a potential discrepancy, and less detail or abbreviations are likely equivalent.
+
+### US10 — Measured against my target *(must)*
+
+- **M02-AC-10.1** — *Given* a target value for a field (M16), *when* analysed, *then* each document's status is its comparison with the target; *given* no target, *then* the suggested target (M16) is used and the field is marked "target not confirmed".
+- **M02-AC-10.2** — *Given* a citizen or staff override on a document field (accepted as equivalent, or flagged as needing correction) with a reason, *when* analysed, *then* the status reflects the override and is marked as overridden (C-17).
+
+### US11 — A report anyone can read *(must)*
+
+- **M02-AC-11.1** — *Given* `M02-EX-report`, *when* the report is built, *then* per field it gives the colour status, the number of variations, how many are formatting-only, the number of documents, the missing count, and the documents needing review, exactly as listed.
+- **M02-AC-11.2** — *Given* a report, *when* issues are counted, *then* only potential and major discrepancies against the target count as issues; formatting variations, likely-equivalent values and missing values are informational (Q-29).
+
+### US12 — Pure and fast *(must)*
+
+- **M02-AC-12.1** — *Given* the same documents, targets and knowledge base, *when* analysed twice, *then* the result is identical and the inputs are unchanged.
+
 ## 4. Functional requirements
 
 - **M02-FR-01** — The detector MUST be a pure, deterministic function in `packages/rules` that runs in the browser (ADR-002). It receives the citizen's answers and the content bundle (F02) and returns a report.
@@ -84,6 +121,20 @@ As a citizen, I want small differences in my name explained, so that I understan
 - **M02-FR-11** — **Field results**: for every field and held document the report gives `ok`, `mismatch`, `update_due` or `na`.
 - **M02-FR-12** — **Document status**: `mismatch` if the document has any mismatch issue; else `update_due` if it has any update-due issue; else `valid`.
 - **M02-FR-13** — **Action plan**: each issue maps to the content action whose `document` matches and whose `fields` include the issue's field. Actions are de-duplicated (one action, many fields) and sorted by the action's `priority`, then id.
+
+### Part B — Full Check engine (`packages/engine`)
+
+- **M02-FR-14** — **Statuses** (PRD §12), from best to worst: `exact_match` (identical as written) · `formatting_variation` (equal after safe normalisation) · `likely_equivalent` (a known non-material variation: renamed place, abbreviation in an address, less detail) · `potential_discrepancy` (needs review) · `major_discrepancy` (substantially different) · `missing` (the document prints the field but has no value; informational, reported separately).
+- **M02-FR-15** — **Colours** (F03 v0.3): exact match and formatting variation → green · likely equivalent → yellow · potential → orange · major → red · missing → grey. Always with icon and word.
+- **M02-FR-16** — **Names** (name, father's, mother's, spouse's): identical → exact; equal after case, punctuation, spacing-around-punctuation and leading-honorific normalisation → formatting variation; spacing, initials, abbreviations, transliterations, word order, or one name containing all of the other's parts → potential discrepancy; anything else → major. **Never** likely equivalent (C-18).
+- **M02-FR-17** — **Dates** are read in Indian day-first order from `DD/MM/YYYY`, `DD-MM-YYYY`, `DD.MM.YYYY`, `YYYY-MM-DD`, `D Mon YYYY`, `DD-MON-YYYY` or `YYYY`. Identical → exact; same date in a different format → formatting variation; year-only vs a full date in that year → potential (`year_only`); day and month swapped → potential (`day_month_swapped`); 1 January vs another date in the same year → potential (`placeholder_date`); unreadable → potential (`unreadable_date`); otherwise → major (`date_differs`).
+- **M02-FR-18** — **Gender**: M/Male, F/Female, T/Transgender/Third gender are the same values in different formats → formatting variation; different → major.
+- **M02-FR-19** — **Place of birth**: words are mapped through the **place-variant dictionary** (content, F02: officially renamed places such as Bangalore → Bengaluru). Same after mapping → likely equivalent (`place_renamed`) or formatting; one contains the other → potential (`place_partial`); otherwise major (`place_differs`).
+- **M02-FR-20** — **Address** is `line` (house, building, street, locality), `city`, `pin` (and optional district, state). Different PIN or different city (after place mapping) → major (`address_city_or_pin_differs`); different line → potential (`address_line_differs`); line abbreviations expanded from the **address-abbreviation dictionary** (content) or renamed city → likely equivalent (`address_abbreviation`); one address less detailed than the other → likely equivalent (`address_less_detail`); otherwise formatting or exact.
+- **M02-FR-21** — **Relative names** on Voter ID, Driving Licence, caste and income certificates carry a relation (`father`, `mother`, `husband`, `wife`, `other`) and are compared as `father_name`, `mother_name` or `spouse_name`; `other` is shown but not compared (C-17: relationship differences are reported, never ruled invalid).
+- **M02-FR-22** — **Field analysis**: for each field, the documents that print it are listed; *variations* are distinct values as written; *formatting-only* variations are those equal to another after safe normalisation; each document's status is its comparison with the target (confirmed, or suggested by M16); the field's colour is its worst document status (missing excluded).
+- **M02-FR-23** — **Overrides** (C-17): an override `accepted_equivalent` turns a potential discrepancy into likely equivalent; `requires_correction` raises any status to at least potential discrepancy. Overrides of major discrepancies to equivalent are allowed only with a reason and are always shown as overridden. The engine records which results were overridden; who and why is stored by M16.
+- **M02-FR-24** — **Issues** (Q-29): document fields with potential or major status against the target. The report lists *documents requiring review* in order of tier (M18) and the total issue count.
 
 ## 5. Executable examples
 
@@ -230,6 +281,129 @@ issues: []
 tips: [check_mobile_link, check_document_update, check_address]
 ```
 
+### Part B examples
+
+```yaml
+id: M02-EX-statuses
+source: PRD §11 examples, plus date, gender and place cases
+cases:
+  - { field: name, a: "MOHAMMED IBRAHIM", b: "Mohammed Ibrahim", status: formatting_variation, reason: case_or_punctuation }
+  - { field: name, a: "Mohammed Ibrahim", b: "Mohammed Ibrahim", status: exact_match }
+  - { field: name, a: "Mr. Mohammed Ibrahim", b: "Mohammed Ibrahim", status: formatting_variation, reason: honorific }
+  - { field: name, a: "Mohamad Ibrahim", b: "Mohammed Ibrahim", status: potential_discrepancy, reason: transliteration }
+  - { field: name, a: "Mohd Ibrahim", b: "Mohammed Ibrahim", status: potential_discrepancy, reason: abbreviation }
+  - { field: name, a: "M. Ibrahim", b: "Mohammed Ibrahim", status: potential_discrepancy, reason: initials }
+  - { field: name, a: "Ibrahim Mohammed", b: "Mohammed Ibrahim", status: potential_discrepancy, reason: word_order }
+  - { field: name, a: "MohammedIbrahim", b: "Mohammed Ibrahim", status: potential_discrepancy, reason: spacing }
+  - { field: name, a: "Mohammed Ibrahim Khan", b: "Mohammed Ibrahim", status: potential_discrepancy, reason: missing_or_extra_part }
+  - { field: name, a: "Mohammed Ibrahim", b: "Ibrahim Ahmed", status: major_discrepancy, reason: different_name }
+  - { field: name, a: "Ravi Kumar", b: "Suresh Babu Naik", status: major_discrepancy, reason: different_name }
+  - { field: father_name, a: "Abdul Rahim", b: "Abdul Raheem", status: potential_discrepancy, reason: transliteration }
+  - { field: dob, a: "12/04/2002", b: "12-04-2002", status: formatting_variation, reason: format_only }
+  - { field: dob, a: "12 APR 2002", b: "2002-04-12", status: formatting_variation, reason: format_only }
+  - { field: dob, a: "12/04/2002", b: "12/04/2002", status: exact_match }
+  - { field: dob, a: "2002", b: "12/04/2002", status: potential_discrepancy, reason: year_only }
+  - { field: dob, a: "04/12/2002", b: "12/04/2002", status: potential_discrepancy, reason: day_month_swapped }
+  - { field: dob, a: "01/01/2002", b: "12/04/2002", status: potential_discrepancy, reason: placeholder_date }
+  - { field: dob, a: "13/04/2002", b: "12/04/2002", status: major_discrepancy, reason: date_differs }
+  - { field: dob, a: "12/04/2003", b: "12/04/2002", status: major_discrepancy, reason: date_differs }
+  - { field: dob, a: "around 2002", b: "12/04/2002", status: potential_discrepancy, reason: unreadable_date }
+  - { field: gender, a: "M", b: "Male", status: formatting_variation, reason: gender_format }
+  - { field: gender, a: "Female", b: "Male", status: major_discrepancy, reason: gender_differs }
+  - { field: place_of_birth, a: "Bengaluru", b: "Bangalore", status: likely_equivalent, reason: place_renamed }
+  - { field: place_of_birth, a: "BANGALORE", b: "Bangalore", status: formatting_variation, reason: case_or_punctuation }
+  - { field: place_of_birth, a: "Shivajinagar, Bengaluru", b: "Bengaluru", status: potential_discrepancy, reason: place_partial }
+  - { field: place_of_birth, a: "Mysuru", b: "Bengaluru", status: major_discrepancy, reason: place_differs }
+```
+
+```yaml
+id: M02-EX-address-full
+cases:
+  - name: identical
+    a: { line: "12, 3rd Cross, Shivajinagar", city: "Bengaluru", pin: "560051" }
+    b: { line: "12, 3rd Cross, Shivajinagar", city: "Bengaluru", pin: "560051" }
+    status: exact_match
+  - name: case and punctuation only
+    a: { line: "12 3RD CROSS SHIVAJINAGAR", city: "BENGALURU", pin: "560051" }
+    b: { line: "12, 3rd Cross, Shivajinagar", city: "Bengaluru", pin: "560051" }
+    status: formatting_variation
+    reason: case_or_punctuation
+  - name: renamed city
+    a: { line: "12, 3rd Cross, Shivajinagar", city: "Bangalore", pin: "560051" }
+    b: { line: "12, 3rd Cross, Shivajinagar", city: "Bengaluru", pin: "560051" }
+    status: likely_equivalent
+    reason: address_abbreviation
+  - name: abbreviations in the line
+    a: { line: "No. 12, 3rd Crs, Shivajinagar Main Rd", city: "Bengaluru", pin: "560051" }
+    b: { line: "12, 3rd Cross, Shivajinagar Main Road", city: "Bengaluru", pin: "560051" }
+    status: likely_equivalent
+    reason: address_abbreviation
+  - name: less detail
+    a: { line: "Shivajinagar", city: "Bengaluru", pin: "560051" }
+    b: { line: "12, 3rd Cross, Shivajinagar", city: "Bengaluru", pin: "560051" }
+    status: likely_equivalent
+    reason: address_less_detail
+  - name: different house
+    a: { line: "45, 5th Main, Shivajinagar", city: "Bengaluru", pin: "560051" }
+    b: { line: "12, 3rd Cross, Shivajinagar", city: "Bengaluru", pin: "560051" }
+    status: potential_discrepancy
+    reason: address_line_differs
+  - name: different PIN
+    a: { line: "12, 3rd Cross, Shivajinagar", city: "Bengaluru", pin: "560001" }
+    b: { line: "12, 3rd Cross, Shivajinagar", city: "Bengaluru", pin: "560051" }
+    status: major_discrepancy
+    reason: address_city_or_pin_differs
+  - name: moved to another city
+    a: { line: "8, Station Road", city: "Kalaburagi", pin: "585101" }
+    b: { line: "12, 3rd Cross, Shivajinagar", city: "Bengaluru", pin: "560051" }
+    status: major_discrepancy
+    reason: address_city_or_pin_differs
+```
+
+```yaml
+id: M02-EX-relatives
+documents:
+  - { id: pan,   kind: pan,      fields: { father_name: "Abdul Raheem" } }
+  - { id: voter, kind: voter_id, fields: { relative_name: "Abdul Rahim", relative_type: father } }
+  - { id: dl,    kind: driving_licence, fields: { relative_name: "Fatima Begum", relative_type: other } }
+expect:
+  father_name: { pan: exact_match, voter: potential_discrepancy }
+  notCompared: [dl]
+```
+
+```yaml
+id: M02-EX-report
+source: PRD §13 and §30 — six documents, one person
+documents:
+  - { id: birth,    kind: birth_certificate, fields: { name: "Mohamad Ibrahim",  dob: "12-04-2002",  father_name: "Abdul Raheem", mother_name: "Ayesha Banu" } }
+  - { id: sslc,     kind: sslc,              fields: { name: "Mohammed Ibrahim", dob: "12/04/2002",  father_name: "Abdul Rahim",  mother_name: "Ayesha Banu" } }
+  - { id: aadhaar,  kind: aadhaar,           fields: { name: "MOHAMMED IBRAHIM", dob: "12/04/2002",  gender: "Male" } }
+  - { id: pan,      kind: pan,               fields: { name: "Ibrahim Mujeeb",   dob: "12/04/2002",  father_name: "ABDUL RAHEEM" } }
+  - { id: passport, kind: passport,          fields: { name: "Mohammed Ibrahim", dob: "12 APR 2002", gender: "M", father_name: "Abdul Raheem", mother_name: "Ayesha Banu" } }
+  - { id: voter,    kind: voter_id,          fields: { name: "Mohd Ibrahim",     dob: "12-04-2002",  gender: "Male" } }
+expect:
+  fields:
+    name:        { colour: red,    variations: 5, formattingOnly: 1, documents: 6, missing: 0, target: "Mohammed Ibrahim", review: [birth, pan, voter] }
+    dob:         { colour: green,  variations: 3, formattingOnly: 2, documents: 6, missing: 0, review: [] }
+    father_name: { colour: orange, variations: 3, formattingOnly: 1, documents: 4, missing: 0, target: "Abdul Raheem", review: [sslc] }
+    mother_name: { colour: green,  variations: 1, formattingOnly: 0, documents: 3, missing: 0, review: [] }
+    gender:      { colour: green,  variations: 2, formattingOnly: 1, documents: 3, missing: 1, review: [] }
+  issueCount: 4
+  documentsRequiringReview: [birth, sslc, pan, voter]
+```
+
+```yaml
+id: M02-EX-overrides
+source: Same documents as M02-EX-report
+overrides:
+  - { document: voter, field: name, decision: accepted_equivalent, reason: "Bank accepted 'Mohd' as the same name" }
+  - { document: aadhaar, field: name, decision: requires_correction, reason: "Citizen wants title case on Aadhaar" }
+expect:
+  name: { voter: likely_equivalent, aadhaar: potential_discrepancy }
+  overridden: [voter, aadhaar]
+  issueCount: 4
+```
+
 ## 6. Data and privacy
 
 | Data item | Purpose | Consent / basis | Stored where | Who can see it | Retention | Deleted or anonymised by |
@@ -294,3 +468,4 @@ Share of pilot cases whose action plan the volunteer agreed with without changes
 |---|---|---|---|
 | 0.1 | 2026-10-04 | Seed in `backlog.md` | — |
 | 0.2 | 2026-10-04 | Full draft with executable examples; built ahead of approval | *Pending* |
+| 1.0 | 2026-10-05 | Part B from the Developer PRD: normalisation, six statuses, 11 document types, relatives, places, addresses, targets, overrides, consistency report | *Pending* |

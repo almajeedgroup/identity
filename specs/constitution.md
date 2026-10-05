@@ -1,13 +1,13 @@
-# Identity Constitution
+# 1dentity Constitution
 
 | | |
 |---|---|
-| **Version** | 1.0.0 (proposed) |
+| **Version** | 1.1.0 (proposed) |
 | **Status** | Draft — to be ratified in Phase 0, week 1 |
 | **Ratified by** | Product owner · Privacy & grievance officer |
-| **Source** | DPR v1.0, especially §06 (signature features), §07 (design language), §08 (architecture), §09 (data protection, trust & compliance) |
+| **Source** | DPR v1.0, especially §06–§09; Developer PRD v1.0 §1, §9–§11, §23, §28 (see [`docs/prd-reconciliation.md`](../docs/prd-reconciliation.md)) |
 
-These principles are **non-negotiable**. They apply to every spec, plan, line of code, content item and operational process in the Identity Web App.
+These principles are **non-negotiable**. They apply to every spec, plan, line of code, content item and operational process in the 1dentity web app.
 
 - Every `spec.md` must be consistent with them.
 - Every `plan.md` contains a **Constitution check** table that states, for each principle, whether it applies and how it is satisfied.
@@ -19,12 +19,13 @@ These principles are **non-negotiable**. They apply to every spec, plan, line of
 ## Trust
 
 ### C-01 · Facilitation, not impersonation
-- Identity is a community help service of Islamic Information Centre. It is **not** a government office, and the app MUST say so on every page.
+- 1dentity is a community help service of Islamic Information Centre. It is **not** a government office, it **cannot change government records**, and the app MUST say so on every page. Authorities alone accept, reject and make corrections.
 - Every guide links **only to official portals** of the issuing authority or its authorised agencies.
-- Identity MUST NOT collect official fees. Fees are paid by the citizen **directly to the authority**.
+- 1dentity MUST NOT collect official fees. Fees are paid by the citizen **directly to the authority**.
+- Any 1dentity service fee is shown **separately** from government charges, and a government fee is never presented as a 1dentity fee. Prices are configured by admins, not hard-coded.
 - The app MUST NOT use government emblems, or names, colours or layouts that could be mistaken for a government service.
 
-*Why:* DPR §09 "Facilitation, not impersonation"; risk register "Brand misuse or confusion with a government office" (impact High).
+*Why:* DPR §09 "Facilitation, not impersonation"; risk register "Brand misuse or confusion with a government office" (impact High); PRD §1, §16B, §23, §28, §29.
 *Verified by:* disclaimer present in the layout of every surface (E2E); official-link allowlist validation in the Content Manager and in CI; no payment collection for official fees anywhere in the codebase.
 
 ### C-02 · Never handle government credentials
@@ -40,6 +41,8 @@ These principles are **non-negotiable**. They apply to every spec, plan, line of
 - Full 12-digit Aadhaar numbers are **never stored**. At most the **last four digits** are kept.
 - Citizens are asked to share **masked Aadhaar**, in line with UIDAI guidance.
 - Free-text fields (notes, messages) are scanned for Aadhaar-like numbers and masked before saving.
+- OCR (M17) checks every upload: an Aadhaar image that shows a full number is **not stored**; the citizen is asked for masked Aadhaar or to type the details.
+- Other identifiers (PAN, passport, EPIC, licence numbers) are **encrypted at rest** (AES-256-GCM) and **masked** in every view that does not need the full value.
 
 *Why:* DPR §09 "Masked Aadhaar only".
 *Verified by:* schema lint (Aadhaar fields limited to 4 digits); Verhoeff-valid 12-digit detection in free text, logs, fixtures and seed data; upload guidance and staff review step (F07, Q-07).
@@ -48,16 +51,18 @@ These principles are **non-negotiable**. They apply to every spec, plan, line of
 
 ## Privacy
 
-### C-04 · Collect only with consent, only for the case
-- The **Health Check and Mismatch Detector run in the citizen's browser**. Nothing the citizen enters is sent to the server unless they **choose to open a case**.
+### C-04 · Collect only with consent, only for the purpose
+- The anonymous **Quick Check** (M01) runs entirely in the citizen's browser. Nothing entered there is sent to the server.
+- The **Full Check** (M16, M17) stores a profile and documents only for a citizen with an account, after they accept a consent notice for that purpose. Uploading a document is a separate, explicit act.
 - Personal data is collected only with a clear consent notice **in the citizen's language**, for a stated purpose, and used only for that purpose.
 - Withdrawing consent must be as easy as giving it.
 
-*Why:* DPR §06 ("The Health Check runs in the citizen's browser — nothing is stored unless they choose to open a case"), §09 data lifecycle "01 · Collect".
+*Why:* DPR §06, §09 data lifecycle "01 · Collect"; PRD §7, §23 ("obtain appropriate user consent before collecting/processing documents").
 *Verified by:* E2E network-capture test on the Health Check flow; consent record required before a case is created; consent withdrawal flow tests.
 
 ### C-05 · Retention by default
-- Uploaded documents are **purged 30 days after case closure**.
+- Uploaded documents are **purged 30 days after case closure**; uploads outside a case are purged 30 days after the citizen verifies their extraction (Q-26).
+- A citizen can delete their documents, profile or whole account at any time from Settings.
 - Case records are **anonymised after 12 months**.
 - Deletion is automatic, scheduled, logged and verified. The target is **100% of uploaded documents deleted on schedule** (DPR §12).
 - Every stored data item has a retention class recorded in the spec's *Data & privacy* table and in `data-model.md`.
@@ -149,12 +154,41 @@ These principles are **non-negotiable**. They apply to every spec, plan, line of
 *Verified by:* Content Security Policy allowlist; bundle origin check; M14 aggregation tests.
 
 ### C-15 · Lean, maintainable stack
-- TypeScript end to end: Next.js (React) + Tailwind with Urbanist tokens; Node.js API routes (NestJS only if services grow); PostgreSQL with Prisma; S3-compatible storage; WhatsApp Business Platform and DLT-registered SMS.
+- TypeScript end to end: Next.js (React) + Tailwind with Urbanist tokens; Node.js route handlers and server actions (NestJS only if services grow); PostgreSQL with Drizzle ORM (ADR-011); S3-compatible storage; OCR behind a replaceable provider interface (ADR-012); WhatsApp Business Platform and DLT-registered SMS.
 - Adding a new runtime, datastore or third-party service requires an **ADR**.
 - Code, specs and ADRs must be understandable by a new small team at handover.
 
 *Why:* DPR §08 recommended stack, §11 team, risk register "Funding gaps after launch".
 *Verified by:* ADR review at Gate 2.
+
+---
+
+## Records and recommendations
+
+### C-16 · Original data is preserved
+- Every document field keeps three values side by side: **original** (as extracted or typed), **normalised** (for comparison) and **confirmed** (by the citizen). The original is **never overwritten**.
+- Corrections create new versions; the uploaded file is kept separate from extracted data.
+
+*Why:* PRD §9, §10, §28 ("never overwrite original document data").
+*Verified by:* repository tests that updates append versions; database constraints; M17 acceptance tests.
+
+### C-17 · The citizen decides
+- Nothing extracted from a document is relied on until the citizen has **seen and confirmed** it.
+- The system may **suggest** a target (master) value; it never sets or changes one silently.
+- A citizen (or staff on their behalf, with a reason) can **dispute or override** a comparison result; every override is kept with an audit trail.
+- Relationship-name differences are reported, never treated as proof that a relationship is invalid.
+
+*Why:* PRD §7, §8, §10, §21, §28.
+*Verified by:* M16 and M17 acceptance tests; audit events on every target change and override.
+
+### C-18 · Recommendations, not rulings
+- Similar-looking names are **never treated as legally identical**; fuzzy matching is never proof.
+- Government procedures, fees and links are **never invented**. Every government-process recommendation shows its **source, last-verified date and rule version**; where no verified rule exists, the app says so and names the authority.
+- Estimated processing times are never presented as guarantees.
+- The report distinguishes **informational** differences from those **requiring correction**.
+
+*Why:* PRD §11, §14, §16, §28, §34.
+*Verified by:* M18 roadmap tests (every step carries source and version, or an explicit "not yet verified"); content checks (C-13).
 
 ---
 
@@ -173,3 +207,4 @@ These principles are **non-negotiable**. They apply to every spec, plan, line of
 | Version | Date | Change | Approved by |
 |---|---|---|---|
 | 1.0.0 | — | Initial version derived from DPR v1.0 | *Pending ratification* |
+| 1.1.0 | 2026-10-05 | Developer PRD v1.0: product name 1dentity; C-01 service fees separate; C-03 OCR guard and encrypted identifiers; C-04 Quick Check vs Full Check; C-05 upload retention; C-15 Drizzle and OCR provider; new C-16, C-17, C-18 | *Pending ratification* |
