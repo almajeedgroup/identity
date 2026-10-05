@@ -40,14 +40,38 @@ export type ErrorCode =
   | 'no_text'
   | 'not_verified'
   | 'already_verified'
-  | 'reason_required';
+  | 'reason_required'
+  // staff console (M13, M15)
+  | 'forbidden'
+  | 'invalid_json'
+  | 'invalid_kb'
+  | 'key_mismatch'
+  | 'not_draft'
+  | 'second_person_required'
+  | 'no_metadata'
+  | 'self_lockout'
+  | 'weak_password'
+  | 'email_taken'
+  | 'no_roles'
+  | 'invalid_mobile';
 
 /** A refusal the citizen can act on; the web layer turns the code into a message. */
 export class ServiceError extends Error {
-  constructor(readonly code: ErrorCode) {
-    super(code);
+  constructor(
+    readonly code: ErrorCode,
+    /** Messages the person can act on, e.g. knowledge-base validation errors (M13-AC-2.2). */
+    readonly details: string[] = [],
+  ) {
+    super(details.length ? `${code}: ${details.join('; ')}` : code);
     this.name = 'ServiceError';
   }
 }
 
 export type Actor = { kind: 'citizen'; id: string } | { kind: 'staff'; id: string };
+
+/** A signed-in staff member (F05: password and TOTP done) with their roles (M15-FR-01). */
+export interface StaffActor {
+  id: string;
+  name: string;
+  roles: readonly string[];
+}

@@ -1,0 +1,48 @@
+/** Staff console messages (English; C-08 covers citizen screens — M15-FR-09). */
+export const STAFF_ERRORS: Record<string, string> = {
+  invalid: 'That did not work. Check the details and try again.',
+  locked: 'Too many failed attempts. The account is locked for 15 minutes.',
+  inactive: 'This account is suspended or offboarded. Ask an admin.',
+  not_enrolled: 'Two-step verification is not set up yet. Sign in again.',
+  forbidden: 'Your role does not allow this.',
+  invalid_json: 'The item is not valid JSON.',
+  invalid_kb: 'This change would make the knowledge base invalid.',
+  key_mismatch: 'The identifier in the JSON does not match this item. Create a new item instead.',
+  invalid_kind: 'Unknown kind of item.',
+  not_draft: 'Only drafts can be published or discarded.',
+  second_person_required: 'This draft changes a fee or a link, so a different publisher must publish it.',
+  no_metadata: 'This kind of item has no verification date.',
+  reason_required: 'Please give a reason.',
+  invalid_date: 'Use a date in the form YYYY-MM-DD, not in the future.',
+  invalid_value: 'One of the values is not valid.',
+  not_found: 'Not found.',
+  self_lockout: 'You cannot remove your own admin role, suspend or offboard yourself.',
+  weak_password: 'Passwords need at least 12 characters.',
+  email_taken: 'Someone already uses that email address.',
+  no_roles: 'Choose at least one role.',
+  invalid_mobile: 'Enter the full 10-digit mobile number.',
+};
+
+export const staffError = (code: string | undefined) => (code ? (STAFF_ERRORS[code] ?? 'Something went wrong.') : null);
+
+export const ROLE_LABELS: Record<string, string> = {
+  volunteer: 'Volunteer',
+  supervisor: 'Supervisor',
+  content_editor: 'Content editor',
+  publisher: 'Publisher',
+  privacy_officer: 'Privacy officer',
+  admin: 'Admin',
+};
+
+export const KIND_LABELS: Record<string, string> = {
+  rule: 'Correction rules',
+  authority: 'Authorities',
+  source: 'Official sources',
+  catalogue: 'Document catalogue',
+  jurisdiction: 'Jurisdictions',
+  service_price: 'Service prices',
+  place_variants: 'Place names',
+  address_abbreviations: 'Address abbreviations',
+};
+
+export const formatDateTime = (d: Date) => d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';

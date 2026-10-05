@@ -347,7 +347,7 @@ describe('F02/F01 knowledge base in the database', () => {
   });
 
   it('F01-FR-11 effective version: published beats newer drafts; in review used only without a published one; withdrawn removes', () => {
-    const row = (version: number, status: 'draft' | 'in_review' | 'published' | 'withdrawn') => ({ kind: 'rule', key: 'r', version, status, data: {}, note: null, createdById: null, createdAt: new Date() });
+    const row = (version: number, status: 'draft' | 'in_review' | 'published' | 'withdrawn') => ({ kind: 'rule', key: 'r', version, status, data: {}, note: null, createdById: null, createdAt: new Date(), publishedById: null, publishedAt: null, verifiedOn: null, verifiedById: null, verifiedSource: null, verifiedAt: null });
     expect(effectiveVersion([row(1, 'published'), row(2, 'draft')])?.version).toBe(1);
     expect(effectiveVersion([row(1, 'published'), row(2, 'in_review')])?.version).toBe(1);
     expect(effectiveVersion([row(1, 'in_review'), row(2, 'draft')])?.version).toBe(1);

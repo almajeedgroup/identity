@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { largeTextBootScript } from '@/components/LargeTextToggle';
 import { SiteFooter } from '@/components/SiteFooter';
+import { HydrationMarker } from '@/components/HydrationMarker';
 import { SiteHeader } from '@/components/SiteHeader';
 import { directionOf, isLocale, locales } from '@/i18n/config';
 import { I18nProvider } from '@/i18n/I18nProvider';
@@ -54,6 +55,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             {children}
           </main>
           <SiteFooter t={t} locale={locale} />
+          <HydrationMarker />
         </I18nProvider>
       </body>
     </html>

@@ -50,9 +50,9 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | M10 | Filing Assistant | P1 | Full | Week 9 | S4 | Field coordinator + content lead | M09, M13, D01–D03, F07, F08 | Seeded |
 | M11 | Camp Manager | P2 | Full | Week 14 | Month 5 | Field coordinator | M05, M09, M12 | Seeded |
 | M12 | Volunteer Hub | P2 | Full | Week 14 | Month 5 | Field coordinator | M15 | Seeded |
-| M13 | Content Manager | P1 | Full | Week 3 | S1 | Content lead + tech lead | F02, F04, M15 | Seeded |
+| M13 | [Rules admin](./M13-rules-admin/spec.md) (Content Manager: rules database now, guides P1) | P0 (PRD) | Full | Increment 5 | Inc. 5 | Content lead + tech lead | F02, F01, F05, M15 | In review · built in increment 5 |
 | M14 | Impact Dashboard | P2 | Full | Week 14 | Month 6 | Product owner | F11, M09, M11, M12 | Seeded |
-| M15 | [Access & Audit](./M15-access-audit/spec.md) | P1 | Full | Week 3 | S1 → S4 | Tech lead + privacy officer | F01, F05, F06 | In review · built in increment 3 (screens in increment 5) |
+| M15 | [Access & Audit](./M15-access-audit/spec.md) | P1 | Full | Week 3 | S1 → S4 | Tech lead + privacy officer | F01, F05, F06 | In review · controls in increment 3, staff console in increment 5 |
 | M16 | [Citizen profile and target values](./M16-citizen-profile/spec.md) | P0 (PRD) | Full | Increment 2 | Inc. 2 (engine) → 4 (screens) | Product owner + tech lead | F01, M02, F05 | In review · engine in increment 2, screens in increment 4 |
 | M17 | [Documents, upload, OCR and verification](./M17-documents-ocr/spec.md) | P0 (PRD) | Full | Increment 4 | Inc. 4 | Tech lead + privacy officer | F01, F02, F07, M16 | In review · built in increment 4 |
 | M18 | [Correction roadmap and dependency engine](./M18-correction-roadmap/spec.md) | P0 (PRD) | Full | Increment 2 | Inc. 2 (engine) → 4 (screens) | Product owner + tech lead | M02, M16, F02 | In review · engine in increment 2, screens in increment 4 |

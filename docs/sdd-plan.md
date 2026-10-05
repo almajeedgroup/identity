@@ -373,8 +373,8 @@ The PRD re-prioritises scope into P0 / P1 / P2 (PRD §32). Increments follow it;
 | 2 | P0 | M02 v1.0, M16 (engine), M18, F02 v0.3, F03 v0.3 | Normalisation, six-status comparison, target suggestions, issue report, rules knowledge base, dependency-ordered roadmap — pure, tested engines | Done |
 | 3 | P0 | F01 v0.3, F05, M15, F07 | Database, encryption, audit log, encrypted file store, citizen sign-in, staff sign-in with MFA, roles | Done |
 | 4 | P0 | M16 v0.2, M17, F06, ADR-015 | Full Check: sign-in, consent, profile, documents (typed or uploaded), OCR and verification, report, targets and overrides, roadmap, privacy notice, withdrawal and deletion | Done |
-| 5 | P0 | M13, M15 | Staff dashboard, rules admin (versions, verification, publishing), audit log viewer, customer list | Next |
-| 6 | P1 | M04, M09, M10, M19, F08, M07 | Assistance cases, tasks, service fees and payments, notifications, family profiles | Later |
+| 5 | P0 | M13 v0.2, M15 v0.3, F05 v0.4, F01 v0.5 | Staff console: sign-in with TOTP, dashboard, customer list without personal data, rules admin (versions, differences, second-person publishing, verification, service prices), audit log viewer, team management | Done |
+| 6 | P1 | M04, M09, M10, M19, F08, M07 | Assistance cases, tasks, service fees and payments, notifications, family profiles | Next |
 | 7 | P2 | M06, X01, X02, D-series | Mobile app, advanced address matching, more states and boards, multilingual OCR, authorised integrations, expiry reminders | Later |
 
 Pilot rule (PRD §36): every correction recommendation is validated manually by staff during the pilot before scaling.

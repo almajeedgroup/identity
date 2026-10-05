@@ -5,3 +5,4 @@ export * from './profile';
 export * from './report';
 export * from './services';
 export * from './values';
+export * from './staff';

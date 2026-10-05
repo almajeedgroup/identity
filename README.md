@@ -18,7 +18,7 @@ A citizen document-care platform from **1dentity, a unit of Islamic Information 
 | [`specs/open-questions.md`](./specs/open-questions.md) | Decisions and clarifications that block or shape specs |
 | [`docs/adr/`](./docs/adr/) | Architecture decision records |
 | [`docs/traceability.md`](./docs/traceability.md) | Generated report: every acceptance criterion and the tests that cover it |
-| `apps/web` | Next.js app — Quick Check, Full Check, privacy notice (staff console in increment 5) |
+| `apps/web` | Next.js app — Quick Check, Full Check, privacy notice, staff console (`/staff`) |
 | `packages/services` | Full Check operations on citizen data: consent, profile, targets, documents, reports, deletion (ADR-015) |
 | `packages/engine` | M02/M16/M18 comparison, target suggestions and correction roadmap — pure functions |
 | `packages/ocr` | M17 OCR pipeline: Tesseract and PDF text, Aadhaar guard, field extraction, passport MRZ |
@@ -29,12 +29,13 @@ A citizen document-care platform from **1dentity, a unit of Islamic Information 
 | `tools/` | Spec loader, traceability, i18n, content and Aadhaar-number checks; OCR fixture generator |
 | `tests/acceptance` | Playwright acceptance tests, tagged with spec IDs |
 
-## Status — increment 4 (October 2026)
+## Status — increment 5 (October 2026): the PRD's P0 scope
 
 Built and tested, in English, Kannada, Hindi and Urdu (right to left):
 
 1. **Quick Check** — anonymous, on the phone; nothing leaves the device.
 2. **Full Check** — sign in with a one-time code; agree per purpose; add documents by typing or by uploading a photo or PDF that is read on our own servers (never a full Aadhaar number); confirm what was read; compare every field across documents with six statuses; choose target details; dispute a result; follow a dependency-ordered correction plan with official sources, government fees and the separate 1dentity service fee; withdraw or delete everything.
+3. **Staff console** (`/staff`, English) — sign-in with an authenticator app, a dashboard of counts, a customer list that shows no personal data until a citizen asks for help, a rules admin where every change is a version that a publisher publishes (a second person for fees and links), verification against official sources, service prices, a filtered audit log with hash-chain check, and team management.
 
 Before a public release:
 
@@ -43,7 +44,7 @@ Before a public release:
 - Correction rules, fees, forms and links are **not yet verified** on the official portals; the app says so on every step.
 - The privacy notice is a draft for legal review; the SMS provider (ADR-005) and production object store (ADR-004) are open.
 
-Next (plan §7.7): increment 5 — staff console with MFA, rules admin with versions and publishing, audit log viewer.
+Next (plan §7.7): increment 6 (P1) — assistance cases, tasks, payments, notifications and family profiles.
 
 ## Running it
 
@@ -63,6 +64,7 @@ Without configuration the app uses an embedded PostgreSQL (PGlite) and an encryp
 | `DATA_KEYS`, `DATA_KEY_CURRENT`, `OTP_PEPPER` | Encryption keys and code pepper — required when `APP_ENV=production` |
 | `APP_ENV` | `development` (default), `test`, `staging` or `production`; production refuses development defaults |
 | `APP_URL` | Public URL; `https://` turns on `Secure` cookies |
+| `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | Development and tests only: a first admin for `/staff` (ignored in production — use `STAFF_PASSWORD=… npm run staff:create -- --email … --name … --roles admin`) |
 
 Quality gates (the same as CI):
 

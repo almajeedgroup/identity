@@ -2,7 +2,7 @@
   "name": "identity",
   "private": true,
   "type": "module",
-  "description": "1dentity — citizen document-care platform (Islamic Information Centre)",
+  "description": "1dentity \u2014 citizen document-care platform (Islamic Information Centre)",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -22,7 +22,8 @@
     "check:aadhaar": "tsx tools/aadhaar-scan.ts",
     "check:content": "tsx tools/content-check.ts",
     "trace": "tsx tools/trace.ts",
-    "ci": "npm run typecheck && npm test && npm run check:i18n && npm run check:aadhaar && npm run check:content && npm run trace && npm run build && npm run test:e2e"
+    "ci": "npm run typecheck && npm test && npm run check:i18n && npm run check:aadhaar && npm run check:content && npm run trace && npm run build && npm run test:e2e",
+    "staff:create": "tsx tools/create-staff.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

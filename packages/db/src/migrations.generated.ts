@@ -11,5 +11,9 @@ export const MIGRATIONS: { id: string; sql: string }[] = [
   {
     "id": "0002_target_changes",
     "sql": "CREATE TABLE \"target_changes\" (\n\t\"id\" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,\n\t\"profile_id\" uuid NOT NULL,\n\t\"field\" text NOT NULL,\n\t\"old_value\" jsonb,\n\t\"new_value\" jsonb NOT NULL,\n\t\"actor_kind\" text NOT NULL,\n\t\"actor_id\" uuid NOT NULL,\n\t\"reason\" text,\n\t\"created_at\" timestamp with time zone DEFAULT now() NOT NULL\n);\n--> statement-breakpoint\nALTER TABLE \"target_changes\" ADD CONSTRAINT \"target_changes_profile_id_citizen_profiles_id_fk\" FOREIGN KEY (\"profile_id\") REFERENCES \"public\".\"citizen_profiles\"(\"id\") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint\nCREATE INDEX \"target_changes_profile\" ON \"target_changes\" USING btree (\"profile_id\",\"created_at\");"
+  },
+  {
+    "id": "0003_kb_publication",
+    "sql": "ALTER TABLE \"kb_items\" ADD COLUMN \"published_by_id\" uuid;--> statement-breakpoint\nALTER TABLE \"kb_items\" ADD COLUMN \"published_at\" timestamp with time zone;--> statement-breakpoint\nALTER TABLE \"kb_items\" ADD COLUMN \"verified_on\" text;--> statement-breakpoint\nALTER TABLE \"kb_items\" ADD COLUMN \"verified_by_id\" uuid;--> statement-breakpoint\nALTER TABLE \"kb_items\" ADD COLUMN \"verified_source\" text;--> statement-breakpoint\nALTER TABLE \"kb_items\" ADD COLUMN \"verified_at\" timestamp with time zone;"
   }
 ];

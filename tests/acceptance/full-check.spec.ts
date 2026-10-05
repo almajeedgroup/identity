@@ -4,14 +4,21 @@ import { join } from 'node:path';
 
 const FIXTURES = join(process.cwd(), 'tests/fixtures/ocr');
 
+/** Navigate and wait until the page is interactive (forms submitted before hydration can be dropped). */
+async function go(page: Page, path: string) {
+  await page.goto(path);
+  await page.locator('html[data-hydrated="true"]').waitFor({ state: 'attached' });
+}
+
 /** A fresh 10-digit Indian mobile number per test, so tests never share an account. */
 const freshMobile = () => `9${String(Math.floor(Math.random() * 1e9)).padStart(9, '0')}`;
 
 async function signIn(page: Page, mobile = freshMobile()) {
-  await page.goto('/en/sign-in');
+  await go(page, '/en/sign-in');
   await page.getByLabel('Mobile number').fill(mobile);
   await page.getByRole('button', { name: 'Send code' }).click();
-  await expect(page.getByText(/We sent a 6-digit code to/)).toBeVisible();
+  // The first server action on a cold server loads its code, so allow it more time.
+  await expect(page.getByText(/We sent a 6-digit code to/)).toBeVisible({ timeout: 20_000 });
   const outbox = await page.request.get(`/api/dev/outbox?mobile=${mobile}`);
   expect(outbox.ok()).toBe(true);
   const code = /(\d{6})/.exec(((await outbox.json()) as { body: string }).body)![1]!;
@@ -28,7 +35,7 @@ async function startFullCheck(page: Page) {
 }
 
 async function addTyped(page: Page, kind: string, values: Record<string, string>) {
-  await page.goto(`/en/me/documents/new/${kind}`);
+  await go(page, `/en/me/documents/new/${kind}`);
   for (const [label, value] of Object.entries(values)) {
     const box = page.locator('section', { hasText: 'Type the details' }).getByLabel(label, { exact: true });
     if ((await box.evaluate((el) => el.tagName)) === 'SELECT') await box.selectOption(value);
@@ -39,7 +46,7 @@ async function addTyped(page: Page, kind: string, values: Record<string, string>
 }
 
 async function upload(page: Page, kind: string, fixture: string) {
-  await page.goto(`/en/me/documents/new/${kind}`);
+  await go(page, `/en/me/documents/new/${kind}`);
   if (await page.getByTestId('consent-uploads').isVisible()) {
     await page.getByLabel(/I agree to 1dentity keeping my uploaded files/).check();
     await page.getByRole('button', { name: 'Agree and continue' }).click();
@@ -50,18 +57,18 @@ async function upload(page: Page, kind: string, fixture: string) {
 
 test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
   test('@F05-AC-1.2 @F05-AC-3.3 @F05-AC-3.4 sign in with a one-time code; the session cookie is HttpOnly and SameSite=Lax; signing out ends it', async ({ page, context }) => {
-    await page.goto('/en/me');
+    await go(page, '/en/me');
     await expect(page).toHaveURL(/\/en\/sign-in$/);
     await page.getByLabel('Mobile number').fill('12345');
     await page.getByRole('button', { name: 'Send code' }).click();
-    await expect(page.getByTestId('banner-error')).toHaveText('Enter a 10-digit Indian mobile number.');
+    await expect(page.getByTestId('banner-error')).toHaveText('Enter a 10-digit Indian mobile number.', { timeout: 20_000 });
     await signIn(page);
     const cookie = (await context.cookies()).find((c) => c.name === 'identity_session')!;
     expect(cookie).toMatchObject({ httpOnly: true, sameSite: 'Lax' });
     expect(cookie.value.length).toBeGreaterThanOrEqual(43);
     await page.getByRole('button', { name: 'Sign out' }).click();
     await context.addCookies([{ ...cookie }]);
-    await page.goto('/en/me');
+    await go(page, '/en/me');
     await expect(page).toHaveURL(/\/en\/sign-in$/);
   });
 
@@ -69,7 +76,7 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     await signIn(page);
     await expect(page.getByTestId('consent-full_check')).toBeVisible();
     await expect(page.getByTestId('consent-full_check')).toContainText('1dentity is not a government office');
-    await page.goto('/en/me/documents/new/pan');
+    await go(page, '/en/me/documents/new/pan');
     await expect(page).toHaveURL(/\/en\/me$/);
     await startFullCheck(page);
     await expect(page.getByTestId('summary')).toContainText('You have not added any documents yet.');
@@ -78,7 +85,7 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
   test('@M17-AC-1.1 @M17-AC-1.2 a typed document asks only for printed fields, Aadhaar only for the last 4 digits, and counts at once', async ({ page }) => {
     await signIn(page);
     await startFullCheck(page);
-    await page.goto('/en/me/documents/new/aadhaar');
+    await go(page, '/en/me/documents/new/aadhaar');
     const form = page.locator('section', { hasText: 'Type the details' });
     await expect(form.getByLabel('Name', { exact: true })).toBeVisible();
     await expect(form.getByLabel("Father's name")).toHaveCount(0);
@@ -95,7 +102,7 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     test.setTimeout(90_000);
     await signIn(page);
     await startFullCheck(page);
-    await page.goto('/en/me/documents/new/pan');
+    await go(page, '/en/me/documents/new/pan');
     await expect(page.getByTestId('consent-uploads')).toBeVisible();
     await expect(page.getByLabel('Photo or PDF of the document')).toHaveCount(0);
     await upload(page, 'pan', 'pan.png');
@@ -131,7 +138,7 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     await startFullCheck(page);
     await upload(page, 'aadhaar', 'aadhaar-unmasked.png');
     await expect(page.getByTestId('banner-error')).toContainText('This image shows a full Aadhaar number, so we deleted it without saving it.');
-    await page.goto('/en/me/documents');
+    await go(page, '/en/me/documents');
     await expect(page.getByText('No documents yet.')).toBeVisible();
   });
 
@@ -154,22 +161,22 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     await addTyped(page, 'aadhaar', { Name: 'MOHAMMED IBRAHIM' });
     await addTyped(page, 'pan', { Name: 'Ibrahim Mujeeb' });
 
-    await page.goto('/en/me/report');
+    await go(page, '/en/me/report');
     const nameSection = page.getByTestId('field-name');
     await expect(nameSection.getByTestId('target')).toContainText('Mohammed Ibrahim');
     await expect(nameSection.getByTestId('target')).toContainText('Suggested — not confirmed');
     await expect(nameSection.getByTestId('target')).toContainText('Most of your documents show this.');
     await expect(nameSection.locator('[data-status="major_discrepancy"]')).toContainText('Mismatch');
 
-    await page.goto('/en/me/roadmap');
+    await go(page, '/en/me/roadmap');
     await expect(page.locator('[data-step]').first()).toContainText('Confirm your target details');
 
-    await page.goto('/en/me/report');
+    await go(page, '/en/me/report');
     await nameSection.getByRole('button', { name: 'Confirm target' }).click();
     await expect(page.getByText('Target confirmed.')).toBeVisible();
     await expect(nameSection.getByTestId('target')).toContainText('Confirmed');
 
-    await page.goto('/en/me/roadmap');
+    await go(page, '/en/me/roadmap');
     const steps = page.locator('[data-step="correction"]');
     await expect(steps.first()).toContainText('Correct your Birth certificate');
     const pan = steps.filter({ hasText: 'Correct your PAN' });
@@ -185,7 +192,7 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     await startFullCheck(page);
     await addTyped(page, 'aadhaar', { Name: 'Mohammed Ibrahim' });
     await addTyped(page, 'pan', { Name: 'Ibrahim Mujeeb' });
-    await page.goto('/en/me/report');
+    await go(page, '/en/me/report');
     const result = page.getByTestId('field-name').getByTestId('result').filter({ hasText: 'PAN' });
     await result.getByText('Do you disagree with this result?').click();
     await result.getByLabel('Why?').fill('Mujeeb is my family name');
@@ -193,7 +200,7 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     await expect(result).toContainText('Your decision');
     await expect(result).toContainText('You said this is the same.');
 
-    await page.goto('/en/me/documents');
+    await go(page, '/en/me/documents');
     await page.getByTestId('documents').getByText('PAN').click();
     await page.getByRole('link', { name: 'Edit details' }).click();
     await page.getByLabel('Name', { exact: true }).fill('Mohammed Ibrahim');
@@ -211,12 +218,12 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     await page.getByText('Delete this document').click();
     await page.getByRole('button', { name: 'Delete document' }).click();
     await expect(page.getByText('Document deleted, with its file.')).toBeVisible();
-    await page.goto('/en/me/settings');
+    await go(page, '/en/me/settings');
     await page.locator('summary', { hasText: 'Close my account' }).click();
     await page.locator('details[open]').getByLabel('I understand this cannot be undone.').check();
     await page.locator('details[open]').getByRole('button', { name: 'Close my account' }).click();
     await expect(page.getByText('Your account and everything in it have been deleted.')).toBeVisible();
-    await page.goto('/en/me');
+    await go(page, '/en/me');
     await expect(page).toHaveURL(/\/en\/sign-in$/);
   });
 
@@ -224,7 +231,7 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     await signIn(page);
     await startFullCheck(page);
     await addTyped(page, 'pan', { Name: 'Mohammed Ibrahim' });
-    await page.goto('/en/me/settings');
+    await go(page, '/en/me/settings');
     await page.locator('summary', { hasText: 'Delete my Full Check data' }).click();
     await page.locator('details[open]').getByLabel('I understand this cannot be undone.').check();
     await page.locator('details[open]').getByRole('button', { name: 'Delete my Full Check data' }).click();
@@ -235,11 +242,11 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
 
   test('@F06-AC-2.1 the privacy notice exists in all four languages with the retention schedule', async ({ page }) => {
     for (const locale of ['en', 'kn', 'hi', 'ur']) {
-      await page.goto(`/${locale}/privacy`);
+      await go(page, `/${locale}/privacy`);
       await expect(page.getByTestId('retention').locator('tr')).toHaveCount(3);
       await expect(page.locator('main')).toContainText('2026-10-v1');
     }
-    await page.goto('/en/privacy');
+    await go(page, '/en/privacy');
     await expect(page.locator('[data-retention="uploads"]')).toContainText('30 days after you confirm the details');
     await expect(page.locator('main')).toContainText('We are not a government office.');
   });
@@ -250,16 +257,16 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
       const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
       expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`), label).toEqual([]);
     };
-    await page.goto('/en/sign-in');
+    await go(page, '/en/sign-in');
     await scan('sign-in');
     await signIn(page);
     await scan('consent');
     await startFullCheck(page);
-    await page.goto('/en/me/documents/new/voter_id');
+    await go(page, '/en/me/documents/new/voter_id');
     await scan('add document');
     await addTyped(page, 'aadhaar', { Name: 'Mohammed Ibrahim', Gender: 'Male' });
     await addTyped(page, 'pan', { Name: 'Ibrahim Mujeeb' });
-    await page.goto('/en/me/report');
+    await go(page, '/en/me/report');
     await scan('report');
     const chips = page.locator('[data-status]');
     expect(await chips.count()).toBeGreaterThan(0);
@@ -267,7 +274,7 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
       await expect(chip.locator('svg[aria-hidden="true"]')).toHaveCount(1);
       await expect(chip).not.toHaveText('');
     }
-    await page.goto('/en/me/roadmap');
+    await go(page, '/en/me/roadmap');
     await scan('roadmap');
   });
 });

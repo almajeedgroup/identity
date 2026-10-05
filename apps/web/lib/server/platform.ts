@@ -3,6 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { seedKnowledgeBase } from '@identity/content';
 import {
   createOtpSender,
+  createStaff,
   EncryptedStore,
   FsRawStore,
   loadConfig,
@@ -13,6 +14,7 @@ import {
   pruneOtpChallenges,
   purgeDueUploads,
   seedKnowledgeBaseIfEmpty,
+  tables,
   type Db,
   type OtpSender,
   type PlatformConfig,
@@ -30,6 +32,8 @@ export interface Platform {
   db: Db;
   otp: OtpSender;
   services: Services;
+  /** M13-FR-07 · Drop the cached knowledge base after a publish or withdrawal. */
+  invalidateKnowledge(): void;
 }
 
 const KNOWLEDGE_TTL_MS = 30_000;
@@ -51,6 +55,7 @@ async function boot(): Promise<Platform> {
   const { db } = await openDatabase({ ...(config.databaseUrl ? { url: config.databaseUrl } : {}), pgliteDir: config.pgliteDir });
   await migrate(db);
   await seedKnowledgeBaseIfEmpty(db, seedKnowledgeBase);
+  await seedDevelopmentAdmin(db, config);
 
   const raw = config.storageDir === 'memory://' ? new MemoryRawStore() : new FsRawStore(config.storageDir);
   const store = new EncryptedStore(raw, config.keyring);
@@ -77,5 +82,23 @@ async function boot(): Promise<Platform> {
   void housekeeping();
   setInterval(housekeeping, HOUSEKEEPING_MS).unref();
 
-  return { config, db, otp: createOtpSender(config.otpSender, config.appEnv, db), services };
+  return {
+    config,
+    db,
+    otp: createOtpSender(config.otpSender, config.appEnv, db),
+    services,
+    invalidateKnowledge: () => {
+      cached = null;
+    },
+  };
+}
+
+/** M15-FR-07 · Development and tests only: a first admin from the environment when there are no staff yet. */
+async function seedDevelopmentAdmin(db: Db, config: PlatformConfig) {
+  const email = process.env.SEED_ADMIN_EMAIL;
+  const password = process.env.SEED_ADMIN_PASSWORD;
+  if (config.appEnv === 'production' || !email || !password) return;
+  const [anyone] = await db.select({ id: tables.staffUsers.id }).from(tables.staffUsers).limit(1);
+  if (anyone) return;
+  await createStaff(db, { email, name: process.env.SEED_ADMIN_NAME ?? 'Development admin', password, roles: ['admin'] }, { kind: 'system', id: null });
 }

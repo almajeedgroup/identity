@@ -287,6 +287,14 @@ export const kbItems = pgTable(
     note: text('note'),
     createdById: uuid('created_by_id'),
     createdAt: created(),
+    /** M13-AC-3.1 */
+    publishedById: uuid('published_by_id'),
+    publishedAt: ts('published_at'),
+    /** M13-FR-06 · Verification of this version's content against an official source; overlaid on meta.lastVerified. */
+    verifiedOn: text('verified_on'),
+    verifiedById: uuid('verified_by_id'),
+    verifiedSource: text('verified_source'),
+    verifiedAt: ts('verified_at'),
   },
   (t) => [primaryKey({ columns: [t.kind, t.key, t.version] })],
 );

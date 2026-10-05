@@ -40,7 +40,8 @@ export async function seedKnowledgeBaseIfEmpty(db: Db, kb: KnowledgeBase): Promi
   return true;
 }
 
-type Row = typeof kbItems.$inferSelect;
+export type KbRow = typeof kbItems.$inferSelect;
+type Row = KbRow;
 
 /** F01-FR-11 · latest published, else latest in review; a withdrawn latest version removes the item; drafts never count. */
 export function effectiveVersion(versions: Row[]): Row | null {
@@ -49,34 +50,53 @@ export function effectiveVersion(versions: Row[]): Row | null {
   return sorted.find((v) => v.status === 'published') ?? sorted.find((v) => v.status === 'in_review') ?? null;
 }
 
+export const itemId = (r: Pick<Row, 'kind' | 'key'>) => `${r.kind}\u0000${r.key}`;
+
+/** The effective row of every item, in a stable order. */
+export function effectiveRows(rows: Row[]): Row[] {
+  const groups = new Map<string, Row[]>();
+  for (const r of rows) groups.set(itemId(r), [...(groups.get(itemId(r)) ?? []), r]);
+  return [...groups.values()]
+    .map(effectiveVersion)
+    .filter((r): r is Row => r !== null)
+    .sort((a, b) => `${a.kind}${a.key}`.localeCompare(`${b.kind}${b.key}`));
+}
+
+/**
+ * Builds the (unvalidated) knowledge base from effective rows. The row's status replaces `meta.status`, and a
+ * recorded verification replaces `meta.lastVerified` (M13-FR-06).
+ */
+export function assembleKnowledgeBase(effective: Pick<Row, 'kind' | 'key' | 'version' | 'status' | 'data' | 'verifiedOn'>[]): { candidate: unknown; version: string } {
+  const overlay = (r: (typeof effective)[number]) => {
+    const d = r.data as { meta?: { status: Status; lastVerified?: string | null } };
+    if (!d.meta) return d;
+    return { ...d, meta: { ...d.meta, status: r.status, ...(r.verifiedOn ? { lastVerified: r.verifiedOn } : {}) } };
+  };
+  const of = (kind: KbItemKind) => effective.filter((r) => r.kind === kind).map(overlay);
+  const version = `kb-${sha256Hex(effective.map((r) => `${r.kind}/${r.key}@${r.version}${r.verifiedOn ? `~${r.verifiedOn}` : ''}`).join('|')).slice(0, 12)}`;
+  return {
+    version,
+    candidate: {
+      version,
+      jurisdictions: of('jurisdiction'),
+      authorities: of('authority'),
+      sources: of('source'),
+      catalogue: of('catalogue'),
+      rules: of('rule'),
+      placeVariants: of('place_variants')[0],
+      addressAbbreviations: of('address_abbreviations')[0],
+      servicePrices: of('service_price'),
+    },
+  };
+}
+
 export interface LoadedKnowledgeBase {
   kb: KnowledgeBase;
   version: string;
 }
 
 export async function loadKnowledgeBase(db: Db): Promise<LoadedKnowledgeBase> {
-  const rows = await db.select().from(kbItems);
-  const groups = new Map<string, Row[]>();
-  for (const r of rows) groups.set(`${r.kind}\u0000${r.key}`, [...(groups.get(`${r.kind}\u0000${r.key}`) ?? []), r]);
-  const effective = [...groups.values()].map(effectiveVersion).filter((r): r is Row => r !== null).sort((a, b) => `${a.kind}${a.key}`.localeCompare(`${b.kind}${b.key}`));
-  const withStatus = (r: Row) => {
-    const d = r.data as { meta?: { status: Status } };
-    return d.meta ? { ...d, meta: { ...d.meta, status: r.status } } : d;
-  };
-  const of = (kind: KbItemKind) => effective.filter((r) => r.kind === kind).map(withStatus);
-  const single = (kind: KbItemKind) => of(kind)[0];
-  const version = `kb-${sha256Hex(effective.map((r) => `${r.kind}/${r.key}@${r.version}`).join('|')).slice(0, 12)}`;
-  const candidate = {
-    version,
-    jurisdictions: of('jurisdiction'),
-    authorities: of('authority'),
-    sources: of('source'),
-    catalogue: of('catalogue'),
-    rules: of('rule'),
-    placeVariants: single('place_variants'),
-    addressAbbreviations: single('address_abbreviations'),
-    servicePrices: of('service_price'),
-  };
+  const { candidate, version } = assembleKnowledgeBase(effectiveRows(await db.select().from(kbItems)));
   const result = validateKnowledgeBase(candidate);
   if (!result.ok) throw new Error(`The knowledge base in the database is invalid:\n${result.errors.join('\n')}`);
   return { kb: result.kb, version };
