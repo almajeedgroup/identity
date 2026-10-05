@@ -56,7 +56,7 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | M16 | [Citizen profile and target values](./M16-citizen-profile/spec.md) | P0 (PRD) | Full | Increment 2 | Inc. 2 (engine) → 4 (screens) | Product owner + tech lead | F01, M02, F05 | In review · engine in increment 2, screens in increment 4 |
 | M17 | [Documents, upload, OCR and verification](./M17-documents-ocr/spec.md) | P0 (PRD) | Full | Increment 4 | Inc. 4 | Tech lead + privacy officer | F01, F02, F07, M16 | In review · built in increment 4 |
 | M18 | [Correction roadmap and dependency engine](./M18-correction-roadmap/spec.md) | P0 (PRD) | Full | Increment 2 | Inc. 2 (engine) → 4 (screens) | Product owner + tech lead | M02, M16, F02 | In review · engine in increment 2, screens in increment 4 |
-| M19 | 1dentity service fees and payments | P1 (PRD) | Full | Increment 6 | Inc. 6 | Product owner | M04, F02 | Seeded (PRD §16B, §18, §29) |
+| M19 | [1dentity service fees and payments](./M19-service-fees/spec.md) (online checkout after ADR-016) | P1 (PRD) | Full | Increment 6c | Inc. 6c | Product owner | M04, M09, M13, M15 | In review · built in increment 6c |
 | D01 | Aadhaar | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seed content entered (unverified) |
 | D02 | PAN | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seed content entered (unverified) |
 | D03 | Voter ID (EPIC) | P1 | Content | Week 5 | S1–S3 entry | Content lead | F02, M13 | Seed content entered (unverified) |
