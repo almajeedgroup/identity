@@ -26,13 +26,13 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | ID | Spec | Phase | Size | Spec approved by | Build | Spec owner (role) | Depends on | Status |
 |---|---|---|---|---|---|---|---|---|
 | — | [Constitution](./constitution.md) | — | — | Week 1 | — | Product owner + privacy officer | — | Draft |
-| F01 | [Domain model, glossary & case lifecycle](./F01-domain-model/spec.md) | P1 | Full | Week 3 | S1 | Tech lead | Constitution | In review · built in increment 1 |
+| F01 | [Domain model, glossary, case lifecycle & persistence](./F01-domain-model/spec.md) | P1 | Full | Week 3 | S1 | Tech lead | Constitution | In review · built in increment 1 |
 | F02 | [Document rules & content model](./F02-content-model/spec.md) | P1 | Full | Week 3 | S1 | Tech lead + content lead | F01 | In review · built in increment 1 |
 | F03 | [Urbanist UI design system & status system](./F03-design-system/spec.md) | P1 | Full | Week 3 | S1 → S2 | UI/UX designer | — | In review · built in increment 1 |
 | F04 | [Internationalisation & RTL](./F04-i18n/spec.md) | P1 | Full | Week 3 | S1 | Tech lead + content lead | F03 | In review · built in increment 1 |
-| F05 | Authentication & sessions | P1 | Full | Week 3 | S1 | Tech lead | F01, M15 | Seeded |
+| F05 | [Authentication & sessions](./F05-auth/spec.md) | P1 | Full | Week 3 | S1 | Tech lead | F01, M15 | In review · built in increment 3 |
 | F06 | Privacy, consent & data lifecycle | P1 | Full | Week 3 | S1 → S4 | Privacy officer | F01 | Seeded |
-| F07 | Secure document handling | P1 | Full | Week 7 | S3 | Tech lead | F01, F06, M15 | Seeded |
+| F07 | [Secure document handling](./F07-secure-documents/spec.md) | P1 | Full | Week 7 | S3 | Tech lead | F01, F06, M15 | In review · built in increment 3 |
 | F08 | Notifications — WhatsApp & SMS | P1 | Full | Week 7 | S3 (→ S4) | Tech lead | F01, F04, F06 | Seeded |
 | F09 | PWA, performance & offline | P1 | Full | Week 5 | S2 | Tech lead | F02, F03 | Seeded |
 | F10 | Trust & safety cues | P1 | Lite | Week 5 | S2 | UI/UX designer | F03, F04 | Seeded |
@@ -52,7 +52,7 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | M12 | Volunteer Hub | P2 | Full | Week 14 | Month 5 | Field coordinator | M15 | Seeded |
 | M13 | Content Manager | P1 | Full | Week 3 | S1 | Content lead + tech lead | F02, F04, M15 | Seeded |
 | M14 | Impact Dashboard | P2 | Full | Week 14 | Month 6 | Product owner | F11, M09, M11, M12 | Seeded |
-| M15 | Access & Audit | P1 | Full | Week 3 | S1 → S4 | Tech lead + privacy officer | F01, F05, F06 | Seeded |
+| M15 | [Access & Audit](./M15-access-audit/spec.md) | P1 | Full | Week 3 | S1 → S4 | Tech lead + privacy officer | F01, F05, F06 | In review · built in increment 3 (screens in increment 5) |
 | M16 | [Citizen profile and target values](./M16-citizen-profile/spec.md) | P0 (PRD) | Full | Increment 2 | Inc. 2 (engine) → 4 (screens) | Product owner + tech lead | F01, M02, F05 | In review · engine built in increment 2 |
 | M17 | Documents, upload, OCR and verification | P0 (PRD) | Full | Increment 4 | Inc. 4 | Tech lead + privacy officer | F01, F02, F07, M16 | Seeded (PRD §6, §9, §10) |
 | M18 | [Correction roadmap and dependency engine](./M18-correction-roadmap/spec.md) | P0 (PRD) | Full | Increment 2 | Inc. 2 (engine) → 4 (screens) | Product owner + tech lead | M02, M16, F02 | In review · engine built in increment 2 |

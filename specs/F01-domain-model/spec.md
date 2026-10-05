@@ -7,9 +7,10 @@
 | **Phase** | P1 |
 | **Spec owner** | Tech lead |
 | **Approvers** | Product owner · Privacy & grievance officer · Field coordinator |
+| **PRD trace** | §8, §9, §25 (core database entities), §28 |
 | **DPR trace** | §05, §06, §07 (screen concepts "My case" and "Case queue"), §09 |
 | **Depends on** | [Constitution](../constitution.md) |
-| **Version** | 0.2 |
+| **Version** | 0.3 |
 
 > **Approval note.** Approvers are not yet appointed (DEC-2). This spec is built ahead of approval at the product sponsor's request, using the proposed defaults in [`open-questions.md`](../open-questions.md). Anything built from it is provisional until Gate 1.
 
@@ -47,6 +48,12 @@ As a citizen or volunteer, I want a short case ID I can read out over the phone,
 
 - **F01-AC-3.1** — *Given* a case number, *when* it is formatted, *then* it reads `ID-` followed by at least five digits (e.g. `ID-24318`), and strings in any other shape are not accepted as case IDs.
 
+### US4 — The database keeps every promise *(must)* — v0.3
+
+- **F01-AC-4.1** — *Given* a document field's original value, *when* anything tries to change it, *then* the database refuses (C-16); confirmed values can change, and a new document version is created for edits after verification.
+- **F01-AC-4.2** — *Given* migrations, *when* applied to an empty database, *then* they succeed on both embedded PostgreSQL (PGlite) and PostgreSQL 16, and applying them twice changes nothing.
+- **F01-AC-4.3** — *Given* a citizen account is deleted, *when* the deletion completes, *then* their profile, targets, overrides, documents, versions, fields, extractions, uploads, analyses and consents are gone, and only pseudonymous audit events remain (F06).
+
 ## 4. Functional requirements
 
 ### Glossary
@@ -73,6 +80,14 @@ As a citizen or volunteer, I want a short case ID I can read out over the phone,
 
 - **F01-FR-01** — The system MUST model: `Account`, `Applicant`, `Centre`, `Desk`, `Case`, `CaseEvent`, `Appointment`, `Slot`, `Camp`, `Token`, `StaffUser`, `Role`, `Assignment`, `Upload`, `ConsentRecord`, `Notification`, `AuditEvent`, `RightsRequest`, `SurveyResponse`. Content entities are defined in F02.
 - **F01-FR-02** — Every stored entity and field MUST carry one **retention class**: `device_only`, `uploads_30d_after_closure`, `case_anonymise_12m`, `audit` (period per Q-15), `consent` (period per Q-15), `content_versioned`, `config`.
+
+### Persistence (v0.3, PRD §25)
+
+- **F01-FR-09** — PostgreSQL schema (Drizzle, ADR-011). P0 tables: `users`, `otp_challenges`, `staff_users`, `staff_roles`, `sessions`, `consents`, `citizen_profiles`, `master_values`, `overrides`, `documents`, `document_versions`, `document_fields`, `ocr_extractions`, `uploads`, `analysis_runs`, `kb_items`, `audit_logs`, `dev_outbox`. P1 adds `family_groups`, `cases`, `case_tasks`, `case_documents`, `case_notes`, `appointments`, `payments`, `notifications`.
+- **F01-FR-10** — `document_fields` keeps `original`, `normalised` and `confirmed` values per document version (C-16); a trigger rejects any change to `original`.
+- **F01-FR-11** — Knowledge-base items (`kb_items`) are versioned rows `(kind, key, version)` with JSON data validated by F02; the engine uses, per item, the latest `published` version, otherwise the latest `in_review` one; a `withdrawn` latest version removes the item; drafts are never used.
+- **F01-FR-12** — Comparison results are stored as `analysis_runs` snapshots (engine output + knowledge-base version) so staff and citizens can see what a report said at the time.
+- **F01-FR-13** — Every citizen-owned row references the user and is deleted with the account (cascade); audit rows are never deleted (M15).
 
 ### Case lifecycle
 
@@ -200,3 +215,4 @@ Request-to-filed working days and cases resolved are computable from `CaseEvent`
 |---|---|---|---|
 | 0.1 | 2026-10-04 | Seed in `backlog.md` | — |
 | 0.2 | 2026-10-04 | Full draft; built ahead of approval with proposed defaults | *Pending* |
+| 0.3 | 2026-10-05 | Persistence for the Developer PRD: P0 tables, immutable originals, versioned knowledge base, analysis snapshots, cascade deletion | *Pending* |
