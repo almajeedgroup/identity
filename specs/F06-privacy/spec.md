@@ -9,7 +9,7 @@
 | **Approvers** | Product owner · Privacy & grievance officer |
 | **DPR trace** | §09 (DPDP-ready by design, data lifecycle) · **PRD** §23 (consent, privacy notice, retention and deletion policies, legal review), §27 ("Settings/privacy/data deletion") |
 | **Depends on** | [F01](../F01-domain-model/spec.md) v0.4, [F05](../F05-auth/spec.md), [M15](../M15-access-audit/spec.md) |
-| **Version** | 0.3 |
+| **Version** | 0.4 |
 
 > **Approval note.** Built ahead of approval; the notice text is a draft for the legal review required before launch (PRD §34). The grievance officer is not yet appointed (DEC-2), so the notice points to the help desk until then.
 
@@ -38,7 +38,7 @@ A citizen is told, in their language, what the Full Check stores and why, and ag
 
 ## 4. Functional requirements
 
-- **F06-FR-01** — Purposes: `full_check` (store profile, documents, targets, reports), `uploads` (store files and OCR text), `assistance` (staff on the case see what the case needs, increment 6a), later `whatsapp` (F08). Notice version `2026-10-v2` (v1 plus the assistance section).
+- **F06-FR-01** — Purposes: `full_check` (store profile, documents, targets, reports), `uploads` (store files and OCR text), `assistance` (staff on the case see what the case needs, increment 6a), `sms` (SMS updates, F08, increment 6b), later `whatsapp`. Notice version `2026-10-v2` (v1 plus the assistance section).
 - **F06-FR-02** — Consent is checked on the server before every write for that purpose.
 - **F06-FR-03** — Deletion removes stored files from the object store before rows are deleted, and writes one audit event with counts only.
 - **F06-FR-04** — Retention schedule (configuration, Q-26): uploads 30 days after verification; profile and documents until the citizen deletes them; one-time codes 1 day; audit per Q-15.
@@ -71,3 +71,4 @@ Data export ("download my data"), guardians and minors, WhatsApp consent — P1.
 | 0.1 | 2026-10-04 | Seed in `backlog.md` | — |
 | 0.2 | 2026-10-05 | P0 consent, notice, withdrawal and deletion for the Full Check | *Pending* |
 | 0.3 | 2026-10-05 | Assistance purpose, notice v2 (increment 6a) | *Pending* |
+| 0.4 | 2026-10-05 | `sms` purpose for SMS updates (F08) | *Pending* |

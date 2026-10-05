@@ -33,7 +33,7 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | F05 | [Authentication & sessions](./F05-auth/spec.md) | P1 | Full | Week 3 | S1 | Tech lead | F01, M15 | In review · built in increment 3 |
 | F06 | [Privacy, consent & data lifecycle](./F06-privacy/spec.md) | P0 (PRD) | Full | Increment 4 | Inc. 4 (Full Check) → S4 | Privacy officer | F01, F05, M15 | In review · built in increment 4 |
 | F07 | [Secure document handling](./F07-secure-documents/spec.md) | P1 | Full | Week 7 | S3 | Tech lead | F01, F06, M15 | In review · built in increment 3 |
-| F08 | Notifications — WhatsApp & SMS | P1 | Full | Week 7 | S3 (→ S4) | Tech lead | F01, F04, F06 | Seeded |
+| F08 | [Notifications — in-app and SMS](./F08-notifications/spec.md) (WhatsApp after ADR-009) | P1 (PRD) | Full | Increment 6b | Inc. 6b | Tech lead | F01, F04, F05, F06, M04, M09 | In review · built in increment 6b |
 | F09 | PWA, performance & offline | P1 | Full | Week 5 | S2 | Tech lead | F02, F03 | Seeded |
 | F10 | Trust & safety cues | P1 | Lite | Week 5 | S2 | UI/UX designer | F03, F04 | Seeded |
 | F11 | Measurement & KPI events | P1 | Full | Week 9 | S4 | Product owner | F01, F08 | Seeded |
