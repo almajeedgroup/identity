@@ -9,7 +9,7 @@
 | **Approvers** | Product owner · Privacy & grievance officer |
 | **DPR trace** | §09 (DPDP-ready by design, data lifecycle) · **PRD** §23 (consent, privacy notice, retention and deletion policies, legal review), §27 ("Settings/privacy/data deletion") |
 | **Depends on** | [F01](../F01-domain-model/spec.md) v0.4, [F05](../F05-auth/spec.md), [M15](../M15-access-audit/spec.md) |
-| **Version** | 0.4 |
+| **Version** | 0.5 |
 
 > **Approval note.** Built ahead of approval; the notice text is a draft for the legal review required before launch (PRD §34). The grievance officer is not yet appointed (DEC-2), so the notice points to the help desk until then.
 
@@ -31,7 +31,7 @@ A citizen is told, in their language, what the Full Check stores and why, and ag
 
 ### US3 — Withdraw and delete *(must)*
 
-- **F06-AC-3.1** — *Given* a citizen withdraws Full Check consent, *when* they confirm, *then* their profile, targets, overrides, documents and files are deleted, the consent is marked withdrawn, and they can start again later.
+- **F06-AC-3.1** — *Given* a citizen withdraws Full Check consent, *when* they confirm, *then* their profile and every family member's profile (M07), with targets, overrides, documents, files and cases, are deleted, the consent is marked withdrawn, and they can start again later.
 - **F06-AC-3.2** — *Given* a citizen withdraws upload consent, *when* they confirm, *then* every stored upload and OCR text of theirs is deleted, and uploads they never confirmed are deleted with them; typed and confirmed values stay.
 - **F06-AC-3.4** — *Given* a citizen withdraws the assistance consent, *when* they confirm, *then* every open case is withdrawn and staff lose access at once (M04-AC-3.1).
 - **F06-AC-3.3** — *Given* a citizen closes their account, *when* they confirm, *then* everything about them is deleted (F01-AC-4.3), their sessions end, and only pseudonymous audit events remain.
@@ -72,3 +72,4 @@ Data export ("download my data"), guardians and minors, WhatsApp consent — P1.
 | 0.2 | 2026-10-05 | P0 consent, notice, withdrawal and deletion for the Full Check | *Pending* |
 | 0.3 | 2026-10-05 | Assistance purpose, notice v2 (increment 6a) | *Pending* |
 | 0.4 | 2026-10-05 | `sms` purpose for SMS updates (F08) | *Pending* |
+| 0.5 | 2026-10-05 | Withdrawal and closing the account delete family members' data too (M07-AC-3.2); a family member is managed under the holder's Full Check consent with a recorded declaration | *Pending* |

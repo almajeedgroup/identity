@@ -44,7 +44,7 @@ This folder is the **source of truth** for the behaviour of the Identity Web App
 | M04 | [Request help and track my case](./M04-request-help/spec.md) | P1 (PRD) | Full | Increment 6a | Inc. 6a | Product owner + designer | F01, F05, F06, F07, M18, M09 | In review · built in increment 6a |
 | M05 | Book Appointment | P1 | Full | Week 7 | S3 | Product owner + field coordinator | F01, F05, F08 | Seeded |
 | M06 | Reminders | P2 | Full | Week 14 | Month 4 | Product owner | F02, F06, F08, M07 | Seeded |
-| M07 | Family Profile | P2 | Full | Week 14 | Month 4 | Product owner + privacy officer | F05, F06, M01 | Seeded |
+| M07 | [Family profiles](./M07-family/spec.md) | P1 (PRD) | Full | Increment 6d | Inc. 6d | Product owner + privacy officer | M16, M17, M04, F06 | In review · built in increment 6d |
 | M08 | Hub & Scam Alerts | P1 | Lite | Week 5 | S2 | Content lead | F02, F09, F10, M13 | Seeded |
 | M09 | [Case queue, case work and SLA](./M09-case-queue/spec.md) (includes M10's filing record) | P1 (PRD) | Full | Increment 6a | Inc. 6a | Field coordinator + designer | F01, F05, F07, M15, M04 | In review · built in increment 6a |
 | M10 | Filing Assistant | P1 | Full | Week 9 | S4 | Field coordinator + content lead | M09, M13, D01–D03, F07, F08 | Seeded |

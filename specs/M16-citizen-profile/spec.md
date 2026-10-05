@@ -9,7 +9,7 @@
 | **Approvers** | Product owner · Privacy & grievance officer |
 | **DPR trace** | §03 (personas), §06 · **PRD** §7 (steps 2, 10, 18), §8, §17, §21, §28 |
 | **Depends on** | [F01](../F01-domain-model/spec.md), [M02](../M02-mismatch-detector/spec.md), [F05](../F05-auth/spec.md) |
-| **Version** | 0.2 |
+| **Version** | 0.3 |
 
 > **Approval note.** Specified from the Developer PRD and built ahead of approval (DEC-2). The suggestion engine was built in increment 2; the stored profile, targets, overrides and screens in increment 4 (`packages/services`, `/[locale]/me/report`, `/[locale]/me/profile`).
 
@@ -122,7 +122,7 @@ Target choices show every value as written with its documents, in all four langu
 
 ## 11. Out of scope
 
-Family members' profiles (M07, P1); document storage (M17).
+Document storage (M17). Family members (M07) each have a profile that works exactly as described here, chosen by the account holder.
 
 ## 13. Open questions
 
@@ -136,3 +136,4 @@ Family members' profiles (M07, P1); document storage (M17).
 |---|---|---|---|
 | 0.1 | 2026-10-05 | First draft from the Developer PRD | *Pending* |
 | 0.2 | 2026-10-05 | As built in increment 4: target history kept with the profile instead of personal values in the audit log; only confirmed targets are stored | *Pending* |
+| 0.3 | 2026-10-05 | One account can hold several profiles (M07): every rule here applies per profile | *Pending* |

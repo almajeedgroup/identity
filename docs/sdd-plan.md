@@ -377,7 +377,7 @@ The PRD re-prioritises scope into P0 / P1 / P2 (PRD §32). Increments follow it;
 | 6a | P1 | M04, M09 (+ M10 filing record), F06 v0.3, M15 v0.4, F01 v0.6 | Assistance cases: request from a roadmap step with consent, masked queue by priority and SLA, claim and assign, checklist, notes, filing reference, completion with proof, citizen tracker and replies, case-file retention | Done |
 | 6b | P1 | F08, F06 v0.4, F01 v0.7 | Notifications: in-app list with unread count, opt-in SMS with the case ID and a link only, quiet hours, retries, 90-day retention | Done |
 | 6c | P1 | M19, M15 v0.5, F01 v0.8 | Service fees: price agreed at request or accepted later, desk payments with receipts, waivers and refunds by supervisors, revenue view; online checkout waits for ADR-016 | Done |
-| 6d | P1 | M07 | Family profiles: people under one account with their own Full Check and cases | Next |
+| 6d | P1 | M07, M16 v0.3, F06 v0.5, F01 v0.9 | Family profiles: up to 8 people under one account, each with their own documents, Full Check and cases; relationship names as information only | Done |
 | 7 | P2 | M06, X01, X02, D-series | Mobile app, advanced address matching, more states and boards, multilingual OCR, authorised integrations, expiry reminders | Later |
 
 Pilot rule (PRD §36): every correction recommendation is validated manually by staff during the pilot before scaling.

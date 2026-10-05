@@ -10,7 +10,7 @@
 | **PRD trace** | §8, §9, §25 (core database entities), §28 |
 | **DPR trace** | §05, §06, §07 (screen concepts "My case" and "Case queue"), §09 |
 | **Depends on** | [Constitution](../constitution.md) |
-| **Version** | 0.8 |
+| **Version** | 0.9 |
 
 > **Approval note.** Approvers are not yet appointed (DEC-2). This spec is built ahead of approval at the product sponsor's request, using the proposed defaults in [`open-questions.md`](../open-questions.md). Anything built from it is provisional until Gate 1.
 
@@ -83,7 +83,7 @@ As a citizen or volunteer, I want a short case ID I can read out over the phone,
 
 ### Persistence (v0.3, PRD §25)
 
-- **F01-FR-09** — PostgreSQL schema (Drizzle, ADR-011). P0 tables: `users`, `otp_challenges`, `staff_users`, `staff_roles`, `sessions`, `consents`, `citizen_profiles`, `master_values`, `target_changes`, `overrides`, `documents`, `document_versions`, `document_fields`, `ocr_extractions`, `uploads`, `analysis_runs`, `kb_items`, `audit_logs`, `dev_outbox`. Increment 6a adds `cases` (with a number sequence for case IDs), `case_events`, `case_tasks`, `case_notes`, `case_files`; increment 6b adds `notifications` (with SMS delivery status); increment 6c adds the fee on `cases` and the `payments` ledger (kept for accounts when an account is deleted: the case link is set to null, only the case ID text remains); increment 6d adds family profiles.
+- **F01-FR-09** — PostgreSQL schema (Drizzle, ADR-011). P0 tables: `users`, `otp_challenges`, `staff_users`, `staff_roles`, `sessions`, `consents`, `citizen_profiles`, `master_values`, `target_changes`, `overrides`, `documents`, `document_versions`, `document_fields`, `ocr_extractions`, `uploads`, `analysis_runs`, `kb_items`, `audit_logs`, `dev_outbox`. Increment 6a adds `cases` (with a number sequence for case IDs), `case_events`, `case_tasks`, `case_notes`, `case_files`; increment 6b adds `notifications` (with SMS delivery status); increment 6c adds the fee on `cases` and the `payments` ledger (kept for accounts when an account is deleted: the case link is set to null, only the case ID text remains); increment 6d adds family members as further `citizen_profiles` rows of the account holder (`relationship` ≠ `self`, with `parent_role`, `consent_basis`, `declared_at`; M07), migration `0007`.
 - **F01-FR-10** — `document_fields` keeps `original`, `normalised` and `confirmed` values per document version (C-16); a trigger rejects any change to `original`.
 - **F01-FR-11** — Knowledge-base items (`kb_items`) are versioned rows `(kind, key, version)` with JSON data validated by F02; the engine uses, per item, the latest `published` version, otherwise the latest `in_review` one; a `withdrawn` latest version removes the item; drafts are never used. Each row also records who published it and when, and its last verification (date, verifier, source), which is overlaid on `meta.lastVerified` when loaded (M13-FR-06).
 - **F01-FR-12** — Comparison results are stored as `analysis_runs` snapshots (engine output + knowledge-base version) so staff and citizens can see what a report said at the time.
@@ -221,3 +221,4 @@ Request-to-filed working days and cases resolved are computable from `CaseEvent`
 | 0.6 | 2026-10-05 | Case tables for M04/M09 (increment 6a), migration `0004`; the lifecycle (F01-FR-03…08) is unchanged | *Pending* |
 | 0.7 | 2026-10-05 | `notifications` table (F08), migration `0005` | *Pending* |
 | 0.8 | 2026-10-05 | Case fee and `payments` ledger (M19), migration `0006` | *Pending* |
+| 0.9 | 2026-10-05 | Family member columns on `citizen_profiles` (M07), migration `0007` | *Pending* |
