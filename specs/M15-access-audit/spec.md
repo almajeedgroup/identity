@@ -9,9 +9,9 @@
 | **Approvers** | Product owner · Privacy & grievance officer · QA & security tester |
 | **DPR trace** | §05 (Access & Audit), §09 (security controls, volunteer code of conduct) · **PRD** §19 (audit logs), §23 (RBAC, least privilege, masking, audit of access/downloads/edits/case actions), §28 (override audit trail), §33 ("all important staff actions are auditable") |
 | **Depends on** | [F01](../F01-domain-model/spec.md) v0.3, [F05](../F05-auth/spec.md) |
-| **Version** | 0.2 |
+| **Version** | 0.3 |
 
-> **Approval note.** Built ahead of approval (DEC-2). Deletion jobs for case documents arrive with cases (P1); the upload-retention job (Q-26) is built now.
+> **Approval note.** Built ahead of approval (DEC-2): controls in increment 3, the staff console (US5, US6, audit viewer) in increment 5. Deletion jobs for case documents arrive with cases (P1); the upload-retention job (Q-26) runs hourly.
 
 ## 1. Summary
 
@@ -40,6 +40,16 @@ Staff see only what their role needs; sensitive identifiers are masked; and ever
 
 - **M15-AC-4.1** — *Given* uploads verified more than 30 days ago and not attached to an open case (Q-26), *when* the retention job runs, *then* their files are deleted from storage, the upload rows are marked purged, and one audit event per purge is written; uploads not yet due are untouched.
 
+### US5 — Staff console without personal data *(must)*
+
+- **M15-AC-5.1** — *Given* a staff member with `dashboard.read` signed in with 2FA, *when* they open the console, *then* they see counts only: customers, Full Check profiles, documents waiting for the citizen's confirmation, issues in the latest reports, stored uploads, and knowledge-base items by status and freshness; the P1 tiles (cases, fees, workload) say they arrive with assistance cases.
+- **M15-AC-5.2** — *Given* `customers.read`, *when* the customer list is opened or searched by a full mobile number, *then* each customer shows only a reference, the mobile number masked to its last four digits, dates, number of documents, consents and issue count — never names, document values or files, which staff see only once the citizen asks for assistance (P1, C-06) — and the view writes `customers.listed` or `customer.viewed`.
+
+### US6 — Team management *(must)*
+
+- **M15-AC-6.1** — *Given* an admin, *when* they add a staff member, *then* email, name, an initial password of at least 12 characters (handed over in person; changing it is P1) and at least one role are required, the new member enrols 2FA at first sign-in, and `staff.created` is written; *when* they change roles, suspend, reactivate or offboard someone, *then* the change is audited and suspension or offboarding revokes that person's sessions at once (M15-AC-1.3).
+- **M15-AC-6.2** — *Given* an admin, *when* they try to remove their own admin role, suspend or offboard themselves, *then* it is refused, so the console always keeps an admin.
+
 ## 4. Functional requirements
 
 - **M15-FR-01** — Staff roles: `volunteer`, `supervisor`, `content_editor`, `publisher`, `privacy_officer`, `admin`. A staff member may hold several roles.
@@ -48,6 +58,9 @@ Staff see only what their role needs; sensitive identifiers are masked; and ever
 - **M15-FR-04** — Hash: `sha256(prev_hash ‖ canonical JSON of the event without its hash)`; the first event chains from 64 zeros. Writers take a transaction-level advisory lock so the chain is linear.
 - **M15-FR-05** — The audit table is append-only through a database trigger.
 - **M15-FR-06** — Staff lifecycle: `active` → `suspended` → `active`, or → `offboarded` (final). Creating staff and changing roles are admin-only and audited.
+- **M15-FR-07** — The first admin is created from the command line (`npm run staff:create`). In development and tests only, `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` create one at start-up when no staff exist; production ignores them.
+- **M15-FR-08** — The audit viewer shows 100 events per page, newest first, filtered by actor kind, actor id, action prefix and date range, with the result of `verifyAuditChain`; opening it writes `audit.viewed`.
+- **M15-FR-09** — The staff console lives at `/staff`, in English (C-08 covers citizen screens), outside the citizen layout, and every page and action checks the permission on the server (M15-FR-02); a missing permission shows "not found" and writes `access.denied`.
 
 ## 5. Executable examples
 
@@ -96,3 +109,4 @@ Case-document deletion (P1); monthly access reviews as a scheduled report (P1).
 |---|---|---|---|
 | 0.1 | 2026-10-04 | Seed in `backlog.md` | — |
 | 0.2 | 2026-10-05 | Full spec for the PRD P0 build | *Pending* |
+| 0.3 | 2026-10-05 | Staff console (increment 5): dashboard and customer list without personal data, team management, audit viewer details, first admin | *Pending* |
