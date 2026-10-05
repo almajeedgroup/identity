@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Banner } from '@/components/fullcheck/Banner';
 import { SubmitButton } from '@/components/fullcheck/SubmitButton';
 import type { Translate } from '@/i18n/translate';
-import { closeAccountAction, signOutAction, withdrawFullCheckAction, withdrawUploadsAction } from '@/lib/server/actions';
+import { closeAccountAction, signOutAction, withdrawAssistanceAction, withdrawFullCheckAction, withdrawUploadsAction } from '@/lib/server/actions';
 import { citizenContext } from '@/lib/server/fullcheck';
 import { errorMessage, formatDate, localeOf, query, type LocaleParams, type SearchParams } from '@/lib/server/page';
 
@@ -27,6 +27,7 @@ export default async function SettingsPage({ params, searchParams }: { params: L
       <h1 className="text-[2rem] leading-tight font-extrabold">{t('settings.title')}</h1>
       <p>{t('settings.intro')}</p>
       {q.done === 'uploads' && <Banner tone="success">{t('settings.uploadsDone')}</Banner>}
+      {q.done === 'assistance' && <Banner tone="success">{t('settings.assistanceDone')}</Banner>}
       {error && <Banner tone="error">{error}</Banner>}
 
       <section className="card space-y-3" aria-labelledby="uploads-title">
@@ -35,6 +36,14 @@ export default async function SettingsPage({ params, searchParams }: { params: L
         </h2>
         {status('uploads')}
         {consent('uploads') && <DangerForm t={t} locale={locale} action={withdrawUploadsAction} text={t('settings.withdrawUploadsText')} button={t('settings.withdrawUploads')} />}
+      </section>
+
+      <section className="card space-y-3" aria-labelledby="assistance-title">
+        <h2 id="assistance-title" className="text-xl font-bold">
+          {t('settings.assistanceTitle')}
+        </h2>
+        {status('assistance')}
+        {consent('assistance') && <DangerForm t={t} locale={locale} action={withdrawAssistanceAction} text={t('settings.withdrawAssistanceText')} button={t('settings.withdrawAssistance')} />}
       </section>
 
       <section className="card space-y-3" aria-labelledby="fullcheck-title">

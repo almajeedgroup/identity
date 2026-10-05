@@ -6,6 +6,7 @@ import { ROLE_LABELS } from '@/lib/staff-text';
 
 const NAV: { href: string; label: string; permission: Permission }[] = [
   { href: '/staff', label: 'Dashboard', permission: 'dashboard.read' },
+  { href: '/staff/cases', label: 'Cases', permission: 'cases.work' },
   { href: '/staff/customers', label: 'Customers', permission: 'customers.read' },
   { href: '/staff/rules', label: 'Rules', permission: 'rules.read' },
   { href: '/staff/audit', label: 'Audit log', permission: 'audit.read' },

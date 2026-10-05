@@ -201,7 +201,11 @@
     "too_many": "Too many codes asked for. Please try again in an hour.",
     "expired": "The code has expired. Ask for a new one.",
     "too_many_attempts": "Too many wrong codes. Ask for a new one.",
-    "wrong_code": "That code is not right. Please check the SMS and try again."
+    "wrong_code": "That code is not right. Please check the SMS and try again.",
+    "assistance_consent_required": "Please agree to the assistance notice first.",
+    "no_correction_step": "There is no correction for this document in your plan right now.",
+    "case_closed": "This case has already ended.",
+    "not_awaiting": "You can reply when 1dentity asks you for something."
   },
   "signIn": {
     "title": "Sign in for the Full Check",
@@ -240,7 +244,17 @@
       "agree": "I agree to 1dentity keeping my uploaded files and their text as described.",
       "submit": "Agree and continue"
     },
-    "readNotice": "Read the full privacy notice"
+    "readNotice": "Read the full privacy notice",
+    "assistance": {
+      "title": "Before 1dentity helps you",
+      "intro": "A trained 1dentity volunteer will work on this correction with you.",
+      "who": "The volunteer assigned to your case, and their supervisor, will see your documents and the details needed for this correction — nothing else, and only while the case is open.",
+      "what": "They help you prepare and file the application on the official portal. Only the issuing office can make the correction.",
+      "otp": "If the portal sends an OTP, you type it yourself. 1dentity will never ask for your OTP, PIN or password.",
+      "howLong": "Files added to the case are deleted 30 days after it ends. You can withdraw at any time in Settings.",
+      "agree": "I agree that the 1dentity staff on my case may see the documents and details needed for it.",
+      "submit": "Agree and continue"
+    }
   },
   "me": {
     "title": "My Full Check",
@@ -265,7 +279,9 @@
     "navProfile": "My details",
     "navProfileText": "Your name for us, state, district and current address.",
     "navSettings": "Privacy and deletion",
-    "navSettingsText": "See what you agreed to, withdraw it, or delete everything."
+    "navSettingsText": "See what you agreed to, withdraw it, or delete everything.",
+    "navCases": "My help requests",
+    "navCasesText": "Follow the cases where 1dentity is helping you."
   },
   "docs": {
     "title": "My documents",
@@ -479,7 +495,8 @@
     "serviceLink": "About assisted help",
     "recheck": "Check again",
     "recheckText": "When a corrected document arrives, edit it in My documents and look at the report again.",
-    "cycle": "Some of these steps depend on each other. Follow the official guidance, or get assisted help."
+    "cycle": "Some of these steps depend on each other. Follow the official guidance, or get assisted help.",
+    "askHelp": "Ask 1dentity to help"
   },
   "profile": {
     "title": "My details",
@@ -510,7 +527,11 @@
     "closeText": "Deletes everything about you, including your account. Only records with no personal details remain, as the law requires.",
     "close": "Close my account",
     "confirm": "I understand this cannot be undone.",
-    "privacy": "Read the privacy notice"
+    "privacy": "Read the privacy notice",
+    "assistanceTitle": "Help from 1dentity",
+    "withdrawAssistance": "Stop staff access to my documents",
+    "withdrawAssistanceText": "Withdraws all your open help requests. Staff can no longer see your documents.",
+    "assistanceDone": "Staff access has ended and your open requests are withdrawn."
   },
   "privacy": {
     "title": "Privacy notice",
@@ -540,9 +561,90 @@
     "rightsTitle": "Your rights",
     "rightsText": "You can see your details, correct them, withdraw your agreement and delete everything at any time in \"Privacy and deletion\".",
     "grievanceTitle": "Questions and complaints",
-    "grievanceText": "Speak to the 1dentity help desk at Islamic Information Centre, Bengaluru. A grievance officer will be named here before the public launch."
+    "grievanceText": "Speak to the 1dentity help desk at Islamic Information Centre, Bengaluru. A grievance officer will be named here before the public launch.",
+    "assistTitle": "When you ask for help",
+    "assistText": "Only if you ask 1dentity to help with a correction, and agree, the volunteer assigned to your case and their supervisor see the documents and details needed for it. Files added to a case are deleted 30 days after the case ends."
   },
   "goodbye": {
     "closed": "Your account and everything in it have been deleted."
+  },
+  "assist": {
+    "title": "Ask 1dentity to help",
+    "intro": "A trained volunteer can help you correct your {document}.",
+    "includedTitle": "What we do",
+    "included": {
+      "check": "Check your documents and the proof the office needs.",
+      "file": "Help you file the application on the official portal, or go with you to the office.",
+      "track": "Track the application and tell you what happens next.",
+      "otp": "You type any OTP yourself — we never ask for it."
+    },
+    "feesTitle": "Fees",
+    "modeTitle": "How would you like help?",
+    "mode": {
+      "desk": "At the help desk",
+      "whatsapp_video": "WhatsApp video call",
+      "doorstep": "Home visit"
+    },
+    "modeHint": {
+      "desk": "Visit the 1dentity help desk at Islamic Information Centre, Bengaluru.",
+      "whatsapp_video": "A volunteer calls you and helps on screen.",
+      "doorstep": "For people who cannot travel, such as the elderly or people with disabilities."
+    },
+    "priorityTitle": "Should we help you sooner?",
+    "priorityHint": "Optional. Tick what applies to you.",
+    "priority": {
+      "age60": "I am 60 or older",
+      "disability": "I have a disability",
+      "deadline": "I have a deadline"
+    },
+    "deadline": "Deadline date",
+    "deadlineNote": "What is the deadline for?",
+    "submit": "Request help",
+    "diy": "No thanks — I will do it myself"
+  },
+  "cases": {
+    "title": "My help requests",
+    "empty": "You have not asked 1dentity for help yet. You can ask from any step of your correction plan.",
+    "caseTitle": "Case {id}",
+    "created": "Your request is received. Your case ID is {id}.",
+    "existing": "You already have an open request for this document — here it is.",
+    "replied": "Sent. The volunteer on your case will see it.",
+    "withdrawnDone": "Your request is withdrawn.",
+    "status": "Status",
+    "volunteer": "Helping you: {name}",
+    "noVolunteer": "A volunteer will take your case soon.",
+    "appointment": "Appointment: {date}",
+    "reference": "Application reference {ref}, filed on {date}",
+    "whatTitle": "What is being corrected",
+    "timeline": "Timeline",
+    "event": {
+      "assigned": "A volunteer took your case",
+      "citizen_reply": "You replied",
+      "file": "A file was added",
+      "filed": "Filed",
+      "note": "New message from 1dentity"
+    },
+    "messages": "Messages",
+    "you": "You",
+    "files": "Files",
+    "file": "File",
+    "filePurged": "File deleted after the retention period",
+    "replyTitle": "Reply",
+    "message": "Message",
+    "attach": "Add a photo or PDF (optional)",
+    "send": "Send",
+    "withdraw": "Withdraw this request",
+    "withdrawText": "The volunteer stops working on it and can no longer see your documents for it.",
+    "stage": {
+      "request_received": "Request received",
+      "need_from_you": "We need something from you",
+      "appointment_booked": "Appointment booked",
+      "documents_checked": "Documents checked",
+      "filed": "Filed on the official portal",
+      "with_authority": "With the issuing office",
+      "completed": "Completed",
+      "closed": "Closed",
+      "withdrawn": "Withdrawn"
+    }
   }
 }

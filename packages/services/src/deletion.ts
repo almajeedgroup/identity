@@ -5,7 +5,18 @@ import { markWithdrawn } from './consents';
 import { findProfile } from './profile';
 import { nowOf, type Services } from './services';
 
-const { citizenProfiles, devOutbox, documents, ocrExtractions, otpChallenges, uploads, users } = tables;
+const { caseFiles, cases, citizenProfiles, devOutbox, documents, ocrExtractions, otpChallenges, uploads, users } = tables;
+
+/** Case files go from the object store before their rows (F06-FR-03). */
+async function deleteCaseFilesOf(s: Services, userId: string): Promise<number> {
+  const files = await s.db
+    .select({ storageKey: caseFiles.storageKey, purgedAt: caseFiles.purgedAt })
+    .from(caseFiles)
+    .innerJoin(cases, eq(caseFiles.caseId, cases.id))
+    .where(eq(cases.userId, userId));
+  for (const f of files) if (!f.purgedAt) await s.store.delete(f.storageKey);
+  return files.length;
+}
 
 async function deleteFilesOf(s: Services, profileId: string): Promise<number> {
   const files = await s.db
@@ -25,11 +36,12 @@ export async function withdrawFullCheck(s: Services, userId: string): Promise<{ 
   const profile = await findProfile(s.db, userId);
   let counts = { documents: 0, uploads: 0 };
   if (profile) {
-    counts = { documents: await countDocuments(s, profile.id), uploads: await deleteFilesOf(s, profile.id) };
+    counts = { documents: await countDocuments(s, profile.id), uploads: (await deleteFilesOf(s, profile.id)) + (await deleteCaseFilesOf(s, userId)) };
+    // Cases belong to the profile and go with it.
     await s.db.delete(citizenProfiles).where(eq(citizenProfiles.id, profile.id));
   }
-  await markWithdrawn(s.db, userId, ['full_check', 'uploads'], now);
-  await writeAudit(s.db, { actorKind: 'citizen', actorId: userId, action: 'consent.withdrawn', details: { purposes: ['full_check', 'uploads'], ...counts } }, now);
+  await markWithdrawn(s.db, userId, ['full_check', 'uploads', 'assistance'], now);
+  await writeAudit(s.db, { actorKind: 'citizen', actorId: userId, action: 'consent.withdrawn', details: { purposes: ['full_check', 'uploads', 'assistance'], ...counts } }, now);
   return counts;
 }
 
@@ -63,7 +75,7 @@ export async function closeAccount(s: Services, userId: string): Promise<{ docum
   const [user] = await s.db.select().from(users).where(eq(users.id, userId)).limit(1);
   if (!user) return { documents: 0, uploads: 0 };
   const profile = await findProfile(s.db, userId);
-  const counts = profile ? { documents: await countDocuments(s, profile.id), uploads: await deleteFilesOf(s, profile.id) } : { documents: 0, uploads: 0 };
+  const counts = profile ? { documents: await countDocuments(s, profile.id), uploads: (await deleteFilesOf(s, profile.id)) + (await deleteCaseFilesOf(s, userId)) } : { documents: 0, uploads: 0 };
   await s.db.delete(otpChallenges).where(eq(otpChallenges.mobile, user.mobile));
   await s.db.delete(devOutbox).where(eq(devOutbox.recipient, user.mobile));
   // Cascades to profiles, documents, versions, fields, extractions, uploads, targets, overrides, runs, consents, sessions.

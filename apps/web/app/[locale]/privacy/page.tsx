@@ -4,7 +4,7 @@ import { localeOf, type LocaleParams } from '@/lib/server/page';
 /** F06-AC-2.1 · The privacy notice in every language (draft for legal review, PRD §34). */
 export default async function PrivacyPage({ params }: { params: LocaleParams }) {
   const { t } = await localeOf(params);
-  const sections = ['quick', 'collect', 'why', 'who', 'security', 'rights', 'grievance'] as const;
+  const sections = ['quick', 'collect', 'why', 'who', 'assist', 'security', 'rights', 'grievance'] as const;
   const retention = ['uploads', 'profile_and_documents', 'sign_in_codes'] as const;
   return (
     <article className="space-y-6">

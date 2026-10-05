@@ -11,6 +11,7 @@
   "dependencies": {
     "@identity/content": "0.1.0",
     "@identity/db": "0.1.0",
+    "@identity/domain": "0.1.0",
     "@identity/engine": "0.1.0",
     "@identity/ocr": "0.1.0",
     "drizzle-orm": "^0.45.3"

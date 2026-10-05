@@ -18,6 +18,8 @@ export interface Services {
   ocr: Providers;
   knowledge(): Promise<Knowledge>;
   now?: () => Date;
+  /** M09-FR-04 · Holidays for SLA counting (YYYY-MM-DD). */
+  holidays?: readonly string[];
 }
 
 export const nowOf = (s: Pick<Services, 'now'>) => s.now?.() ?? new Date();
@@ -53,7 +55,15 @@ export type ErrorCode =
   | 'weak_password'
   | 'email_taken'
   | 'no_roles'
-  | 'invalid_mobile';
+  | 'invalid_mobile'
+  // cases (M04, M09)
+  | 'assistance_consent_required'
+  | 'no_correction_step'
+  | 'case_closed'
+  | 'not_allowed'
+  | 'not_awaiting'
+  | 'proof_required'
+  | 'already_assigned';
 
 /** A refusal the citizen can act on; the web layer turns the code into a message. */
 export class ServiceError extends Error {

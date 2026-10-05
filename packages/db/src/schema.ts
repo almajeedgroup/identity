@@ -1,6 +1,6 @@
 /** F01 v0.3 · PostgreSQL schema (Drizzle, ADR-011) for the PRD §25 entities needed at P0. */
 import { sql } from 'drizzle-orm';
-import { bigserial, boolean, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { bigserial, boolean, index, integer, jsonb, pgTable, primaryKey, real, serial, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 
 const ts = (name: string) => timestamp(name, { withTimezone: true, mode: 'date' });
 const created = () => ts('created_at').notNull().defaultNow();
@@ -272,6 +272,111 @@ export const analysisRuns = pgTable('analysis_runs', {
   issueCount: integer('issue_count').notNull(),
   result: jsonb('result').notNull(),
   createdAt: created(),
+});
+
+// ---------------------------------------------------------------- assistance cases (M04, M09 · F01 v0.6)
+
+export const cases = pgTable(
+  'cases',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    /** Shown as ID-00042 (F01-FR-08); never enough to open a case. */
+    number: serial('number').notNull().unique(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    profileId: uuid('profile_id')
+      .notNull()
+      .references(() => citizenProfiles.id, { onDelete: 'cascade' }),
+    documentId: uuid('document_id').references(() => documents.id, { onDelete: 'set null' }),
+    documentKind: text('document_kind').notNull(),
+    /** The name the case is about (target name, or the profile's name), shown masked in queues. */
+    applicantName: text('applicant_name'),
+    /** M04-FR-02 · snapshot at request time. */
+    issues: jsonb('issues').notNull(),
+    rule: jsonb('rule'),
+    governmentFees: jsonb('government_fees').notNull(),
+    serviceFee: jsonb('service_fee'),
+    helpMode: text('help_mode', { enum: ['desk', 'whatsapp_video', 'doorstep'] }).notNull(),
+    priority: jsonb('priority').notNull(),
+    deadline: text('deadline'),
+    deadlineNote: text('deadline_note'),
+    state: text('state').notNull().default('new'),
+    closureReason: text('closure_reason'),
+    assignedToId: uuid('assigned_to_id').references(() => staffUsers.id, { onDelete: 'set null' }),
+    applicationRef: text('application_ref'),
+    applicationDate: text('application_date'),
+    appointmentAt: ts('appointment_at'),
+    nextAction: text('next_action'),
+    nextActionDue: text('next_action_due'),
+    completedAt: ts('completed_at'),
+    completionNote: text('completion_note'),
+    endedAt: ts('ended_at'),
+    createdAt: created(),
+    updatedAt: ts('updated_at').notNull().defaultNow(),
+  },
+  (t) => [index('cases_user').on(t.userId), index('cases_state').on(t.state), index('cases_assigned').on(t.assignedToId)],
+);
+
+export const caseEvents = pgTable(
+  'case_events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    caseId: uuid('case_id')
+      .notNull()
+      .references(() => cases.id, { onDelete: 'cascade' }),
+    kind: text('kind', { enum: ['state', 'assigned', 'citizen_reply', 'file', 'filed', 'note'] }).notNull(),
+    fromState: text('from_state'),
+    toState: text('to_state'),
+    actorKind: text('actor_kind', { enum: ['citizen', 'staff', 'system'] }).notNull(),
+    actorId: uuid('actor_id'),
+    reason: text('reason'),
+    citizenVisible: boolean('citizen_visible').notNull().default(true),
+    at: ts('at').notNull().defaultNow(),
+  },
+  (t) => [index('case_events_case').on(t.caseId, t.at)],
+);
+
+export const caseTasks = pgTable('case_tasks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  caseId: uuid('case_id')
+    .notNull()
+    .references(() => cases.id, { onDelete: 'cascade' }),
+  position: integer('position').notNull(),
+  label: text('label').notNull(),
+  doneAt: ts('done_at'),
+  doneById: uuid('done_by_id'),
+});
+
+export const caseNotes = pgTable('case_notes', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  caseId: uuid('case_id')
+    .notNull()
+    .references(() => cases.id, { onDelete: 'cascade' }),
+  visibility: text('visibility', { enum: ['internal', 'citizen'] }).notNull(),
+  /** Aadhaar numbers are masked before storing (M09-AC-3.3). */
+  body: text('body').notNull(),
+  authorKind: text('author_kind', { enum: ['citizen', 'staff'] }).notNull(),
+  authorId: uuid('author_id').notNull(),
+  createdAt: created(),
+});
+
+export const caseFiles = pgTable('case_files', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  caseId: uuid('case_id')
+    .notNull()
+    .references(() => cases.id, { onDelete: 'cascade' }),
+  storageKey: text('storage_key').notNull().unique(),
+  mime: text('mime').notNull(),
+  sizeBytes: integer('size_bytes').notNull(),
+  sha256: text('sha256').notNull(),
+  kind: text('kind', { enum: ['citizen', 'staff', 'proof'] }).notNull(),
+  label: text('label'),
+  uploadedByKind: text('uploaded_by_kind', { enum: ['citizen', 'staff'] }).notNull(),
+  uploadedById: uuid('uploaded_by_id').notNull(),
+  createdAt: created(),
+  purgeAfter: ts('purge_after'),
+  purgedAt: ts('purged_at'),
 });
 
 // ---------------------------------------------------------------- knowledge base (F02 v0.3, F01-FR-11)

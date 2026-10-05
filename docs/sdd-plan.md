@@ -374,7 +374,10 @@ The PRD re-prioritises scope into P0 / P1 / P2 (PRD §32). Increments follow it;
 | 3 | P0 | F01 v0.3, F05, M15, F07 | Database, encryption, audit log, encrypted file store, citizen sign-in, staff sign-in with MFA, roles | Done |
 | 4 | P0 | M16 v0.2, M17, F06, ADR-015 | Full Check: sign-in, consent, profile, documents (typed or uploaded), OCR and verification, report, targets and overrides, roadmap, privacy notice, withdrawal and deletion | Done |
 | 5 | P0 | M13 v0.2, M15 v0.3, F05 v0.4, F01 v0.5 | Staff console: sign-in with TOTP, dashboard, customer list without personal data, rules admin (versions, differences, second-person publishing, verification, service prices), audit log viewer, team management | Done |
-| 6 | P1 | M04, M09, M10, M19, F08, M07 | Assistance cases, tasks, service fees and payments, notifications, family profiles | Next |
+| 6a | P1 | M04, M09 (+ M10 filing record), F06 v0.3, M15 v0.4, F01 v0.6 | Assistance cases: request from a roadmap step with consent, masked queue by priority and SLA, claim and assign, checklist, notes, filing reference, completion with proof, citizen tracker and replies, case-file retention | Done |
+| 6b | P1 | F08 | Notifications: in-app and SMS through the sender interface for the PRD §20 events | Next |
+| 6c | P1 | M19 | Service fees and payments: fee on the case, desk payment records, gateway interface, revenue view | Next |
+| 6d | P1 | M07 | Family profiles: people under one account with their own Full Check and cases | Next |
 | 7 | P2 | M06, X01, X02, D-series | Mobile app, advanced address matching, more states and boards, multilingual OCR, authorised integrations, expiry reminders | Later |
 
 Pilot rule (PRD §36): every correction recommendation is validated manually by staff during the pilot before scaling.

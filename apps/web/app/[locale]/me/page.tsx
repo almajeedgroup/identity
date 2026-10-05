@@ -32,6 +32,7 @@ export default async function MePage({ params, searchParams }: { params: LocaleP
     ['documents', 'navDocuments'],
     ['report', 'navReport'],
     ['roadmap', 'navRoadmap'],
+    ['cases', 'navCases'],
     ['profile', 'navProfile'],
     ['settings', 'navSettings'],
   ] as const;

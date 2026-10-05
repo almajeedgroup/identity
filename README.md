@@ -35,7 +35,8 @@ Built and tested, in English, Kannada, Hindi and Urdu (right to left):
 
 1. **Quick Check** — anonymous, on the phone; nothing leaves the device.
 2. **Full Check** — sign in with a one-time code; agree per purpose; add documents by typing or by uploading a photo or PDF that is read on our own servers (never a full Aadhaar number); confirm what was read; compare every field across documents with six statuses; choose target details; dispute a result; follow a dependency-ordered correction plan with official sources, government fees and the separate 1dentity service fee; withdraw or delete everything.
-3. **Staff console** (`/staff`, English) — sign-in with an authenticator app, a dashboard of counts, a customer list that shows no personal data until a citizen asks for help, a rules admin where every change is a version that a publisher publishes (a second person for fees and links), verification against official sources, service prices, a filtered audit log with hash-chain check, and team management.
+3. **Assistance cases** — from any correction step a citizen can ask 1dentity for help (separate consent; the 1dentity fee shown apart from the government fee); staff see a masked queue ordered by priority and SLA, claim or assign cases, open the citizen's documents only for their own cases, work a checklist, write notes, record the authority's reference and close with proof; the citizen follows the case and replies.
+4. **Staff console** (`/staff`, English) — sign-in with an authenticator app, a dashboard of counts, a customer list that shows no personal data until a citizen asks for help, a rules admin where every change is a version that a publisher publishes (a second person for fees and links), verification against official sources, service prices, a filtered audit log with hash-chain check, and team management.
 
 Before a public release:
 
@@ -44,7 +45,7 @@ Before a public release:
 - Correction rules, fees, forms and links are **not yet verified** on the official portals; the app says so on every step.
 - The privacy notice is a draft for legal review; the SMS provider (ADR-005) and production object store (ADR-004) are open.
 
-Next (plan §7.7): increment 6 (P1) — assistance cases, tasks, payments, notifications and family profiles.
+Next (plan §7.7): increment 6b — notifications; then 6c payments and 6d family profiles.
 
 ## Running it
 
@@ -64,6 +65,7 @@ Without configuration the app uses an embedded PostgreSQL (PGlite) and an encryp
 | `DATA_KEYS`, `DATA_KEY_CURRENT`, `OTP_PEPPER` | Encryption keys and code pepper — required when `APP_ENV=production` |
 | `APP_ENV` | `development` (default), `test`, `staging` or `production`; production refuses development defaults |
 | `APP_URL` | Public URL; `https://` turns on `Secure` cookies |
+| `CASE_HOLIDAYS` | Holidays excluded from case SLA counting, e.g. `2026-10-20,2026-11-01` |
 | `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | Development and tests only: a first admin for `/staff` (ignored in production — use `STAFF_PASSWORD=… npm run staff:create -- --email … --name … --roles admin`) |
 
 Quality gates (the same as CI):

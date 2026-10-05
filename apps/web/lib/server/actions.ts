@@ -20,9 +20,15 @@ import {
   uploadDocument,
   withdrawFullCheck,
   withdrawUploads,
+  requestHelp,
+  citizenReply,
+  withdrawMyCase,
+  withdrawAssistance,
+  type HelpMode,
   type DocumentValues,
   type Purpose,
 } from '@identity/services';
+import type { PriorityFlag } from '@identity/domain';
 import { redirect } from 'next/navigation';
 import { isLocale, type Locale } from '@/i18n/config';
 import { platform } from './platform';
@@ -97,11 +103,12 @@ export async function grantConsentAction(fd: FormData) {
   const locale = localeOf(fd);
   const { citizen, p } = await signedIn(locale);
   const purpose = str(fd, 'purpose') as Purpose;
+  const chosen: Purpose = purpose === 'uploads' || purpose === 'assistance' ? purpose : 'full_check';
   const next = str(fd, 'next');
   const back = next.startsWith(`/${locale}/me`) ? next : `/${locale}/me`;
   if (str(fd, 'agree') !== 'yes') redirect(`${back}${back.includes('?') ? '&' : '?'}error=must_agree`);
   await act(back, async () => {
-    await grantConsent(p.services, citizen.user.id, purpose === 'uploads' ? 'uploads' : 'full_check', locale);
+    await grantConsent(p.services, citizen.user.id, chosen, locale);
     return back;
   });
 }
@@ -280,4 +287,55 @@ export async function closeAccountAction(fd: FormData) {
   await closeAccount(p.services, citizen.user.id);
   await clearSessionCookie();
   redirect(`/${locale}/goodbye`);
+}
+
+// ---------------------------------------------------------------- assistance (M04)
+
+export async function requestHelpAction(fd: FormData) {
+  const locale = localeOf(fd);
+  const { citizen, p } = await signedIn(locale);
+  const documentId = str(fd, 'document');
+  await act(`/${locale}/me/help/${documentId}`, async () => {
+    const { caseId, existing } = await requestHelp(p.services, citizen.user.id, {
+      documentId,
+      helpMode: str(fd, 'mode') as HelpMode,
+      priority: fd.getAll('priority').map(String) as PriorityFlag[],
+      deadline: str(fd, 'deadline') || undefined,
+      deadlineNote: str(fd, 'deadline_note') || undefined,
+    });
+    return `/${locale}/me/cases/${caseId}?${existing ? 'existing' : 'created'}=1`;
+  });
+}
+
+export async function citizenReplyAction(fd: FormData) {
+  const locale = localeOf(fd);
+  const { citizen, p } = await signedIn(locale);
+  const id = str(fd, 'id');
+  const file = fd.get('file');
+  await act(`/${locale}/me/cases/${id}`, async () => {
+    await citizenReply(p.services, citizen.user.id, id, {
+      message: str(fd, 'message'),
+      ...(file instanceof File && file.size > 0 ? { file: { bytes: new Uint8Array(await file.arrayBuffer()), label: file.name.slice(0, 80) } } : {}),
+    });
+    return `/${locale}/me/cases/${id}?replied=1`;
+  });
+}
+
+export async function withdrawCaseAction(fd: FormData) {
+  const locale = localeOf(fd);
+  const { citizen, p } = await signedIn(locale);
+  const id = str(fd, 'id');
+  if (str(fd, 'confirm') !== 'yes') redirect(`/${locale}/me/cases/${id}?error=must_confirm`);
+  await act(`/${locale}/me/cases/${id}`, async () => {
+    await withdrawMyCase(p.services, citizen.user.id, id);
+    return `/${locale}/me/cases/${id}?withdrawn=1`;
+  });
+}
+
+export async function withdrawAssistanceAction(fd: FormData) {
+  const locale = localeOf(fd);
+  confirmed(fd, locale);
+  const { citizen, p } = await signedIn(locale);
+  await withdrawAssistance(p.services, citizen.user.id);
+  redirect(`/${locale}/me/settings?done=assistance`);
 }

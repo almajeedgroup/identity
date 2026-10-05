@@ -21,7 +21,7 @@ import {
 } from '@identity/db';
 import { createContext } from '@identity/engine';
 import { PdfTextProvider, TesseractProvider } from '@identity/ocr';
-import type { Knowledge, Services } from '@identity/services';
+import { purgeEndedCaseFiles, type Knowledge, type Services } from '@identity/services';
 
 /**
  * One platform per server process (ADR-011, ADR-013, ADR-014): configuration, database (migrated and seeded),
@@ -68,13 +68,16 @@ async function boot(): Promise<Platform> {
     return cached.value;
   };
 
-  const services: Services = { db, keyring: config.keyring, store, ocr: { image: new TesseractProvider(), pdf: new PdfTextProvider() }, knowledge };
+  // M09-FR-04 · holidays for SLA counting until a calendar is maintained (DEC-3, Q-08).
+  const holidays = (process.env.CASE_HOLIDAYS ?? '').split(',').map((d) => d.trim()).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d));
+  const services: Services = { db, keyring: config.keyring, store, ocr: { image: new TesseractProvider(), pdf: new PdfTextProvider() }, knowledge, holidays };
 
   // F06-FR-04 · retention: uploads 30 days after verification, sign-in codes 1 day.
   const housekeeping = async () => {
     try {
       await purgeDueUploads(db, store);
       await pruneOtpChallenges(db);
+      await purgeEndedCaseFiles(services);
     } catch (error) {
       console.error('Housekeeping failed', error);
     }

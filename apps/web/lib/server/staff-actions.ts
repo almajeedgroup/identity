@@ -2,6 +2,15 @@
 
 import { revokeSessionByToken, staffSignIn, verifyStaffTotp, type Permission } from '@identity/db';
 import {
+  addCaseNote,
+  addStaffCaseFile,
+  assignCase,
+  claimCase,
+  completeCase,
+  moveCase,
+  recordFiling,
+  setCaseSchedule,
+  setTaskDone,
   addStaff,
   changeStaffStatus,
   discardDraft,
@@ -155,5 +164,97 @@ export async function setStatusAction(fd: FormData) {
   await act('/staff/team', async () => {
     await changeStaffStatus(s, actor, str(fd, 'id'), str(fd, 'status') as 'active');
     return '/staff/team?saved=1';
+  });
+}
+
+// ---------------------------------------------------------------- cases (M09)
+
+const casePath = (id: string) => `/staff/cases/${encodeURIComponent(id)}`;
+
+async function caseAct(fd: FormData, fn: (ctx: Awaited<ReturnType<typeof requireStaff>>, id: string) => Promise<string>) {
+  const ctx = await requireStaff('cases.work');
+  const id = str(fd, 'id');
+  await act(casePath(id), () => fn(ctx, id));
+}
+
+export async function claimCaseAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    await claimCase(s, actor, id);
+    return q(casePath(id), { saved: 'claimed' });
+  });
+}
+
+export async function assignCaseAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    await assignCase(s, actor, id, str(fd, 'staff'));
+    return q(casePath(id), { saved: 'assigned' });
+  });
+}
+
+export async function moveCaseAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    await moveCase(s, actor, id, str(fd, 'to'), str(fd, 'reason') || undefined);
+    return q(casePath(id), { saved: 'moved' });
+  });
+}
+
+export async function unmaskNameAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    // The page shows the name by calling unmaskName, so every showing is audited with its reason.
+    const why = str(fd, 'reason').replace(/\s+/g, ' ').trim().slice(0, 200);
+    if (!why) throw new ServiceError('reason_required');
+    void actor;
+    void s;
+    return q(casePath(id), { unmask: why });
+  });
+}
+
+export async function caseNoteAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    await addCaseNote(s, actor, id, { visibility: str(fd, 'visibility') === 'citizen' ? 'citizen' : 'internal', body: str(fd, 'body') });
+    return q(casePath(id), { saved: 'note' });
+  });
+}
+
+export async function caseTaskAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    await setTaskDone(s, actor, id, str(fd, 'task'), str(fd, 'done') === '1');
+    return q(casePath(id), { saved: 'task' });
+  });
+}
+
+export async function caseScheduleAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    const appointment = str(fd, 'appointment');
+    await setCaseSchedule(s, actor, id, { appointmentAt: appointment ? `${appointment}:00+05:30` : undefined, nextAction: str(fd, 'next_action'), nextActionDue: str(fd, 'next_due') || undefined });
+    return q(casePath(id), { saved: 'schedule' });
+  });
+}
+
+export async function caseFilingAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    await recordFiling(s, actor, id, { reference: str(fd, 'reference'), date: str(fd, 'date') });
+    return q(casePath(id), { saved: 'filed' });
+  });
+}
+
+export async function caseCompleteAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    const file = fd.get('proof');
+    await completeCase(s, actor, id, {
+      completedOn: str(fd, 'date'),
+      note: str(fd, 'note'),
+      ...(file instanceof File && file.size > 0 ? { proof: { bytes: new Uint8Array(await file.arrayBuffer()), label: file.name.slice(0, 80) } } : {}),
+    });
+    return q(casePath(id), { saved: 'completed' });
+  });
+}
+
+export async function caseFileAction(fd: FormData) {
+  await caseAct(fd, async ({ actor, s }, id) => {
+    const file = fd.get('file');
+    if (!(file instanceof File) || file.size === 0) throw new ServiceError('invalid_value');
+    await addStaffCaseFile(s, actor, id, { bytes: new Uint8Array(await file.arrayBuffer()), label: str(fd, 'label') || file.name.slice(0, 80) });
+    return q(casePath(id), { saved: 'file' });
   });
 }

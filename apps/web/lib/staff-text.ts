@@ -21,6 +21,13 @@ export const STAFF_ERRORS: Record<string, string> = {
   email_taken: 'Someone already uses that email address.',
   no_roles: 'Choose at least one role.',
   invalid_mobile: 'Enter the full 10-digit mobile number.',
+  case_closed: 'This case has ended.',
+  not_allowed: 'That move is not allowed from the current stage.',
+  proof_required: 'Add proof of completion: a file, or a note if the office issues nothing.',
+  already_assigned: 'Someone has already taken this case.',
+  rejected_aadhaar: 'The file shows a full Aadhaar number, so it was not stored. Ask for a masked copy.',
+  bad_type: 'Only JPG, PNG or PDF files.',
+  too_large: 'Files can be up to 10 MB.',
 };
 
 export const staffError = (code: string | undefined) => (code ? (STAFF_ERRORS[code] ?? 'Something went wrong.') : null);
@@ -46,3 +53,27 @@ export const KIND_LABELS: Record<string, string> = {
 };
 
 export const formatDateTime = (d: Date) => d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+
+export const STAGE_LABELS: Record<string, string> = {
+  new: 'New',
+  awaiting_citizen: 'Awaiting citizen',
+  visit_booked: 'Visit booked',
+  in_progress: 'In progress',
+  filed: 'Filed',
+  with_authority: 'With authority',
+  completed: 'Completed',
+  closed_not_proceeding: 'Closed',
+  withdrawn: 'Withdrawn',
+};
+
+export const MODE_LABELS: Record<string, string> = { desk: 'Help desk', whatsapp_video: 'WhatsApp video', doorstep: 'Home visit' };
+export const PRIORITY_LABELS: Record<string, string> = { age60: '60+', disability: 'Disability', deadline: 'Deadline' };
+export const SLA_LABELS: Record<string, string> = {
+  on_track: 'On track',
+  due_today: 'Due today',
+  overdue: 'Overdue',
+  paused: 'Paused',
+  met: 'Met',
+  missed: 'Missed',
+  stopped: 'Stopped',
+};

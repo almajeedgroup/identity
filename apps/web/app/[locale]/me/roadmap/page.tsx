@@ -172,8 +172,8 @@ export default async function RoadmapPage({ params }: { params: LocaleParams }) 
           <p className="font-bold">{t('roadmap.serviceTitle')}</p>
           <p>{step.serviceFee ? t('roadmap.serviceFee', { amount: formatInr(step.serviceFee.amountInr) }) : t('roadmap.serviceFeeTbc')}</p>
           <p className="text-[0.875rem]">{t('roadmap.serviceNote')}</p>
-          <Link href={`/${locale}/help`} className="font-semibold">
-            {t('roadmap.serviceLink')}
+          <Link href={`/${locale}/me/help/${step.document}`} className="btn-secondary" data-testid="ask-help">
+            {t('roadmap.askHelp')}
           </Link>
         </div>
       </>

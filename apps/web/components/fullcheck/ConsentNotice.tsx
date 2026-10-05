@@ -5,9 +5,10 @@ import { grantConsentAction } from '@/lib/server/actions';
 import { SubmitButton } from './SubmitButton';
 
 /** F06-AC-1.1 / 1.2 · The notice for one purpose; nothing is stored for it until the citizen agrees. */
-export function ConsentNotice({ t, locale, purpose, next }: { t: Translate; locale: Locale; purpose: 'full_check' | 'uploads'; next: string }) {
-  const key = purpose === 'full_check' ? 'fullCheck' : 'uploads';
-  const points = purpose === 'full_check' ? ['keep', 'why', 'who', 'howLong', 'notGovernment'] : ['keep', 'read', 'aadhaar', 'howLong'];
+export function ConsentNotice({ t, locale, purpose, next }: { t: Translate; locale: Locale; purpose: 'full_check' | 'uploads' | 'assistance'; next: string }) {
+  const key = purpose === 'full_check' ? 'fullCheck' : purpose;
+  const points =
+    purpose === 'full_check' ? ['keep', 'why', 'who', 'howLong', 'notGovernment'] : purpose === 'uploads' ? ['keep', 'read', 'aadhaar', 'howLong'] : ['who', 'what', 'otp', 'howLong'];
   const Heading = purpose === 'full_check' ? 'h1' : 'h2';
   return (
     <section className="card space-y-4" data-testid={`consent-${purpose}`} aria-labelledby={`consent-${purpose}-title`}>

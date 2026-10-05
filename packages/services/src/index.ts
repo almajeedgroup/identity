@@ -6,3 +6,4 @@ export * from './report';
 export * from './services';
 export * from './values';
 export * from './staff';
+export * from './cases';

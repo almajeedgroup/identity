@@ -146,8 +146,79 @@ test.describe('Staff console (F05, M13, M15)', () => {
     await expect(page).toHaveURL(/\/staff\/sign-in$/);
   });
 
+  test('@M04-AC-1.1 @M04-AC-1.3 @M04-AC-2.1 @M04-AC-2.2 @M09-AC-1.1 @M09-AC-3.1 @M09-AC-3.4 a citizen asks for help; staff work the case; the citizen follows it', async ({ browser }) => {
+    test.setTimeout(120_000);
+    const citizen = await (await browser.newContext()).newPage();
+    const mobile = `9${String(Math.floor(Math.random() * 1e9)).padStart(9, '0')}`;
+    await go(citizen, '/en/sign-in');
+    await citizen.getByLabel('Mobile number').fill(mobile);
+    await citizen.getByRole('button', { name: 'Send code' }).click();
+    await expect(citizen.getByText(/We sent a 6-digit code/)).toBeVisible({ timeout: 20_000 });
+    const body = ((await (await citizen.request.get(`/api/dev/outbox?mobile=${mobile}`)).json()) as { body: string }).body;
+    await citizen.getByLabel('6-digit code').fill(/(\d{6})/.exec(body)![1]!);
+    await citizen.getByRole('button', { name: 'Sign in' }).click();
+    await citizen.getByLabel(/I have read this and agree/).check();
+    await citizen.getByRole('button', { name: 'Start my Full Check' }).click();
+    for (const [kind, name] of [['aadhaar', 'Mohammed Ibrahim'], ['sslc', 'Mohammed Ibrahim'], ['pan', 'Ibrahim Mujeeb']]) {
+      await go(citizen, `/en/me/documents/new/${kind}`);
+      await citizen.locator('section', { hasText: 'Type the details' }).getByLabel('Name', { exact: true }).fill(name!);
+      await citizen.getByRole('button', { name: 'Save document' }).click();
+      await expect(citizen.getByText('Document saved.')).toBeVisible();
+    }
+    await go(citizen, '/en/me/report');
+    await citizen.getByTestId('field-name').getByRole('button', { name: 'Confirm target' }).click();
+    await expect(citizen.getByText('Target confirmed.')).toBeVisible();
+
+    await go(citizen, '/en/me/roadmap');
+    await citizen.locator('[data-step="correction"]', { hasText: 'Correct your PAN' }).getByTestId('ask-help').click();
+    await expect(citizen.getByRole('heading', { level: 1 })).toHaveText('Ask 1dentity to help');
+    await expect(citizen.getByTestId('government-fee')).toContainText('never to 1dentity');
+    await citizen.getByLabel(/I agree that the 1dentity staff on my case/).check();
+    await citizen.getByRole('button', { name: 'Agree and continue' }).click();
+    await citizen.getByLabel('I am 60 or older').check();
+    await citizen.getByRole('button', { name: 'Request help' }).click();
+    await expect(citizen.getByTestId('banner-success')).toContainText(/Your case ID is \W?ID-\d{5}/);
+    await expect(citizen.getByTestId('stage')).toHaveText('Request received');
+    const caseId = /ID-\d{5,}/.exec((await citizen.getByRole('heading', { level: 1 }).textContent())!)![0];
+
+    await go(admin, '/staff/cases?filter=unassigned');
+    const row = admin.getByTestId('queue').locator(`[data-case="${caseId}"]`);
+    await expect(row).toContainText('Mohammed I.');
+    await expect(row).toContainText('60+');
+    await row.getByRole('link').click();
+    await admin.getByRole('button', { name: 'Take this case' }).click();
+    await expect(admin.getByTestId('assignee')).toHaveText('Development admin');
+    await admin.getByRole('button', { name: '→ In progress' }).click();
+    await admin.getByLabel('New note').fill('Please upload your SSLC marks card.');
+    await admin.getByLabel('For the citizen').check();
+    await admin.getByRole('button', { name: 'Save note' }).click();
+    await expect(admin.getByTestId('notes')).toContainText('visible to the citizen');
+    await admin.getByRole('button', { name: '→ Awaiting citizen' }).click();
+    await expect(admin.getByTestId('stage')).toContainText('Awaiting citizen');
+
+    await go(citizen, citizen.url().replace(/\?.*$/, ''));
+    await expect(citizen.getByTestId('stage')).toHaveText('We need something from you');
+    await expect(citizen.getByTestId('case-status')).toContainText('Helping you: Development A.');
+    await expect(citizen.getByTestId('notes')).toContainText('Please upload your SSLC marks card.');
+    await citizen.getByLabel('Message', { exact: true }).fill('I will bring it to the desk tomorrow.');
+    await citizen.getByRole('button', { name: 'Send' }).click();
+    await expect(citizen.getByTestId('banner-success')).toContainText('Sent.');
+
+    await go(admin, admin.url().replace(/\?.*$/, ''));
+    await expect(admin.getByTestId('notes')).toContainText('I will bring it to the desk tomorrow.');
+    await admin.getByRole('button', { name: '→ In progress' }).click();
+    await admin.getByLabel('Application reference').fill('PAN-CR-881234');
+    await admin.getByRole('button', { name: 'Record filing' }).click();
+    await expect(admin.getByTestId('stage')).toContainText('Filed');
+
+    await go(citizen, citizen.url().replace(/\?.*$/, ''));
+    await expect(citizen.getByTestId('stage')).toHaveText('Filed on the official portal');
+    await expect(citizen.getByTestId('reference')).toContainText('PAN-CR-881234');
+    await expect(citizen.getByTestId('timeline')).toContainText('Request received');
+  });
+
   test('@F03-AC-1.1 no serious accessibility violations on the staff console', async () => {
-    for (const path of ['/staff', '/staff/rules', '/staff/rules/rule/voter-form-8-correction', '/staff/audit', '/staff/team', '/staff/customers']) {
+    for (const path of ['/staff', '/staff/cases', '/staff/rules', '/staff/rules/rule/voter-form-8-correction', '/staff/audit', '/staff/team', '/staff/customers']) {
       await go(admin, path);
       const results = await new AxeBuilder({ page: admin }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
       const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');

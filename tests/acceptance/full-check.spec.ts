@@ -244,7 +244,7 @@ test.describe('Full Check (M16, M17, M18, F05, F06)', () => {
     for (const locale of ['en', 'kn', 'hi', 'ur']) {
       await go(page, `/${locale}/privacy`);
       await expect(page.getByTestId('retention').locator('tr')).toHaveCount(3);
-      await expect(page.locator('main')).toContainText('2026-10-v1');
+      await expect(page.locator('main')).toContainText('2026-10-v2');
     }
     await go(page, '/en/privacy');
     await expect(page.locator('[data-retention="uploads"]')).toContainText('30 days after you confirm the details');
